@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} - Discussion Den{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                {% if user.avatar %}
+                <img src="{{ user.avatar }}" alt="{{ user.username }}" class="profile-avatar">
+                {% else %}
+                <div class="profile-avatar" style="background: linear-gradient(135deg, var(--accent-primary), var(--persona-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; font-weight: bold;">
+                    {{ user.username[0].upper() }}
+                </div>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h1 class="profile-name">{{ user.username }}</h1>
+                        {% if user.bio %}
+                        <p class="profile-bio">{{ user.bio }}</p>
+                        {% endif %}
+                        
+                        <!-- Public Personas -->
+                        {% if public_personas %}
+                        <div class="persona-list mt-3">
+                            <span class="text-muted-custom me-2">Public Personas:</span>
+                            {% for persona in public_personas %}
+                            <a href="{{ url_for('persona.persona_profile', persona_id=persona.id) }}" class="persona-item">
+                                <span class="persona-badge">Persona</span>
+                                {{ persona.name }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if is_owner %}
+                    <a href="{{ url_for('profile.edit_profile') }}" class="btn btn-secondary">Edit Profile</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- User Posts -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Posts by {{ user.username }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if user_posts %}
+                        {% for post in user_posts %}
+                        <div class="post-card mb-3" style="padding: var(--spacing-md);">
+                            <div class="post-header">
+                                <span class="user-badge">User</span>
+                                <span class="post-author">{{ user.username }}</span>
+                                <span class="text-muted-custom">•</span>
+                                <span class="post-meta">{{ post.created_at|timeago }}</span>
+                                {% if post.community %}
+                                <span class="text-muted-custom">•</span>
+                                <span class="post-meta">r/{{ post.community.name }}</span>
+                                {% endif %}
+                            </div>
+                            <h4 class="post-title">
+                                <a href="{{ url_for('post.post_detail', post_id=post.id) }}" style="color: inherit; text-decoration: none;">
+                                    {{ post.title }}
+                                </a>
+                            </h4>
+                            {% if post.body %}
+                            <div class="post-body">{{ post.body[:200] }}{% if post.body|length > 200 %}...{% endif %}</div>
+                            {% endif %}
+                            <div class="action-buttons mt-2">
+                                <span class="text-muted-custom">▲ {{ post.upvotes or 0 }}</span>
+                                <span class="text-muted-custom">▼ {{ post.downvotes or 0 }}</span>
+                                <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn-action">
+                                    💬 {{ post.comments|length }} Comments
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted-custom text-center py-4">No posts yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

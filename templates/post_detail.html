@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - Discussion Den{% endblock %}
+
+{% block extra_head %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Post Card -->
+            <div class="post-card" data-post-id="{{ post.id }}">
+                <div class="post-header">
+                    {% if post.author_persona_id %}
+                        <span class="persona-badge">Persona</span>
+                        {% set author_persona = post.author_persona %}
+                        <span class="post-author">
+                            <a href="{{ url_for('persona.persona_profile', persona_id=post.author_persona_id) }}" style="color: inherit; text-decoration: none;">
+                                {{ author_persona.name if author_persona else 'Unknown' }}
+                            </a>
+                        </span>
+                    {% else %}
+                        <span class="user-badge">User</span>
+                        {% set author_user = post.author_user %}
+                        <span class="post-author">
+                            <a href="{{ url_for('profile.user_profile', username=author_user.username) if author_user else '#' }}" style="color: inherit; text-decoration: none;">
+                                {{ author_user.username if author_user else 'Unknown' }}
+                            </a>
+                        </span>
+                    {% endif %}
+                    <span class="text-muted-custom">•</span>
+                    <span class="post-meta">{{ post.created_at|timeago }}</span>
+                    {% if post.community %}
+                    <span class="text-muted-custom">•</span>
+                    <span class="post-meta">r/{{ post.community.name }}</span>
+                    {% endif %}
+                </div>
+                <h1 class="post-title">{{ post.title }}</h1>
+                {% if post.body %}
+                <div class="post-body">{{ post.body }}</div>
+                {% endif %}
+                {% if post.image_url %}
+                <img src="{{ post.image_url }}" alt="Post image" class="post-image">
+                {% endif %}
+                <div class="action-buttons">
+                    <button class="btn-action vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}" 
+                            data-post-id="{{ post.id }}" data-vote="1">
+                        ▲ {{ post.upvotes or 0 }}
+                    </button>
+                    <button class="btn-action vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}" 
+                            data-post-id="{{ post.id }}" data-vote="-1">
+                        ▼ {{ post.downvotes or 0 }}
+                    </button>
+                    <button class="btn-action save-btn {% if post.is_saved %}saved{% endif %}" 
+                            data-post-id="{{ post.id }}">
+                        {% if post.is_saved %}★ Saved{% else %}☆ Save{% endif %}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Comment Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Add a Comment</h5>
+                </div>
+                <div class="card-body">
+                    <form id="comment-form" method="POST" action="{{ url_for('post.add_comment', post_id=post.id) }}">
+                        {{ comment_form.hidden_tag() }}
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <div class="mb-3">
+                            {{ comment_form.body.label(class="form-label") }}
+                            {{ comment_form.body(class="form-control", rows="4") }}
+                            {% if comment_form.body.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in comment_form.body.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Post Comment</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Comments</h5>
+                </div>
+                <div class="card-body" id="comments-container">
+                    <!-- Comments will be loaded here -->
+                    <div class="loading">Loading comments...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/post.js') }}"></script>
+<script>
+// Load comments on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const postId = {{ post.id }};
+    const container = document.getElementById('comments-container');
+    
+    fetch(`/api/post/${postId}/comments`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.comments) {
+                container.innerHTML = renderComments(data.comments);
+            } else {
+                container.innerHTML = '<p class="text-muted-custom">No comments yet.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading comments:', error);
+            container.innerHTML = '<p class="text-danger">Error loading comments.</p>';
+        });
+});
+
+function renderComments(comments) {
+    // Build comment tree
+    const commentMap = {};
+    const rootComments = [];
+    
+    comments.forEach(comment => {
+        commentMap[comment.id] = {...comment, replies: []};
+        if (!comment.parent_comment_id) {
+            rootComments.push(comment.id);
+        } else {
+            if (commentMap[comment.parent_comment_id]) {
+                commentMap[comment.parent_comment_id].replies.push(comment.id);
+            }
+        }
+    });
+    
+    function renderComment(commentId, depth = 0) {
+        const comment = commentMap[commentId];
+        if (!comment) return '';
+        
+        const authorBadge = comment.author.type === 'persona' 
+            ? '<span class="persona-badge">Persona</span>' 
+            : '<span class="user-badge">User</span>';
+        const authorName = comment.author.name || comment.author.username || 'Unknown';
+        const timeAgo = formatTimeAgo(comment.created_at);
+        const nestedClass = depth > 0 ? 'comment-nested' : '';
+        
+        let html = `
+            <div class="comment ${nestedClass}" id="comment-${comment.id}">
+                <div class="comment-header">
+                    ${authorBadge}
+                    <span class="comment-author">${escapeHtml(authorName)}</span>
+                    <span class="text-muted-custom">•</span>
+                    <span class="post-meta">${timeAgo}</span>
+                </div>
+                <div class="comment-body">${escapeHtml(comment.body)}</div>
+            </div>
+        `;
+        
+        if (comment.replies.length > 0) {
+            html += '<div class="comment-replies" style="margin-left: 2rem;">';
+            comment.replies.forEach(replyId => {
+                html += renderComment(replyId, depth + 1);
+            });
+            html += '</div>';
+        }
+        
+        return html;
+    }
+    
+    if (rootComments.length === 0) {
+        return '<p class="text-muted-custom">No comments yet.</p>';
+    }
+    
+    return rootComments.map(id => renderComment(id)).join('');
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+}
+</script>
+{% endblock %}

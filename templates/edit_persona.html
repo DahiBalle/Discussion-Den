@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}{% if persona %}Edit{% else %}Create{% endif %} Persona - Discussion Den{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{% if persona %}Edit{% else %}Create{% endif %} Persona</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% if persona %}{{ url_for('persona.edit_persona_post', persona_id=persona.id) }}{% else %}{{ url_for('persona.create_persona_post') }}{% endif %}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control", placeholder="My Persona Name") }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.name.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.avatar.label(class="form-label") }}
+                            {{ form.avatar(class="form-control", placeholder="https://example.com/avatar.jpg") }}
+                            {% if form.avatar.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.avatar.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text text-muted-custom">Enter a URL to your persona avatar image.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.banner.label(class="form-label") }}
+                            {{ form.banner(class="form-control", placeholder="https://example.com/banner.jpg") }}
+                            {% if form.banner.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.banner.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text text-muted-custom">Enter a URL to your persona banner image.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.bio.label(class="form-label") }}
+                            {{ form.bio(class="form-control", rows="5", placeholder="Describe this persona...") }}
+                            {% if form.bio.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.bio.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_public(class="form-check-input") }}
+                                {{ form.is_public.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-text text-muted-custom">Public personas are visible on your profile.</div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">{% if persona %}Save Changes{% else %}Create Persona{% endif %}</button>
+                            {% if persona %}
+                            <a href="{{ url_for('persona.persona_profile', persona_id=persona.id) }}" class="btn btn-secondary">Cancel</a>
+                            {% else %}
+                            <a href="{{ url_for('feed.feed') }}" class="btn btn-secondary">Cancel</a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
