@@ -34,60 +34,114 @@ def _post_author_payload(post: Post) -> dict:
 
 
 def _post_to_card_json(post: Post) -> dict:
-    ident = get_identity()
+    """Convert Post object to JSON for API responses.
+    
+    CRITICAL: This function must never raise exceptions that break the API.
+    All fields must have safe fallbacks.
+    """
+    try:
+        ident = get_identity()
 
-    # Saved?
-    if ident.is_persona:
-        saved = (
-            SavedPost.query.filter_by(
-                post_id=post.id, saved_by_persona_id=ident.persona_id
-            ).first()
-            is not None
-        )
-        vote = Vote.query.filter_by(post_id=post.id, voted_by_persona_id=ident.persona_id).first()
-    else:
-        saved = (
-            SavedPost.query.filter_by(post_id=post.id, saved_by_user_id=ident.user_id).first()
-            is not None
-        )
-        vote = Vote.query.filter_by(post_id=post.id, voted_by_user_id=ident.user_id).first()
+        # Saved status - with safe fallbacks
+        saved = False
+        vote = None
+        try:
+            if ident.is_persona:
+                saved = (
+                    SavedPost.query.filter_by(
+                        post_id=post.id, saved_by_persona_id=ident.persona_id
+                    ).first()
+                    is not None
+                )
+                vote = Vote.query.filter_by(post_id=post.id, voted_by_persona_id=ident.persona_id).first()
+            else:
+                saved = (
+                    SavedPost.query.filter_by(post_id=post.id, saved_by_user_id=ident.user_id).first()
+                    is not None
+                )
+                vote = Vote.query.filter_by(post_id=post.id, voted_by_user_id=ident.user_id).first()
+        except Exception as e:
+            print(f"WARNING: Error getting vote/save status for post {post.id}: {e}")
+            saved = False
+            vote = None
 
-    # Get author name
-    author_name = None
-    if post.author_persona_id:
-        persona = Persona.query.get(post.author_persona_id)
-        author_name = persona.name if persona else "Unknown"
-    elif post.author_user_id:
-        from models import User
-        user = User.query.get(post.author_user_id)
-        author_name = user.username if user else "Unknown"
+        # Get author name - with safe fallbacks
+        author_name = "Unknown"
+        try:
+            if post.author_persona_id:
+                persona = Persona.query.get(post.author_persona_id)
+                author_name = persona.name if persona else "Unknown Persona"
+            elif post.author_user_id:
+                from models import User
+                user = User.query.get(post.author_user_id)
+                author_name = user.username if user else "Unknown User"
+        except Exception as e:
+            print(f"WARNING: Error getting author name for post {post.id}: {e}")
+            author_name = "Unknown"
 
-    # Get community name
-    community_name = None
-    if post.community_id:
-        from models import Community
-        community = Community.query.get(post.community_id)
-        community_name = community.name if community else None
+        # Get community name - with safe fallbacks
+        community_name = None
+        try:
+            if post.community_id:
+                from models import Community
+                community = Community.query.get(post.community_id)
+                community_name = community.name if community else None
+        except Exception as e:
+            print(f"WARNING: Error getting community name for post {post.id}: {e}")
+            community_name = None
 
-    # Get comment count
-    comment_count = Comment.query.filter_by(post_id=post.id).count()
+        # Get comment count - with safe fallbacks
+        comment_count = 0
+        try:
+            comment_count = Comment.query.filter_by(post_id=post.id).count()
+        except Exception as e:
+            print(f"WARNING: Error getting comment count for post {post.id}: {e}")
+            comment_count = 0
 
-    return {
-        "id": post.id,
-        "title": post.title,
-        "body": post.body or "",
-        "image_url": post.image_url,
-        "created_at": post.created_at.isoformat(),
-        "community_name": community_name,
-        "upvotes": post.upvotes,
-        "downvotes": post.downvotes,
-        "is_saved": saved,
-        "user_vote": vote.value if vote else 0,
-        "author_name": author_name,
-        "author_persona_id": post.author_persona_id,
-        "author_user_id": post.author_user_id,
-        "comment_count": comment_count,
-    }
+        # Safe timestamp formatting
+        created_at_iso = None
+        try:
+            created_at_iso = post.created_at.isoformat() if post.created_at else datetime.utcnow().isoformat()
+        except Exception as e:
+            print(f"WARNING: Error formatting timestamp for post {post.id}: {e}")
+            created_at_iso = datetime.utcnow().isoformat()
+
+        return {
+            "id": post.id or 0,
+            "title": post.title or "Untitled",
+            "body": post.body or "",
+            "image_url": post.image_url or None,
+            "created_at": created_at_iso,
+            "community_name": community_name,
+            "upvotes": post.upvotes or 0,
+            "downvotes": post.downvotes or 0,
+            "is_saved": saved,
+            "user_vote": vote.value if vote else 0,
+            "author_name": author_name,
+            "author_persona_id": post.author_persona_id,
+            "author_user_id": post.author_user_id,
+            "comment_count": comment_count,
+        }
+        
+    except Exception as e:
+        # CRITICAL: Never let post serialization break the entire API
+        print(f"CRITICAL ERROR: Failed to serialize post {getattr(post, 'id', 'unknown')}: {e}")
+        return {
+            "id": getattr(post, 'id', 0),
+            "title": "Error loading post",
+            "body": "There was an error loading this post.",
+            "image_url": None,
+            "created_at": datetime.utcnow().isoformat(),
+            "community_name": None,
+            "upvotes": 0,
+            "downvotes": 0,
+            "is_saved": False,
+            "user_vote": 0,
+            "author_name": "System",
+            "author_persona_id": None,
+            "author_user_id": None,
+            "comment_count": 0,
+        }
 
 
 @api_bp.get("/me/identity")
@@ -139,6 +193,8 @@ def feed_json():
     Current behavior: a simple global community feed ordered by recency.
     Identity only affects *interactions* (vote/save) and posting identity,
     not the post selection logic.
+    
+    New: Optional community filtering via ?community=<name> parameter.
     """
     try:
         page = int(request.args.get("page", 1))
@@ -147,8 +203,29 @@ def feed_json():
     page_size = min(int(request.args.get("page_size", 10)), 25)
     offset = max(page - 1, 0) * page_size
 
+    # Optional community filtering (safe extension)
+    community_name = request.args.get("community")
+    query = Post.query
+    
+    if community_name:
+        # Filter by community if specified
+        from models import Community
+        community = Community.query.filter_by(name=community_name).first()
+        if community:
+            query = query.filter_by(community_id=community.id)
+        else:
+            # Invalid community name - return empty results safely
+            return jsonify({
+                "success": True,
+                "page": page,
+                "page_size": page_size,
+                "has_more": False,
+                "posts": [],
+                "error": "Community not found"
+            })
+
     posts = (
-        Post.query.order_by(Post.created_at.desc())
+        query.order_by(Post.created_at.desc())
         .offset(offset)
         .limit(page_size + 1)
         .all()
@@ -262,7 +339,11 @@ def save(post_id: int):
 @api_bp.post("/post/<int:post_id>/comment")
 @login_required
 def add_comment_api(post_id: int):
-    """API endpoint for adding comments via AJAX."""
+    """
+    API endpoint for adding comments via AJAX.
+    
+    SAFETY: Validates comment depth to prevent infinite nesting.
+    """
     data = request.get_json(silent=True) or {}
     body = data.get("body", "").strip()
     parent_comment_id = data.get("parent_comment_id")
@@ -272,23 +353,52 @@ def add_comment_api(post_id: int):
     
     post = Post.query.get_or_404(post_id)
     
+    # SAFETY: Validate parent comment and check nesting depth
     if parent_comment_id:
-        parent = Comment.query.get(parent_comment_id)
-        if not parent or parent.post_id != post.id:
-            return jsonify({"success": False, "error": "Invalid parent comment."}), 400
+        try:
+            parent_comment_id = int(parent_comment_id)
+            parent = Comment.query.get(parent_comment_id)
+            if not parent or parent.post_id != post.id:
+                return jsonify({"success": False, "error": "Invalid parent comment."}), 400
+            
+            # SAFETY: Check nesting depth to prevent excessive nesting
+            depth = 0
+            current = parent
+            while current and current.parent_comment_id and depth < 10:  # Safety limit
+                current = Comment.query.get(current.parent_comment_id)
+                depth += 1
+            
+            if depth >= 3:  # Max depth of 3 levels
+                return jsonify({
+                    "success": False, 
+                    "error": "Maximum reply depth reached. Please reply to a higher-level comment."
+                }), 400
+                
+        except (ValueError, TypeError):
+            return jsonify({"success": False, "error": "Invalid parent comment ID."}), 400
     
     ident = get_identity()
-    comment = Comment(
-        post_id=post.id,
-        body=body,
-        parent_comment_id=int(parent_comment_id) if parent_comment_id else None,
-        author_user_id=ident.user_id if not ident.is_persona else None,
-        author_persona_id=ident.persona_id if ident.is_persona else None,
-    )
-    db.session.add(comment)
-    db.session.commit()
     
-    return jsonify({"success": True, "comment_id": comment.id})
+    try:
+        comment = Comment(
+            post_id=post.id,
+            body=body,
+            parent_comment_id=parent_comment_id,
+            author_user_id=ident.user_id if not ident.is_persona else None,
+            author_persona_id=ident.persona_id if ident.is_persona else None,
+        )
+        db.session.add(comment)
+        db.session.commit()
+        
+        return jsonify({"success": True, "comment_id": comment.id})
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERROR: Failed to create comment: {e}")
+        return jsonify({
+            "success": False, 
+            "error": "Failed to post comment. Please try again."
+        }), 500
 
 
 @api_bp.get("/post/<int:post_id>/comments")
@@ -309,7 +419,10 @@ def comments(post_id: int):
             p = personas.get(c.author_persona_id)
             author = {"type": "persona", "id": p.id, "name": p.name, "avatar": p.avatar}
         else:
-            author = {"type": "user", "id": c.author_user_id}
+            # Get username for user-type authors
+            from models import User
+            user = User.query.get(c.author_user_id) if c.author_user_id else None
+            author = {"type": "user", "id": c.author_user_id, "username": user.username if user else "Unknown"}
         return {
             "id": c.id,
             "body": c.body,
@@ -319,5 +432,5 @@ def comments(post_id: int):
             "author": author,
         }
 
-    return jsonify({"ok": True, "comments": [to_json(c) for c in all_comments]})
+    return jsonify({"success": True, "comments": [to_json(c) for c in all_comments]})
 

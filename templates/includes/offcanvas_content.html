@@ -1,0 +1,106 @@
+<!-- Offcanvas Content Component -->
+<!-- Safety: Uses existing routes and simple queries only -->
+
+<!-- Quick Actions Section -->
+<div class="offcanvas-section">
+    <h6 class="offcanvas-title">Quick Actions</h6>
+    <div class="offcanvas-links">
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('post.create_post') }}" class="offcanvas-link offcanvas-link-primary">
+            <span class="offcanvas-icon">✏️</span>
+            Create Post
+        </a>
+        <a href="{{ url_for('community.create_community') }}" class="offcanvas-link">
+            <span class="offcanvas-icon">🏘️</span>
+            Create Community
+        </a>
+        {% else %}
+        <a href="{{ url_for('auth.login') }}" class="offcanvas-link offcanvas-link-primary">
+            <span class="offcanvas-icon">🔑</span>
+            Login to Post
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<hr class="offcanvas-divider">
+
+<!-- Navigation Section -->
+<div class="offcanvas-section">
+    <h6 class="offcanvas-title">Navigation</h6>
+    <div class="offcanvas-links">
+        <a href="{{ url_for('feed.feed') }}" class="offcanvas-link">
+            <span class="offcanvas-icon">🏠</span>
+            Home Feed
+        </a>
+        <a href="{{ url_for('community.communities_list') }}" class="offcanvas-link">
+            <span class="offcanvas-icon">🌐</span>
+            Browse Communities
+        </a>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('profile.user_profile', username=current_user.username) }}" class="offcanvas-link">
+            <span class="offcanvas-icon">👤</span>
+            My Profile
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<hr class="offcanvas-divider">
+
+<!-- Trending Posts Section -->
+<div class="offcanvas-section">
+    <h6 class="offcanvas-title">🔥 Trending Posts</h6>
+    <div class="offcanvas-content">
+        {% if trending_posts and trending_posts|length > 0 %}
+            {% for post in trending_posts %}
+            <div class="offcanvas-item">
+                <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="offcanvas-item-link">
+                    <div class="offcanvas-item-title">{{ post.title[:50] }}{% if post.title|length > 50 %}...{% endif %}</div>
+                    <div class="offcanvas-item-meta">
+                        <span class="text-success">▲ {{ post.upvotes }}</span>
+                        {% if post.community %}
+                        <span class="text-muted-custom">• r/{{ post.community.name }}</span>
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="offcanvas-placeholder">
+            <span class="offcanvas-icon">📊</span>
+            <div class="offcanvas-placeholder-text">
+                <small class="text-muted-custom">No trending posts yet</small>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<hr class="offcanvas-divider">
+
+<!-- Recent Communities Section -->
+<div class="offcanvas-section">
+    <h6 class="offcanvas-title">🆕 Recent Communities</h6>
+    <div class="offcanvas-content">
+        {% if recent_communities and recent_communities|length > 0 %}
+            {% for community in recent_communities %}
+            <div class="offcanvas-item">
+                <a href="{{ url_for('community.community_page', community_name=community.name) }}" class="offcanvas-item-link">
+                    <div class="offcanvas-item-title">r/{{ community.name }}</div>
+                    <div class="offcanvas-item-meta">
+                        <span class="text-muted-custom">Created {{ community.created_at|timeago }}</span>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="offcanvas-placeholder">
+            <span class="offcanvas-icon">🏘️</span>
+            <div class="offcanvas-placeholder-text">
+                <small class="text-muted-custom">No communities yet</small>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>

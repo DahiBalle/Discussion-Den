@@ -6,93 +6,92 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <!-- Post Card -->
-            <div class="post-card" data-post-id="{{ post.id }}">
-                <div class="post-header">
-                    {% if post.author_persona_id %}
-                        <span class="persona-badge">Persona</span>
-                        {% set author_persona = post.author_persona %}
-                        <span class="post-author">
-                            <a href="{{ url_for('persona.persona_profile', persona_id=post.author_persona_id) }}" style="color: inherit; text-decoration: none;">
-                                {{ author_persona.name if author_persona else 'Unknown' }}
-                            </a>
-                        </span>
-                    {% else %}
-                        <span class="user-badge">User</span>
-                        {% set author_user = post.author_user %}
-                        <span class="post-author">
-                            <a href="{{ url_for('profile.user_profile', username=author_user.username) if author_user else '#' }}" style="color: inherit; text-decoration: none;">
-                                {{ author_user.username if author_user else 'Unknown' }}
-                            </a>
-                        </span>
-                    {% endif %}
-                    <span class="text-muted-custom">•</span>
-                    <span class="post-meta">{{ post.created_at|timeago }}</span>
-                    {% if post.community %}
-                    <span class="text-muted-custom">•</span>
-                    <span class="post-meta">r/{{ post.community.name }}</span>
-                    {% endif %}
-                </div>
-                <h1 class="post-title">{{ post.title }}</h1>
-                {% if post.body %}
-                <div class="post-body">{{ post.body }}</div>
-                {% endif %}
-                {% if post.image_url %}
-                <img src="{{ post.image_url }}" alt="Post image" class="post-image">
-                {% endif %}
-                <div class="action-buttons">
-                    <button class="btn-action vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}" 
-                            data-post-id="{{ post.id }}" data-vote="1">
-                        ▲ {{ post.upvotes or 0 }}
-                    </button>
-                    <button class="btn-action vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}" 
-                            data-post-id="{{ post.id }}" data-vote="-1">
-                        ▼ {{ post.downvotes or 0 }}
-                    </button>
-                    <button class="btn-action save-btn {% if post.is_saved %}saved{% endif %}" 
-                            data-post-id="{{ post.id }}">
-                        {% if post.is_saved %}★ Saved{% else %}☆ Save{% endif %}
-                    </button>
-                </div>
-            </div>
+<!-- Post Card -->
+<div class="post-card" data-post-id="{{ post.id }}">
+    <div class="post-header">
+        {% if post.author_persona_id %}
+            <span class="persona-badge">Persona</span>
+            {% set author_persona = post.author_persona %}
+            <span class="post-author">
+                <a href="{{ url_for('persona.persona_profile', persona_id=post.author_persona_id) }}" style="color: inherit; text-decoration: none;">
+                    {{ author_persona.name if author_persona else 'Unknown' }}
+                </a>
+            </span>
+        {% else %}
+            <span class="user-badge">User</span>
+            {% set author_user = post.author_user %}
+            <span class="post-author">
+                <a href="{{ url_for('profile.user_profile', username=author_user.username) if author_user else '#' }}" style="color: inherit; text-decoration: none;">
+                    {{ author_user.username if author_user else 'Unknown' }}
+                </a>
+            </span>
+        {% endif %}
+        <span class="text-muted-custom">•</span>
+        <span class="post-meta">{{ post.created_at|timeago }}</span>
+        {% if post.community %}
+        <span class="text-muted-custom">•</span>
+        <span class="post-meta">
+            <a href="{{ url_for('community.community_page', community_name=post.community.name) }}" 
+               style="color: var(--accent-primary); text-decoration: none;">
+                r/{{ post.community.name }}
+            </a>
+        </span>
+        {% endif %}
+    </div>
+    <h1 class="post-title">{{ post.title }}</h1>
+    {% if post.body %}
+    <div class="post-body">{{ post.body }}</div>
+    {% endif %}
+    {% if post.image_url %}
+    <img src="{{ post.image_url }}" alt="Post image" class="post-image">
+    {% endif %}
+    <div class="action-buttons">
+        <button class="btn-action vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}" 
+                data-post-id="{{ post.id }}" data-vote="1">
+            ▲ {{ post.upvotes or 0 }}
+        </button>
+        <button class="btn-action vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}" 
+                data-post-id="{{ post.id }}" data-vote="-1">
+            ▼ {{ post.downvotes or 0 }}
+        </button>
+        <button class="btn-action save-btn {% if post.is_saved %}saved{% endif %}" 
+                data-post-id="{{ post.id }}">
+            {% if post.is_saved %}★ Saved{% else %}☆ Save{% endif %}
+        </button>
+    </div>
+</div>
 
-            <!-- Comment Form -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Add a Comment</h5>
-                </div>
-                <div class="card-body">
-                    <form id="comment-form" method="POST" action="{{ url_for('post.add_comment', post_id=post.id) }}">
-                        {{ comment_form.hidden_tag() }}
-                        <input type="hidden" name="post_id" value="{{ post.id }}">
-                        <div class="mb-3">
-                            {{ comment_form.body.label(class="form-label") }}
-                            {{ comment_form.body(class="form-control", rows="4") }}
-                            {% if comment_form.body.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in comment_form.body.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <button type="submit" class="btn btn-primary">Post Comment</button>
-                    </form>
-                </div>
+<!-- Comment Form -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">💬 Add a Comment</h5>
+    </div>
+    <div class="card-body p-4">
+        <form id="main-comment-form">
+            {{ comment_form.hidden_tag() }}
+            <input type="hidden" name="post_id" value="{{ post.id }}">
+            <div class="mb-4">
+                {{ comment_form.body.label(class="form-label") }}
+                {{ comment_form.body(class="form-control", rows="4", placeholder="Share your thoughts on this post...") }}
+                {% if comment_form.body.errors %}
+                    <div class="text-danger small mt-2">
+                        {% for error in comment_form.body.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
             </div>
+            <button type="submit" class="btn btn-primary">Post Comment</button>
+        </form>
+    </div>
+</div>
 
-            <!-- Comments Section -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Comments</h5>
-                </div>
-                <div class="card-body" id="comments-container">
-                    <!-- Comments will be loaded here -->
-                    <div class="loading">Loading comments...</div>
-                </div>
-            </div>
-        </div>
+<!-- Comments Section -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">💬 Comments</h5>
+    </div>
+    <div class="card-body p-4" id="comments-container">
+        <!-- Comments will be loaded here -->
+        <div class="loading">Loading comments...</div>
     </div>
 </div>
 {% endblock %}
@@ -102,36 +101,76 @@
 <script>
 // Load comments on page load
 document.addEventListener('DOMContentLoaded', function() {
-    const postId = {{ post.id }};
-    const container = document.getElementById('comments-container');
+    loadComments();
+    setupMainCommentForm();
+});
+
+function setupMainCommentForm() {
+    const mainForm = document.getElementById('main-comment-form');
+    if (!mainForm) return;
     
-    fetch(`/api/post/${postId}/comments`)
+    mainForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(mainForm);
+        const body = formData.get('body');
+        
+        if (!body || !body.trim()) {
+            alert('Please enter a comment.');
+            return;
+        }
+        
+        const postId = {{ post.id }};
+        
+        fetch(`/api/post/${postId}/comment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({
+                body: body.trim(),
+                parent_comment_id: null
+            })
+        })
         .then(response => response.json())
         .then(data => {
-            if (data.success && data.comments) {
-                container.innerHTML = renderComments(data.comments);
+            if (data.success) {
+                // Clear form and reload comments
+                mainForm.reset();
+                loadComments();
             } else {
-                container.innerHTML = '<p class="text-muted-custom">No comments yet.</p>';
+                alert('Failed to post comment: ' + (data.error || 'Unknown error'));
             }
         })
         .catch(error => {
-            console.error('Error loading comments:', error);
-            container.innerHTML = '<p class="text-danger">Error loading comments.</p>';
+            console.error('Error posting comment:', error);
+            alert('Error posting comment. Please try again.');
         });
-});
+    });
+}
 
 function renderComments(comments) {
-    // Build comment tree
+    // Build comment tree with proper parent-child relationships
     const commentMap = {};
     const rootComments = [];
     
+    // First pass: create comment objects with empty replies arrays
     comments.forEach(comment => {
         commentMap[comment.id] = {...comment, replies: []};
+    });
+    
+    // Second pass: build parent-child relationships
+    comments.forEach(comment => {
         if (!comment.parent_comment_id) {
             rootComments.push(comment.id);
         } else {
-            if (commentMap[comment.parent_comment_id]) {
-                commentMap[comment.parent_comment_id].replies.push(comment.id);
+            const parent = commentMap[comment.parent_comment_id];
+            if (parent) {
+                parent.replies.push(comment.id);
+            } else {
+                // Orphaned comment - treat as root comment for safety
+                rootComments.push(comment.id);
             }
         }
     });
@@ -140,38 +179,53 @@ function renderComments(comments) {
         const comment = commentMap[commentId];
         if (!comment) return '';
         
+        // Limit nesting depth to prevent excessive indentation
+        const maxDepth = 3;
+        const actualDepth = Math.min(depth, maxDepth);
+        
         const authorBadge = comment.author.type === 'persona' 
             ? '<span class="persona-badge">Persona</span>' 
             : '<span class="user-badge">User</span>';
         const authorName = comment.author.name || comment.author.username || 'Unknown';
         const timeAgo = formatTimeAgo(comment.created_at);
-        const nestedClass = depth > 0 ? 'comment-nested' : '';
+        const nestedClass = actualDepth > 0 ? 'comment-nested' : '';
+        const indentStyle = actualDepth > 0 ? `style="margin-left: ${actualDepth * 1.5}rem; border-left: 2px solid var(--border-color); padding-left: 1rem;"` : '';
         
         let html = `
-            <div class="comment ${nestedClass}" id="comment-${comment.id}">
+            <div class="comment ${nestedClass}" id="comment-${comment.id}" ${indentStyle}>
                 <div class="comment-header">
                     ${authorBadge}
                     <span class="comment-author">${escapeHtml(authorName)}</span>
                     <span class="text-muted-custom">•</span>
                     <span class="post-meta">${timeAgo}</span>
+                    ${actualDepth > 0 ? '<span class="text-muted-custom">• reply</span>' : ''}
                 </div>
                 <div class="comment-body">${escapeHtml(comment.body)}</div>
+                ${actualDepth < maxDepth ? `<div class="comment-actions">
+                    <button class="btn-reply" onclick="showReplyForm(${comment.id})" style="background: none; border: none; color: var(--accent-primary); font-size: 0.85rem; cursor: pointer;">Reply</button>
+                </div>` : ''}
+                <div id="reply-form-${comment.id}" class="reply-form" style="display: none; margin-top: 0.5rem;">
+                    <textarea id="reply-body-${comment.id}" placeholder="Write a reply..." style="width: 100%; min-height: 60px; margin-bottom: 0.5rem; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary);"></textarea>
+                    <div>
+                        <button onclick="submitReply(${comment.id})" style="background: var(--accent-primary); color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">Post Reply</button>
+                        <button onclick="hideReplyForm(${comment.id})" style="background: none; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 0.25rem 0.75rem; border-radius: 4px; cursor: pointer;">Cancel</button>
+                    </div>
+                </div>
             </div>
         `;
         
+        // Render replies recursively
         if (comment.replies.length > 0) {
-            html += '<div class="comment-replies" style="margin-left: 2rem;">';
             comment.replies.forEach(replyId => {
                 html += renderComment(replyId, depth + 1);
             });
-            html += '</div>';
         }
         
         return html;
     }
     
     if (rootComments.length === 0) {
-        return '<p class="text-muted-custom">No comments yet.</p>';
+        return '<p class="text-muted-custom">No comments yet. Be the first to share your thoughts!</p>';
     }
     
     return rootComments.map(id => renderComment(id)).join('');
@@ -184,18 +238,142 @@ function escapeHtml(text) {
 }
 
 function formatTimeAgo(dateString) {
-    const date = new Date(dateString);
+    // Parse ISO string as UTC (server sends UTC timestamps)
+    const date = new Date(dateString + (dateString.includes('Z') ? '' : 'Z'));
     const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
     
-    if (diffMins < 1) return 'just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
+    // Calculate difference in milliseconds
+    const diffMs = now.getTime() - date.getTime();
+    
+    // Handle future dates (clock skew protection)
+    if (diffMs < 0) {
+        return 'just now';
+    }
+    
+    const diffSeconds = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffSeconds / 3600);
+    const diffDays = Math.floor(diffSeconds / 86400);
+    
+    // Match server-side logic exactly
+    if (diffDays > 365) {
+        const years = Math.floor(diffDays / 365);
+        return `${years}y ago`;
+    } else if (diffDays > 30) {
+        const months = Math.floor(diffDays / 30);
+        return `${months}mo ago`;
+    } else if (diffDays > 7) {
+        const weeks = Math.floor(diffDays / 7);
+        return `${weeks}w ago`;
+    } else if (diffDays > 0) {
+        return `${diffDays}d ago`;
+    } else if (diffHours > 0) {
+        return `${diffHours}h ago`;
+    } else if (diffMins > 0) {
+        return `${diffMins}m ago`;
+    }
+    
+    return 'just now';
+}
+
+// Reply form functions
+function showReplyForm(commentId) {
+    // Hide all other reply forms first
+    document.querySelectorAll('.reply-form').forEach(form => {
+        form.style.display = 'none';
+    });
+    
+    const replyForm = document.getElementById(`reply-form-${commentId}`);
+    if (replyForm) {
+        replyForm.style.display = 'block';
+        const textarea = document.getElementById(`reply-body-${commentId}`);
+        if (textarea) {
+            textarea.focus();
+        }
+    }
+}
+
+function hideReplyForm(commentId) {
+    const replyForm = document.getElementById(`reply-form-${commentId}`);
+    if (replyForm) {
+        replyForm.style.display = 'none';
+        const textarea = document.getElementById(`reply-body-${commentId}`);
+        if (textarea) {
+            textarea.value = '';
+        }
+    }
+}
+
+function submitReply(parentCommentId) {
+    const textarea = document.getElementById(`reply-body-${parentCommentId}`);
+    const body = textarea.value.trim();
+    
+    if (!body) {
+        alert('Please enter a reply.');
+        return;
+    }
+    
+    const postId = {{ post.id }};
+    
+    fetch(`/api/post/${postId}/comment`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({
+            body: body,
+            parent_comment_id: parentCommentId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload comments to show the new reply
+            loadComments();
+            hideReplyForm(parentCommentId);
+        } else {
+            alert('Failed to post reply: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error posting reply:', error);
+        alert('Error posting reply. Please try again.');
+    });
+}
+
+function getCSRFToken() {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag) {
+        return metaTag.getAttribute('content');
+    }
+    // Fallback: try to get from form
+    const csrfInput = document.querySelector('input[name="csrf_token"]');
+    if (csrfInput) {
+        return csrfInput.value;
+    }
+    return '';
+}
+
+function loadComments() {
+    const postId = {{ post.id }};
+    const container = document.getElementById('comments-container');
+    
+    container.innerHTML = '<div class="loading">Loading comments...</div>';
+    
+    fetch(`/api/post/${postId}/comments`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.comments) {
+                container.innerHTML = renderComments(data.comments);
+            } else {
+                container.innerHTML = '<p class="text-muted-custom">No comments yet. Be the first to share your thoughts!</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading comments:', error);
+            container.innerHTML = '<p class="text-danger">Error loading comments. Please refresh the page.</p>';
+        });
 }
 </script>
 {% endblock %}

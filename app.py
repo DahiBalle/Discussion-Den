@@ -6,7 +6,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from flask import Flask, redirect, url_for
 
-from extensions import csrf, db, login_manager
+from extensions import csrf, db, login_manager, oauth
 
 
 def create_app() -> Flask:
@@ -36,9 +36,55 @@ def create_app() -> Flask:
     login_manager.login_view = "auth.login"
     login_manager.login_message_category = "warning"
 
+    # Initialize Google OAuth (OPTIONAL - graceful if not configured)
+    oauth.init_app(app)
+    try:
+        google_client_id = os.environ.get("GOOGLE_CLIENT_ID")
+        google_client_secret = os.environ.get("GOOGLE_CLIENT_SECRET")
+        
+        # Enhanced validation: Check for placeholder values and empty strings
+        def is_valid_credential(credential):
+            """Check if credential is valid (not None, empty, or placeholder)"""
+            if not credential or credential.strip() == "":
+                return False
+            # Check for common placeholder patterns
+            placeholder_patterns = [
+                "your_google_client_id_here",
+                "your_google_client_secret_here", 
+                "your_client_id",
+                "your_client_secret",
+                "replace_with_your",
+                "add_your_client_id",
+                "add_your_client_secret"
+            ]
+            return credential.lower() not in placeholder_patterns
+        
+        if is_valid_credential(google_client_id) and is_valid_credential(google_client_secret):
+            oauth.register(
+                name='google',
+                client_id=google_client_id,
+                client_secret=google_client_secret,
+                server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+                client_kwargs={
+                    'scope': 'openid email profile'
+                }
+            )
+            print("INFO: Google OAuth configured successfully")
+            print(f"DEBUG: OAuth registry contains: {list(oauth._registry.keys()) if hasattr(oauth, '_registry') else 'No registry'}")
+            print(f"DEBUG: hasattr(oauth, 'google'): {hasattr(oauth, 'google')}")
+        else:
+            print("INFO: Google OAuth not configured (missing or invalid GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET)")
+            print("HINT: Update your .env file with real Google OAuth credentials from Google Cloud Console")
+            print(f"DEBUG: Client ID valid: {is_valid_credential(google_client_id)}")
+            print(f"DEBUG: Client Secret valid: {is_valid_credential(google_client_secret)}")
+    except Exception as e:
+        print(f"WARNING: Google OAuth configuration failed: {e}")
+        # Continue without Google OAuth - existing auth still works
+
     # Blueprints
     from routes.api import api_bp
     from routes.auth import auth_bp
+    from routes.community import community_bp
     from routes.feed import feed_bp
     from routes.persona import persona_bp
     from routes.post import post_bp
@@ -49,6 +95,7 @@ def create_app() -> Flask:
     app.register_blueprint(profile_bp)
     app.register_blueprint(persona_bp)
     app.register_blueprint(post_bp)
+    app.register_blueprint(community_bp)
     app.register_blueprint(api_bp)
 
     @app.route("/")
@@ -63,21 +110,150 @@ def create_app() -> Flask:
     def inject_now():
         return {"now": datetime.utcnow()}
     
+    @app.context_processor
+    def inject_sidebar_data():
+        """
+        Inject trending posts and recent communities for offcanvas sidebar.
+        
+        Safety: Uses simple queries with limits, handles empty results gracefully.
+        """
+        from models import Post, Community
+        
+        # Trending posts: highest upvotes, limit 5 for performance
+        trending_posts = []
+        try:
+            trending_posts = (
+                Post.query
+                .filter(Post.upvotes > 0)  # Only posts with upvotes
+                .order_by(Post.upvotes.desc())
+                .limit(5)
+                .all()
+            )
+        except Exception:
+            # Safety: If query fails, use empty list
+            trending_posts = []
+        
+        # Recent communities: newest first, limit 5 for performance
+        recent_communities = []
+        try:
+            recent_communities = (
+                Community.query
+                .order_by(Community.created_at.desc())
+                .limit(5)
+                .all()
+            )
+        except Exception:
+            # Safety: If query fails, use empty list
+            recent_communities = []
+        
+        return {
+            "trending_posts": trending_posts,
+            "recent_communities": recent_communities
+        }
+    
+    @app.context_processor
+    def inject_oauth_status():
+        return {
+            "google_oauth_configured": (
+                hasattr(oauth, "_registry") and "google" in oauth._registry
+        )
+    }
+
+    
     @app.template_filter('timeago')
     def timeago_filter(dt):
-        """Format datetime as time ago string."""
-        if not dt:
-            return 'unknown'
-        delta = datetime.utcnow() - dt
-        if delta.days > 0:
-            return f"{delta.days}d ago"
-        hours = delta.seconds // 3600
-        if hours > 0:
-            return f"{hours}h ago"
-        minutes = delta.seconds // 60
-        if minutes > 0:
-            return f"{minutes}m ago"
-        return "just now"
+        """
+        Format datetime as time ago string with improved accuracy and safety.
+        
+        This filter converts datetime objects to human-readable relative time strings
+        (e.g., "2h ago", "3d ago"). It's designed to be safe and never break template
+        rendering, even with malformed or missing datetime values.
+        
+        Technical Details:
+        - Assumes all naive datetime objects are stored in UTC (safe assumption for this app)
+        - Uses datetime.utcnow() for consistent timezone handling
+        - Handles edge cases like future dates (clock skew) gracefully
+        - Provides consistent time ranges matching client-side JavaScript logic
+        
+        Args:
+            dt (datetime): The datetime object to format. Can be None or invalid.
+            
+        Returns:
+            str: Human-readable time string like "2h ago", "just now", or "recently"
+                 Never returns None or raises exceptions.
+                 
+        Safety Features:
+        - Never raises exceptions that could break template rendering
+        - Validates input type and handles None/invalid values
+        - Provides fallback values for all error conditions
+        - Logs errors for debugging without breaking user experience
+        - Handles future dates gracefully (returns "just now")
+        
+        Examples:
+            >>> timeago_filter(datetime(2023, 1, 1, 12, 0))  # 2 hours ago
+            "2h ago"
+            >>> timeago_filter(None)
+            "unknown"
+            >>> timeago_filter("invalid")
+            "unknown"
+        """
+        try:
+            # Input validation - ensure we have a valid datetime object
+            if not dt:
+                return 'unknown'
+            
+            # Type safety - validate datetime object type
+            if not isinstance(dt, datetime):
+                return 'unknown'
+            
+            # All database timestamps are stored as UTC via datetime.utcnow()
+            # For naive datetimes, we can safely assume they're UTC since that's how they're stored
+            now = datetime.utcnow()
+            
+            # Calculate delta - both dt and now are naive UTC datetimes
+            delta = now - dt
+            
+            # Handle future dates gracefully (clock skew protection)
+            # This can happen with server time differences or client clock issues
+            if delta.total_seconds() < 0:
+                return 'just now'
+            
+            # Convert to consistent integer values for reliable calculations
+            total_seconds = int(delta.total_seconds())
+            days = delta.days
+            
+            # Time range calculations - consistent with client-side JavaScript
+            # Using standard time units for better user understanding
+            if days > 365:
+                years = days // 365
+                return f"{years}y ago"
+            elif days > 30:
+                months = days // 30
+                return f"{months}mo ago"
+            elif days > 7:
+                weeks = days // 7
+                return f"{weeks}w ago"
+            elif days > 0:
+                return f"{days}d ago"
+            
+            # Sub-day calculations
+            hours = total_seconds // 3600
+            if hours > 0:
+                return f"{hours}h ago"
+            
+            minutes = total_seconds // 60
+            if minutes > 0:
+                return f"{minutes}m ago"
+            
+            # Very recent posts
+            return "just now"
+            
+        except Exception as e:
+            # CRITICAL SAFETY: Never let timeago filter break template rendering
+            # This is the most important safety feature - templates must always render
+            # Log the error for debugging but return a safe fallback value
+            print(f"WARNING: timeago filter error: {e}, dt={dt}")
+            return 'recently'  # Safe fallback that's always user-friendly
 
     return app
 

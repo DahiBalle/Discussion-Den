@@ -40,3 +40,26 @@ class EditPersonaForm(FlaskForm):
     bio = TextAreaField("Bio", validators=[Optional(), Length(max=2000)])
     is_public = BooleanField("Public persona")
 
+
+class CommunityForm(FlaskForm):
+    """
+    Form for creating new communities.
+    
+    Safety: Follows existing form patterns with proper validation.
+    """
+    name = StringField(
+        "Community Name", 
+        validators=[
+            InputRequired(), 
+            Length(min=2, max=64, message="Community name must be 2-64 characters")
+        ]
+    )
+    description = TextAreaField(
+        "Description", 
+        validators=[Optional(), Length(max=500, message="Description too long")]
+    )
+    rules = TextAreaField(
+        "Community Rules", 
+        validators=[Optional(), Length(max=1000, message="Rules too long")]
+    )
+

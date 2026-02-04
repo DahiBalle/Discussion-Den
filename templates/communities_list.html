@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Communities - Discussion Den{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h1 class="h2 mb-2">Communities</h1>
+            <p class="text-muted-custom">Discover and join communities that interest you.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('community.create_community') }}" class="btn btn-primary">
+                Create Community
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if communities and communities|length > 0 %}
+    {% for community in communities %}
+    <div class="card mb-3">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-start justify-content-between">
+                <div class="flex-grow-1">
+                    <h5 class="mb-2">
+                        <a href="{{ url_for('community.community_page', community_name=community.name) }}" 
+                           style="color: inherit; text-decoration: none;">
+                            r/{{ community.name }}
+                        </a>
+                    </h5>
+                    
+                    {% if community.description %}
+                    <p class="text-muted-custom mb-2">{{ community.description }}</p>
+                    {% endif %}
+                    
+                    <div class="small text-muted-custom">
+                        {{ community.post_count }} post{{ 's' if community.post_count != 1 else '' }}
+                        • Created {{ community.created_at|timeago }}
+                    </div>
+                </div>
+                
+                <div class="ms-3">
+                    <a href="{{ url_for('community.community_page', community_name=community.name) }}" 
+                       class="btn btn-outline-primary btn-sm">
+                        Visit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <div class="mb-4">
+                <div style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;">🏘️</div>
+                <h3 class="h4 mb-3">No communities yet</h3>
+                <p class="text-muted-custom mb-4">Communities will appear here as they are created.</p>
+            </div>
+            <a href="{{ url_for('feed.feed') }}" class="btn btn-primary">Back to Feed</a>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Navigation -->
+<div class="text-center mt-4">
+    <a href="{{ url_for('feed.feed') }}" class="btn btn-secondary">← Back to Feed</a>
+</div>
+{% endblock %}
