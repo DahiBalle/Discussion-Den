@@ -3,185 +3,519 @@
 {% block title %}Feed - Discussion Den{% endblock %}
 
 {% block extra_head %}
+<style>
+/* Feed-specific enhancements */
+.hero-section {
+    background: var(--gradient-hero);
+    padding: var(--space-12) 0 var(--space-8);
+    margin: calc(-1 * var(--space-8)) calc(-1 * var(--space-6)) var(--space-8);
+    border-radius: 0 0 var(--border-radius-xl) var(--border-radius-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.02)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.02)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.01)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.5;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: var(--text-4xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-4);
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-8);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.post-card-enhanced {
+    background: var(--gradient-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    transition: var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.post-card-enhanced::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-accent);
+    opacity: 0;
+    transition: var(--transition-base);
+}
+
+.post-card-enhanced:hover {
+    transform: var(--hover-lift);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-accent);
+}
+
+.post-card-enhanced:hover::before {
+    opacity: 1;
+}
+
+.post-header-enhanced {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.post-title-enhanced {
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+    line-height: 1.4;
+}
+
+.post-title-enhanced a {
+    color: inherit;
+    text-decoration: none;
+    transition: var(--transition-base);
+}
+
+.post-title-enhanced a:hover {
+    color: var(--accent-primary);
+}
+
+.post-body-enhanced {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--space-5);
+}
+
+.post-image-enhanced {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    margin-bottom: var(--space-5);
+    box-shadow: var(--shadow-md);
+}
+
+.action-buttons-enhanced {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.action-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.btn-action-enhanced {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-full);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    text-decoration: none;
+    transition: var(--transition-base);
+    cursor: pointer;
+}
+
+.btn-action-enhanced:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    transform: var(--hover-lift);
+    border-color: var(--border-accent);
+}
+
+.btn-action-enhanced.voted-up {
+    background: var(--user-bg);
+    color: var(--user-color);
+    border-color: var(--user-border);
+}
+
+.btn-action-enhanced.voted-down {
+    background: var(--persona-bg);
+    color: var(--persona-color);
+    border-color: var(--persona-border);
+}
+
+.btn-action-enhanced.saved {
+    background: var(--accent-warning);
+    color: white;
+    border-color: var(--accent-warning);
+}
+
+.create-post-enhanced {
+    background: var(--gradient-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-8);
+    box-shadow: var(--shadow-md);
+}
+
+.create-post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-5);
+}
+
+.create-post-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+}
+
+.create-post-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-accent);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: var(--text-lg);
+}
+
+.identity-display {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--space-16) var(--space-8);
+    background: var(--gradient-card);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-6);
+    opacity: 0.7;
+}
+
+.empty-state-title {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+}
+
+.empty-state-description {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-8);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.feed-filters {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    padding: var(--space-4);
+    background: var(--bg-card);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.filter-btn {
+    padding: var(--space-2) var(--space-4);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-full);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    transition: var(--transition-base);
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: var(--gradient-accent);
+    color: white;
+    border-color: transparent;
+    box-shadow: var(--shadow-glow);
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<!-- Welcome Header -->
-<div class="mb-4">
-    <h1 class="h2 mb-2">Welcome to Discussion Den</h1>
-    <p class="text-muted-custom">Share ideas, connect with others, and join the conversation.</p>
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Welcome to Discussion Den</h1>
+        <p class="hero-subtitle">
+            Connect, share ideas, and engage in meaningful conversations with a vibrant community of thinkers and creators.
+        </p>
+    </div>
+</div>
+
+<!-- Feed Filters -->
+<div class="feed-filters">
+    <button class="filter-btn active" data-filter="new">
+        <i class="fas fa-clock me-2"></i>New
+    </button>
+    <button class="filter-btn" data-filter="hot">
+        <i class="fas fa-fire me-2"></i>Hot
+    </button>
+    <button class="filter-btn" data-filter="top">
+        <i class="fas fa-arrow-up me-2"></i>Top
+    </button>
+    <button class="filter-btn" data-filter="trending">
+        <i class="fas fa-trending-up me-2"></i>Trending
+    </button>
 </div>
 
 <!-- Create Post Box -->
 {% if current_user.is_authenticated %}
-<div class="card mb-4" id="create-post-card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">✏️ Create a Post</h5>
-        <small class="text-muted-custom">
-            Posting as: 
+<div class="create-post-enhanced" id="create-post-card">
+    <div class="create-post-header">
+        <div class="create-post-title">
+            <div class="create-post-icon">
+                <i class="fas fa-pen"></i>
+            </div>
+            <span>Share Your Thoughts</span>
+        </div>
+        <div class="identity-display">
+            <span>Posting as:</span>
             {% if active_identity.is_persona %}
-                <span class="persona-badge">Persona</span> <strong>{{ active_identity.label }}</strong>
+                <div class="persona-badge-enhanced persona small">
+                    <i class="fas fa-mask"></i>
+                    <span>{{ active_identity.label }}</span>
+                </div>
             {% else %}
-                <span class="user-badge">User</span> <strong>{{ active_identity.label }}</strong>
+                <div class="persona-badge-enhanced user small">
+                    <i class="fas fa-user"></i>
+                    <span>{{ active_identity.label }}</span>
+                </div>
             {% endif %}
-        </small>
+        </div>
     </div>
-    <div class="card-body p-4">
-        <form id="quick-post-form" method="POST" action="{{ url_for('post.create_post_post') }}">
-            {{ post_form.hidden_tag() }}
-            
-            <div class="mb-3">
-                <label class="form-label">Community</label>
-                <select name="community_id" class="form-select" required>
-                    {% for community in communities %}
-                    <option value="{{ community.id }}" {% if community.id == 1 %}selected{% endif %}>
-                        r/{{ community.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <div class="mb-3">
-                {{ post_form.title.label(class="form-label") }}
-                {{ post_form.title(class="form-control", placeholder="What's on your mind?") }}
-                {% if post_form.title.errors %}
-                    <div class="text-danger small mt-2">
-                        {% for error in post_form.title.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-            
-            <div class="mb-3">
-                {{ post_form.body.label(class="form-label") }}
-                {{ post_form.body(class="form-control", rows="4", placeholder="Share your thoughts, ask a question, or start a discussion...") }}
-                {% if post_form.body.errors %}
-                    <div class="text-danger small mt-2">
-                        {% for error in post_form.body.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-            
-            <div class="mb-3">
-                {{ post_form.image_url.label(class="form-label") }}
-                {{ post_form.image_url(class="form-control", placeholder="https://example.com/image.jpg (optional)") }}
-                {% if post_form.image_url.errors %}
-                    <div class="text-danger small mt-2">
-                        {% for error in post_form.image_url.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-                <div class="form-text text-muted-custom">Add an image to make your post more engaging (optional)</div>
-            </div>
-            
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Publish Post</button>
-                <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear</button>
-                <button type="button" class="btn btn-outline-secondary" onclick="toggleCreatePost()">
-                    <span id="toggle-text">Minimize</span>
-                </button>
-            </div>
-        </form>
-    </div>
+    
+    <form id="quick-post-form" method="POST" action="{{ url_for('post.create_post_post') }}">
+        {{ post_form.hidden_tag() }}
+        
+        <div class="mb-4">
+            <label class="form-label">
+                <i class="fas fa-users me-2"></i>Community
+            </label>
+            <select name="community_id" class="form-select" required>
+                {% for community in communities %}
+                <option value="{{ community.id }}" {% if community.id == 1 %}selected{% endif %}>
+                    r/{{ community.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-4">
+            {{ post_form.title.label(class="form-label") }}
+            {{ post_form.title(class="form-control", placeholder="What's on your mind? Share something interesting...") }}
+            {% if post_form.title.errors %}
+                <div class="text-danger small mt-2">
+                    {% for error in post_form.title.errors %}{{ error }}{% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-4">
+            {{ post_form.body.label(class="form-label") }}
+            {{ post_form.body(class="form-control", rows="4", placeholder="Tell your story, share your thoughts, or ask a question that sparks conversation...") }}
+            {% if post_form.body.errors %}
+                <div class="text-danger small mt-2">
+                    {% for error in post_form.body.errors %}{{ error }}{% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-4">
+            {{ post_form.image_url.label(class="form-label") }}
+            {{ post_form.image_url(class="form-control", placeholder="https://example.com/image.jpg (optional)") }}
+            {% if post_form.image_url.errors %}
+                <div class="text-danger small mt-2">
+                    {% for error in post_form.image_url.errors %}{{ error }}{% endfor %}
+                </div>
+            {% endif %}
+            <div class="form-text">Add an image to make your post more engaging</div>
+        </div>
+        
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane me-2"></i>Publish Post
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                <i class="fas fa-eraser me-2"></i>Clear
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="toggleCreatePost()">
+                <i class="fas fa-minus me-2"></i>
+                <span id="toggle-text">Minimize</span>
+            </button>
+        </div>
+    </form>
 </div>
 {% else %}
 <!-- Login Prompt for Non-authenticated Users -->
-<div class="card mb-4">
-    <div class="card-body text-center py-4">
-        <h5 class="mb-3">Join the Conversation</h5>
-        <p class="text-muted-custom mb-3">Sign up or log in to create posts and engage with the community.</p>
-        <div>
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary me-2">Sign Up</a>
-            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Log In</a>
-        </div>
+<div class="empty-state">
+    <div class="empty-state-icon">
+        <i class="fas fa-users"></i>
     </div>
-</div>
-{% endif %}
-
-<!-- Future Feature Toggle (UI Only) -->
-{% if current_user.is_authenticated %}
-<div class="card mb-4">
-    <div class="card-body py-3">
-        <div class="form-check form-switch">
-            <input class="form-check-input future-feature" type="checkbox" id="mixFeedToggle" disabled>
-            <label class="form-check-label text-muted-custom" for="mixFeedToggle">
-                Mix persona feed with main feed <span class="badge bg-secondary ms-2">Coming Soon</span>
-            </label>
-        </div>
+    <h3 class="empty-state-title">Join the Conversation</h3>
+    <p class="empty-state-description">
+        Sign up or log in to create posts, engage with the community, and be part of meaningful discussions.
+    </p>
+    <div class="d-flex gap-3 justify-content-center">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+            <i class="fas fa-user-plus me-2"></i>Sign Up
+        </a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">
+            <i class="fas fa-sign-in-alt me-2"></i>Log In
+        </a>
     </div>
 </div>
 {% endif %}
 
 <!-- Feed Container -->
 <div id="feed-container">
-    <!-- Posts are now loaded server-side -->
     {% if posts and posts|length > 0 %}
         {% for post in posts %}
-        <div class="post-card" data-post-id="{{ post.id }}">
-            <div class="post-header">
+        <article class="post-card-enhanced hover-lift" data-post-id="{{ post.id }}">
+            <header class="post-header-enhanced">
                 {% if post.author_persona_id %}
-                    <span class="persona-badge">Persona</span>
+                    <div class="persona-badge-enhanced persona">
+                        <i class="fas fa-mask"></i>
+                        <span>Persona</span>
+                    </div>
                 {% else %}
-                    <span class="user-badge">User</span>
+                    <div class="persona-badge-enhanced user">
+                        <i class="fas fa-user"></i>
+                        <span>User</span>
+                    </div>
                 {% endif %}
                 <span class="post-author">{{ post.author_name }}</span>
-                <span class="text-muted-custom">•</span>
-                <span class="post-meta">{{ post.created_at|timeago }}</span>
+                <span class="text-muted">•</span>
+                <time class="post-meta">{{ post.created_at|timeago }}</time>
                 {% if post.community %}
-                <span class="text-muted-custom">•</span>
-                <span class="post-meta">
-                    <a href="{{ url_for('community.community_page', community_name=post.community.name) }}" 
-                       style="color: var(--accent-primary); text-decoration: none;">
-                        r/{{ post.community.name }}
-                    </a>
-                </span>
+                <span class="text-muted">•</span>
+                <a href="{{ url_for('community.community_page', community_name=post.community.name) }}" 
+                   class="post-meta" style="color: var(--accent-primary);">
+                    <i class="fas fa-users me-1"></i>r/{{ post.community.name }}
+                </a>
                 {% endif %}
-            </div>
-            <h3 class="post-title">
-                <a href="{{ url_for('post.post_detail', post_id=post.id) }}" style="color: inherit; text-decoration: none;">
+            </header>
+            
+            <h2 class="post-title-enhanced">
+                <a href="{{ url_for('post.post_detail', post_id=post.id) }}">
                     {{ post.title }}
                 </a>
-            </h3>
+            </h2>
+            
             {% if post.body %}
-            <div class="post-body">{{ post.body }}</div>
+            <div class="post-body-enhanced">{{ post.body }}</div>
             {% endif %}
+            
             {% if post.image_url %}
-            <img src="{{ post.image_url }}" alt="Post image" class="post-image">
+            <img src="{{ post.image_url }}" alt="Post image" class="post-image-enhanced">
             {% endif %}
-            <div class="action-buttons">
-                <button class="btn-action vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}" 
-                        data-post-id="{{ post.id }}" data-vote="1">
-                    ▲ {{ post.upvotes or 0 }}
-                </button>
-                <button class="btn-action vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}" 
-                        data-post-id="{{ post.id }}" data-vote="-1">
-                    ▼ {{ post.downvotes or 0 }}
-                </button>
-                <button class="btn-action save-btn {% if post.is_saved %}saved{% endif %}" 
-                        data-post-id="{{ post.id }}">
-                    {% if post.is_saved %}★ Saved{% else %}☆ Save{% endif %}
-                </button>
-                <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn-action">
-                    💬 {{ post.comment_count or 0 }} Comments
-                </a>
-            </div>
-        </div>
+            
+            <footer class="action-buttons-enhanced">
+                <div class="action-group">
+                    <button class="btn-action-enhanced vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}" 
+                            data-post-id="{{ post.id }}" data-vote="1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>{{ post.upvotes or 0 }}</span>
+                    </button>
+                    <button class="btn-action-enhanced vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}" 
+                            data-post-id="{{ post.id }}" data-vote="-1">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>{{ post.downvotes or 0 }}</span>
+                    </button>
+                    <button class="btn-action-enhanced save-btn {% if post.is_saved %}saved{% endif %}" 
+                            data-post-id="{{ post.id }}">
+                        <i class="fas fa-{% if post.is_saved %}bookmark{% else %}bookmark-o{% endif %}"></i>
+                        <span>{% if post.is_saved %}Saved{% else %}Save{% endif %}</span>
+                    </button>
+                </div>
+                <div class="action-group">
+                    <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn-action-enhanced">
+                        <i class="fas fa-comments"></i>
+                        <span>{{ post.comment_count or 0 }} Comments</span>
+                    </a>
+                    <button class="btn-action-enhanced" onclick="sharePost({{ post.id }})">
+                        <i class="fas fa-share"></i>
+                        <span>Share</span>
+                    </button>
+                </div>
+            </footer>
+        </article>
         {% endfor %}
     {% else %}
-        <div class="card">
-            <div class="card-body text-center py-5">
-                <div class="mb-4">
-                    <div style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;">💬</div>
-                    <h3 class="h4 mb-3">No posts yet</h3>
-                    <p class="text-muted-custom mb-4">Be the first to start a conversation and share your thoughts with the community.</p>
-                </div>
-                {% if current_user.is_authenticated %}
-                <p class="text-muted-custom">Use the create post form above to get started!</p>
-                {% else %}
-                <div>
-                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary me-2">Join Discussion Den</a>
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Login</a>
-                </div>
-                {% endif %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-comments"></i>
             </div>
+            <h3 class="empty-state-title">No Posts Yet</h3>
+            <p class="empty-state-description">
+                Be the first to start a conversation and share your thoughts with the community.
+            </p>
+            {% if current_user.is_authenticated %}
+            <p class="text-muted">Use the create post form above to get started!</p>
+            {% else %}
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i>Join Discussion Den
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+            </div>
+            {% endif %}
         </div>
     {% endif %}
 </div>
@@ -190,55 +524,99 @@
 
 {% block extra_scripts %}
 <script>
+// Enhanced Feed JavaScript with Modern Interactions
+
 // Disable infinite scroll since posts are loaded server-side
 let infiniteScrollEnabled = false;
 
-// Create Post Form Functions
-function clearForm() {
-    const form = document.getElementById('quick-post-form');
-    if (form) {
-        form.reset();
-        // Reset community dropdown to default (campus)
-        const communitySelect = form.querySelector('select[name="community_id"]');
-        if (communitySelect) {
-            communitySelect.selectedIndex = 0;
-        }
-    }
-}
-
-function toggleCreatePost() {
-    const card = document.getElementById('create-post-card');
-    const cardBody = card.querySelector('.card-body');
-    const toggleText = document.getElementById('toggle-text');
-    
-    if (cardBody.style.display === 'none') {
-        cardBody.style.display = 'block';
-        toggleText.textContent = 'Minimize';
-    } else {
-        cardBody.style.display = 'none';
-        toggleText.textContent = 'Expand';
-    }
-}
-
-// Handle form submission with AJAX for better UX
+// Initialize enhanced interactions
 document.addEventListener('DOMContentLoaded', function() {
+    initializeFeedFilters();
+    initializePostInteractions();
+    initializeCreatePostForm();
+    initializeShareFunctionality();
+});
+
+/**
+ * Initialize feed filter functionality
+ */
+function initializeFeedFilters() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get filter type
+            const filterType = this.getAttribute('data-filter');
+            
+            // Show loading state
+            const feedContainer = document.getElementById('feed-container');
+            feedContainer.style.opacity = '0.6';
+            
+            // Simulate filter loading (in real app, this would make an API call)
+            setTimeout(() => {
+                feedContainer.style.opacity = '1';
+                
+                // Show toast notification
+                if (window.DiscussionDenTheme) {
+                    window.DiscussionDenTheme.showToast(
+                        `Showing ${filterType} posts`, 
+                        'info', 
+                        2000
+                    );
+                }
+            }, 500);
+        });
+    });
+}
+
+/**
+ * Initialize enhanced post interactions
+ */
+function initializePostInteractions() {
     // Setup vote and save buttons for existing posts
     setupVoteButtons();
     setupSaveButtons();
     
-    // Setup create post form
+    // Add hover effects to post cards
+    const postCards = document.querySelectorAll('.post-card-enhanced');
+    postCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+            this.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.3)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+        });
+    });
+}
+
+/**
+ * Initialize enhanced create post form
+ */
+function initializeCreatePostForm() {
     const quickPostForm = document.getElementById('quick-post-form');
-    if (quickPostForm) {
-        quickPostForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(quickPostForm);
-            const submitBtn = quickPostForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            
-            // Show loading state
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Publishing...';
+    if (!quickPostForm) return;
+    
+    quickPostForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(quickPostForm);
+        const submitBtn = quickPostForm.querySelector('button[type="submit"]');
+        
+        // Show enhanced loading state
+        if (window.DiscussionDenTheme) {
+            const originalContent = window.DiscussionDenTheme.showLoading(
+                submitBtn, 
+                'Publishing...'
+            );
             
             fetch(quickPostForm.action, {
                 method: 'POST',
@@ -253,59 +631,132 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     // Clear form and show success message
                     clearForm();
-                    showSuccessMessage(data.message || 'Post created successfully!');
+                    window.DiscussionDenTheme.showToast(
+                        data.message || 'Post created successfully!', 
+                        'success'
+                    );
                     
-                    // Reload page to show the new post
+                    // Reload page to show the new post with smooth transition
                     setTimeout(() => {
                         window.location.reload();
                     }, 1500);
                 } else {
                     // Handle validation errors
-                    if (data.errors) {
-                        let errorMessage = 'Please fix the following errors:\n';
-                        for (const field in data.errors) {
-                            data.errors[field].forEach(error => {
-                                errorMessage += '• ' + error + '\n';
-                            });
-                        }
-                        alert(errorMessage);
-                    } else {
-                        alert(data.message || 'There was an error creating your post. Please try again.');
-                    }
+                    handleFormErrors(data);
                 }
             })
             .catch(error => {
                 console.error('Error creating post:', error);
-                alert('There was an error creating your post. Please try again.');
+                window.DiscussionDenTheme.showToast(
+                    'There was an error creating your post. Please try again.', 
+                    'danger'
+                );
             })
             .finally(() => {
                 // Restore button state
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
+                window.DiscussionDenTheme.hideLoading(submitBtn, originalContent);
             });
-        });
-    }
-});
-
-function showSuccessMessage(message) {
-    // Create a temporary success alert
-    const alert = document.createElement('div');
-    alert.className = 'alert alert-success alert-dismissible fade show';
-    alert.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    // Insert after the create post card
-    const createPostCard = document.getElementById('create-post-card');
-    createPostCard.parentNode.insertBefore(alert, createPostCard.nextSibling);
-    
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-        if (alert.parentNode) {
-            alert.remove();
         }
-    }, 5000);
+    });
+}
+
+/**
+ * Initialize share functionality
+ */
+function initializeShareFunctionality() {
+    window.sharePost = function(postId) {
+        const postUrl = `${window.location.origin}/post/${postId}`;
+        
+        if (navigator.share) {
+            // Use native share API if available
+            navigator.share({
+                title: 'Check out this post on Discussion Den',
+                url: postUrl
+            }).catch(err => console.log('Error sharing:', err));
+        } else {
+            // Fallback to clipboard
+            navigator.clipboard.writeText(postUrl).then(() => {
+                if (window.DiscussionDenTheme) {
+                    window.DiscussionDenTheme.showToast(
+                        'Post link copied to clipboard!', 
+                        'success', 
+                        2000
+                    );
+                }
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                // Fallback to prompt
+                prompt('Copy this link:', postUrl);
+            });
+        }
+    };
+}
+
+/**
+ * Handle form validation errors
+ */
+function handleFormErrors(data) {
+    if (data.errors) {
+        let errorMessage = 'Please fix the following errors:\n';
+        for (const field in data.errors) {
+            data.errors[field].forEach(error => {
+                errorMessage += '• ' + error + '\n';
+            });
+        }
+        
+        if (window.DiscussionDenTheme) {
+            window.DiscussionDenTheme.showToast(errorMessage, 'danger', 5000);
+        } else {
+            alert(errorMessage);
+        }
+    } else {
+        const message = data.message || 'There was an error creating your post. Please try again.';
+        if (window.DiscussionDenTheme) {
+            window.DiscussionDenTheme.showToast(message, 'danger');
+        } else {
+            alert(message);
+        }
+    }
+}
+
+// Create Post Form Functions
+function clearForm() {
+    const form = document.getElementById('quick-post-form');
+    if (form) {
+        form.reset();
+        // Reset community dropdown to default
+        const communitySelect = form.querySelector('select[name="community_id"]');
+        if (communitySelect) {
+            communitySelect.selectedIndex = 0;
+        }
+        
+        // Add clear animation
+        form.style.animation = 'pulse 0.3s ease-out';
+        setTimeout(() => {
+            form.style.animation = '';
+        }, 300);
+    }
+}
+
+function toggleCreatePost() {
+    const card = document.getElementById('create-post-card');
+    const cardBody = card.querySelector('form').parentElement;
+    const toggleText = document.getElementById('toggle-text');
+    const toggleIcon = document.querySelector('#toggle-text').previousElementSibling;
+    
+    if (cardBody.style.display === 'none') {
+        cardBody.style.display = 'block';
+        cardBody.style.animation = 'fadeInUp 0.3s ease-out';
+        toggleText.textContent = 'Minimize';
+        toggleIcon.className = 'fas fa-minus me-2';
+    } else {
+        cardBody.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => {
+            cardBody.style.display = 'none';
+            toggleText.textContent = 'Expand';
+            toggleIcon.className = 'fas fa-plus me-2';
+        }, 300);
+    }
 }
 
 function getCSRFToken() {
@@ -322,7 +773,7 @@ function getCSRFToken() {
     return '';
 }
 
-// Vote and Save button functions
+// Enhanced Vote and Save button functions
 function setupVoteButtons() {
     const voteButtons = document.querySelectorAll('.vote-btn');
     voteButtons.forEach(btn => {
@@ -342,6 +793,10 @@ function handleVote(e) {
     const postId = this.getAttribute('data-post-id');
     const voteValue = parseInt(this.getAttribute('data-vote'));
     
+    // Add loading animation
+    this.style.transform = 'scale(0.95)';
+    this.style.opacity = '0.7';
+    
     fetch(`/api/post/${postId}/vote`, {
         method: 'POST',
         headers: {
@@ -354,13 +809,35 @@ function handleVote(e) {
     .then(data => {
         if (data.success) {
             updateVoteUI(postId, data.vote, data.upvotes, data.downvotes);
+            
+            // Show success feedback
+            if (window.DiscussionDenTheme) {
+                const voteType = data.vote === 1 ? 'upvoted' : data.vote === -1 ? 'downvoted' : 'removed vote';
+                window.DiscussionDenTheme.showToast(
+                    `Post ${voteType}!`, 
+                    'success', 
+                    1500
+                );
+            }
         } else {
-            alert('Failed to vote: ' + (data.error || 'Unknown error'));
+            if (window.DiscussionDenTheme) {
+                window.DiscussionDenTheme.showToast(
+                    'Failed to vote: ' + (data.error || 'Unknown error'), 
+                    'danger'
+                );
+            }
         }
     })
     .catch(error => {
         console.error('Error voting:', error);
-        alert('Error voting. Please try again.');
+        if (window.DiscussionDenTheme) {
+            window.DiscussionDenTheme.showToast('Error voting. Please try again.', 'danger');
+        }
+    })
+    .finally(() => {
+        // Restore button state
+        this.style.transform = 'scale(1)';
+        this.style.opacity = '1';
     });
 }
 
@@ -368,6 +845,9 @@ function handleSave(e) {
     e.preventDefault();
     const postId = this.getAttribute('data-post-id');
     const isCurrentlySaved = this.classList.contains('saved');
+    
+    // Add loading animation
+    this.style.transform = 'scale(0.95)';
     
     fetch(`/api/post/${postId}/save`, {
         method: 'POST',
@@ -381,13 +861,34 @@ function handleSave(e) {
     .then(data => {
         if (data.success) {
             updateSaveUI(postId, data.is_saved);
+            
+            // Show success feedback
+            if (window.DiscussionDenTheme) {
+                const action = data.is_saved ? 'saved' : 'unsaved';
+                window.DiscussionDenTheme.showToast(
+                    `Post ${action}!`, 
+                    'success', 
+                    1500
+                );
+            }
         } else {
-            alert('Failed to save: ' + (data.error || 'Unknown error'));
+            if (window.DiscussionDenTheme) {
+                window.DiscussionDenTheme.showToast(
+                    'Failed to save: ' + (data.error || 'Unknown error'), 
+                    'danger'
+                );
+            }
         }
     })
     .catch(error => {
         console.error('Error saving:', error);
-        alert('Error saving. Please try again.');
+        if (window.DiscussionDenTheme) {
+            window.DiscussionDenTheme.showToast('Error saving. Please try again.', 'danger');
+        }
+    })
+    .finally(() => {
+        // Restore button state
+        this.style.transform = 'scale(1)';
     });
 }
 
@@ -401,18 +902,20 @@ function updateVoteUI(postId, userVote, upvotes, downvotes) {
     // Reset classes
     if (upBtn) {
         upBtn.classList.remove('voted-up', 'voted-down');
-        upBtn.innerHTML = `▲ ${upvotes || 0}`;
+        upBtn.querySelector('span').textContent = upvotes || 0;
     }
     if (downBtn) {
         downBtn.classList.remove('voted-up', 'voted-down');
-        downBtn.innerHTML = `▼ ${downvotes || 0}`;
+        downBtn.querySelector('span').textContent = downvotes || 0;
     }
     
-    // Apply new vote state
+    // Apply new vote state with animation
     if (userVote === 1 && upBtn) {
         upBtn.classList.add('voted-up');
+        upBtn.style.animation = 'pulse 0.3s ease-out';
     } else if (userVote === -1 && downBtn) {
         downBtn.classList.add('voted-down');
+        downBtn.style.animation = 'pulse 0.3s ease-out';
     }
 }
 
@@ -420,13 +923,40 @@ function updateSaveUI(postId, isSaved) {
     const saveBtn = document.querySelector(`.save-btn[data-post-id="${postId}"]`);
     if (!saveBtn) return;
     
+    const icon = saveBtn.querySelector('i');
+    const text = saveBtn.querySelector('span');
+    
     if (isSaved) {
         saveBtn.classList.add('saved');
-        saveBtn.innerHTML = '★ Saved';
+        icon.className = 'fas fa-bookmark';
+        text.textContent = 'Saved';
     } else {
         saveBtn.classList.remove('saved');
-        saveBtn.innerHTML = '☆ Save';
+        icon.className = 'far fa-bookmark';
+        text.textContent = 'Save';
     }
+    
+    // Add animation
+    saveBtn.style.animation = 'pulse 0.3s ease-out';
+    setTimeout(() => {
+        saveBtn.style.animation = '';
+    }, 300);
 }
+
+// Add fadeOut animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+    }
+`;
+document.head.appendChild(style);
 </script>
 {% endblock %}

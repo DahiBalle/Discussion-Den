@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Post - Discussion Den{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Edit Post</h4>
+                    <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Post
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('post.edit_post_post', post_id=post.id) }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Community (read-only) -->
+                        <div class="mb-3">
+                            <label class="form-label">Community</label>
+                            <div class="form-control-plaintext">
+                                <strong>r/{{ post.community.name }}</strong>
+                                <small class="text-muted d-block">Community cannot be changed after posting</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Title -->
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label") }}
+                            {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.title.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Body -->
+                        <div class="mb-3">
+                            {{ form.body.label(class="form-label") }}
+                            {{ form.body(class="form-control" + (" is-invalid" if form.body.errors else ""), rows="8") }}
+                            {% if form.body.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.body.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Image URL -->
+                        <div class="mb-3">
+                            {{ form.image_url.label(class="form-label") }}
+                            {{ form.image_url(class="form-control" + (" is-invalid" if form.image_url.errors else "")) }}
+                            {% if form.image_url.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.image_url.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Optional: Add an image URL to your post</div>
+                        </div>
+                        
+                        <!-- Current Identity -->
+                        <div class="mb-3">
+                            <label class="form-label">Posting as</label>
+                            <div class="form-control-plaintext">
+                                {% if active_identity.is_persona %}
+                                    <span class="badge bg-persona me-2">Persona</span>
+                                    <strong>{{ active_identity.persona.name }}</strong>
+                                {% else %}
+                                    <span class="badge bg-user me-2">User</span>
+                                    <strong>{{ active_identity.user.username }}</strong>
+                                {% endif %}
+                                <small class="text-muted d-block">Author identity cannot be changed after posting</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Post
+                            </button>
+                            <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn btn-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

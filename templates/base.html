@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,92 +8,159 @@
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary-custom sticky-top">
-        <div class="container-fluid">
-            <!-- Offcanvas Toggle Button -->
-            <button class="btn btn-outline-light me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
-                <span class="navbar-toggler-icon"></span>
+    <!-- Enhanced Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="main-navbar">
+        <div class="container-fluid px-4">
+            <!-- Mobile Menu Toggle -->
+            <button class="navbar-toggler-custom me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
+                <i class="fas fa-bars"></i>
             </button>
             
-            <a class="navbar-brand fw-bold" href="{{ url_for('feed.feed') }}">
-                <span style="color: var(--accent-primary);">Discussion</span> Den
+            <!-- Brand -->
+            <a class="navbar-brand" href="{{ url_for('feed.feed') }}">
+                <div class="brand-container">
+                    <div class="brand-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-main">Discussion</span>
+                        <span class="brand-accent">Den</span>
+                    </div>
+                </div>
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
+            <!-- Desktop Navigation -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('feed.feed') }}">Feed</a>
+                        <a class="nav-link nav-link-enhanced" href="{{ url_for('feed.feed') }}">
+                            <i class="fas fa-home me-2"></i>Feed
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('community.communities_list') }}">Communities</a>
+                        <a class="nav-link nav-link-enhanced" href="{{ url_for('community.communities_list') }}">
+                            <i class="fas fa-users me-2"></i>Communities
+                        </a>
                     </li>
                     {% if current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('post.create_post') }}">Create Post</a>
+                        <a class="nav-link nav-link-enhanced nav-link-primary" href="{{ url_for('post.create_post') }}">
+                            <i class="fas fa-plus me-2"></i>Create
+                        </a>
                     </li>
                     {% endif %}
                 </ul>
                 
+                <!-- Enhanced Search -->
+                <form class="search-form me-4" method="GET" action="{{ url_for('search.search') }}">
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input class="search-input" type="search" name="q" placeholder="Search discussions..." aria-label="Search">
+                        <button class="search-btn" type="submit">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- User Menu -->
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
                         <!-- Persona Switcher -->
                         <li class="nav-item dropdown me-3">
-                            <a class="nav-link dropdown-toggle" href="#" id="personaDropdown" role="button" data-bs-toggle="dropdown">
-                                <span id="active-identity-display">
+                            <a class="nav-link dropdown-toggle persona-switcher" href="#" id="personaDropdown" role="button" data-bs-toggle="dropdown">
+                                <div class="persona-display" id="active-identity-display">
                                     {% if session.get('active_persona_id') %}
-                                        <span class="persona-badge">Persona</span>
+                                        <div class="persona-badge-enhanced persona">
+                                            <i class="fas fa-mask"></i>
+                                            <span>Persona</span>
+                                        </div>
                                     {% else %}
-                                        <span class="user-badge">User</span>
+                                        <div class="persona-badge-enhanced user">
+                                            <i class="fas fa-user"></i>
+                                            <span>User</span>
+                                        </div>
                                     {% endif %}
-                                </span>
+                                </div>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-dark" id="persona-switcher-menu">
+                            <ul class="dropdown-menu dropdown-menu-enhanced" id="persona-switcher-menu">
+                                <li class="dropdown-header">Switch Identity</li>
                                 <li>
                                     <a class="dropdown-item persona-switch-option" href="#" data-persona-id="null">
-                                        <span class="user-badge">User</span> {{ current_user.username }}
+                                        <div class="persona-badge-enhanced user small">
+                                            <i class="fas fa-user"></i>
+                                            <span>User</span>
+                                        </div>
+                                        <span class="ms-2">{{ current_user.username }}</span>
                                     </a>
                                 </li>
                                 {% for persona in current_user.personas %}
                                 <li>
                                     <a class="dropdown-item persona-switch-option" href="#" data-persona-id="{{ persona.id }}">
-                                        <span class="persona-badge">Persona</span> {{ persona.name }}
+                                        <div class="persona-badge-enhanced persona small">
+                                            <i class="fas fa-mask"></i>
+                                            <span>Persona</span>
+                                        </div>
+                                        <span class="ms-2">{{ persona.name }}</span>
                                     </a>
                                 </li>
                                 {% endfor %}
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('persona.create_persona') }}">+ New Persona</a></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('persona.create_persona') }}">
+                                        <i class="fas fa-plus me-2"></i>New Persona
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         
                         <!-- User Menu -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                {{ current_user.username }}
+                            <a class="nav-link dropdown-toggle user-menu" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <span class="user-name">{{ current_user.username }}</span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" href="{{ url_for('profile.user_profile', username=current_user.username) }}">My Profile</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('profile.edit_profile') }}">Edit Profile</a></li>
+                            <ul class="dropdown-menu dropdown-menu-enhanced dropdown-menu-end">
+                                <li class="dropdown-header">{{ current_user.username }}</li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('profile.user_profile', username=current_user.username) }}">
+                                        <i class="fas fa-user me-2"></i>My Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('profile.edit_profile') }}">
+                                        <i class="fas fa-edit me-2"></i>Edit Profile
+                                    </a>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                        <li class="nav-item me-2">
+                            <a class="btn btn-outline-primary btn-sm" href="{{ url_for('auth.login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                            <a class="btn btn-primary btn-sm" href="{{ url_for('auth.register') }}">
+                                <i class="fas fa-user-plus me-1"></i>Join
+                            </a>
                         </li>
                     {% endif %}
                 </ul>
@@ -101,50 +168,96 @@
         </div>
     </nav>
 
-    <!-- Offcanvas Sidebar -->
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+    <!-- Enhanced Offcanvas Sidebar -->
+    <div class="offcanvas offcanvas-start offcanvas-enhanced" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Navigation</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <div class="offcanvas-brand">
+                <div class="brand-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Discussion Den</h5>
+            </div>
+            <button type="button" class="btn-close btn-close-enhanced" data-bs-dismiss="offcanvas" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         <div class="offcanvas-body">
             {% include 'includes/offcanvas_content.html' %}
         </div>
     </div>
 
-    <!-- Flash Messages -->
+    <!-- Flash Messages Enhanced -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="container mt-3">
+            <div class="flash-container">
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-enhanced alert-dismissible fade show" role="alert">
+                        <div class="alert-content">
+                            <div class="alert-icon">
+                                {% if category == 'success' %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% elif category == 'danger' or category == 'error' %}
+                                    <i class="fas fa-exclamation-circle"></i>
+                                {% elif category == 'warning' %}
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                {% else %}
+                                    <i class="fas fa-info-circle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="alert-message">{{ message }}</div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-enhanced" data-bs-dismiss="alert">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                 {% endfor %}
             </div>
         {% endif %}
     {% endwith %}
 
-    <!-- Main Content -->
-    <main class="container-fluid py-4" style="max-width: 1400px;">
-        <div class="row">
-            <!-- Main Content Area (now takes more space) -->
-            <div class="col-lg-8 main-content">
-                {% block content %}{% endblock %}
-            </div>
-            
-            <!-- Right Panel (fixed overflow issues) -->
-            <div class="col-lg-4 d-none d-lg-block">
-                {% include 'includes/right_panel.html' %}
+    <!-- Main Layout Enhanced -->
+    <main class="main-container">
+        <div class="container-fluid">
+            <div class="row g-4">
+                <!-- Main Content Area -->
+                <div class="col-lg-8">
+                    <div class="main-content">
+                        {% block content %}{% endblock %}
+                    </div>
+                </div>
+                
+                <!-- Right Sidebar -->
+                <div class="col-lg-4 d-none d-lg-block">
+                    <div class="sidebar-right">
+                        {% include 'includes/right_panel.html' %}
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Bootstrap 5 JS -->
+    <!-- Footer -->
+    <footer class="footer-enhanced">
+        <div class="container-fluid">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <i class="fas fa-comments me-2"></i>
+                    <span>Discussion Den</span>
+                </div>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">About</a>
+                    <a href="#" class="footer-link">Privacy</a>
+                    <a href="#" class="footer-link">Terms</a>
+                    <a href="#" class="footer-link">Help</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Persona Switcher JS -->
     <script src="{{ url_for('static', filename='js/persona.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

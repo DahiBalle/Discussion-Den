@@ -6,7 +6,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from flask import Flask, redirect, url_for
 
-from extensions import csrf, db, login_manager, oauth
+from extensions import csrf, db, login_manager, oauth, limiter
 
 
 def create_app() -> Flask:
@@ -31,6 +31,7 @@ def create_app() -> Flask:
 
     db.init_app(app)
     csrf.init_app(app)
+    limiter.init_app(app)
 
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
@@ -89,6 +90,7 @@ def create_app() -> Flask:
     from routes.persona import persona_bp
     from routes.post import post_bp
     from routes.profile import profile_bp
+    from routes.search import search_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(feed_bp)
@@ -97,6 +99,7 @@ def create_app() -> Flask:
     app.register_blueprint(post_bp)
     app.register_blueprint(community_bp)
     app.register_blueprint(api_bp)
+    app.register_blueprint(search_bp)
 
     @app.route("/")
     def index():

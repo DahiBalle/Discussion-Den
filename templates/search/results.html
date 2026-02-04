@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if query %}Search: {{ query }}{% else %}Search{% endif %} - Discussion Den
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Search Header -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title mb-3">
+                        {% if query %}
+                            Search Results for "{{ query }}"
+                        {% else %}
+                            Search Discussion Den
+                        {% endif %}
+                    </h2>
+                    
+                    <!-- Search Form -->
+                    <form method="GET" action="{{ url_for('search.search') }}" class="mb-3">
+                        <div class="input-group">
+                            <input type="text" name="q" class="form-control" 
+                                   placeholder="Search posts, communities, users..." 
+                                   value="{{ query }}" required>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Search Type Filters -->
+                    {% if query %}
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('search.search', q=query, type='all') }}" 
+                           class="btn btn-sm {% if type == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            All
+                        </a>
+                        <a href="{{ url_for('search.search', q=query, type='posts') }}" 
+                           class="btn btn-sm {% if type == 'posts' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            Posts
+                        </a>
+                        <a href="{{ url_for('search.search', q=query, type='communities') }}" 
+                           class="btn btn-sm {% if type == 'communities' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            Communities
+                        </a>
+                        <a href="{{ url_for('search.search', q=query, type='users') }}" 
+                           class="btn btn-sm {% if type == 'users' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            Users
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if not query or query|length < 2 %}
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h4>Search Discussion Den</h4>
+                    <p>Enter at least 2 characters to search for posts, communities, and users.</p>
+                </div>
+            {% else %}
+                <!-- Search Results -->
+                {% if type == 'all' %}
+                    <!-- Posts Section -->
+                    {% if posts %}
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Posts</h5>
+                            <a href="{{ url_for('search.search', q=query, type='posts') }}" class="btn btn-sm btn-outline-primary">
+                                View All Posts
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            {% for post in posts %}
+                            <div class="border-bottom pb-3 mb-3">
+                                <h6><a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="text-decoration-none">{{ post.title }}</a></h6>
+                                <p class="text-muted small mb-1">{{ post.body[:150] }}{% if post.body|length > 150 %}...{% endif %}</p>
+                                <small class="text-muted">
+                                    in <a href="{{ url_for('community.community_page', community_name=post.community.name) }}">r/{{ post.community.name }}</a>
+                                    • {{ post.created_at|timeago }}
+                                </small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Communities Section -->
+                    {% if communities %}
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Communities</h5>
+                            <a href="{{ url_for('search.search', q=query, type='communities') }}" class="btn btn-sm btn-outline-primary">
+                                View All Communities
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            {% for community in communities %}
+                            <div class="border-bottom pb-3 mb-3">
+                                <h6><a href="{{ url_for('community.community_page', community_name=community.name) }}" class="text-decoration-none">r/{{ community.name }}</a></h6>
+                                {% if community.description %}
+                                <p class="text-muted small mb-1">{{ community.description[:100] }}{% if community.description|length > 100 %}...{% endif %}</p>
+                                {% endif %}
+                                <small class="text-muted">Created {{ community.created_at|timeago }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Users Section -->
+                    {% if users %}
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Users</h5>
+                            <a href="{{ url_for('search.search', q=query, type='users') }}" class="btn btn-sm btn-outline-primary">
+                                View All Users
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            {% for user in users %}
+                            <div class="border-bottom pb-3 mb-3">
+                                <h6><a href="{{ url_for('profile.user_profile', username=user.username) }}" class="text-decoration-none">{{ user.username }}</a></h6>
+                                {% if user.bio %}
+                                <p class="text-muted small mb-1">{{ user.bio[:100] }}{% if user.bio|length > 100 %}...{% endif %}</p>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- No Results -->
+                    {% if not posts and not communities and not users %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-search fa-3x mb-3"></i>
+                        <h4>No results found</h4>
+                        <p>Try different keywords or check your spelling.</p>
+                    </div>
+                    {% endif %}
+                    
+                {% else %}
+                    <!-- Specific Type Results -->
+                    {% set results_list = posts if type == 'posts' else communities if type == 'communities' else users %}
+                    
+                    {% if results_list %}
+                        {% if type == 'posts' %}
+                            {% for post in results_list %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5><a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="text-decoration-none">{{ post.title }}</a></h5>
+                                    <p class="card-text">{{ post.body[:200] }}{% if post.body|length > 200 %}...{% endif %}</p>
+                                    <small class="text-muted">
+                                        in <a href="{{ url_for('community.community_page', community_name=post.community.name) }}">r/{{ post.community.name }}</a>
+                                        • {{ post.created_at|timeago }}
+                                        • {{ post.upvotes - post.downvotes }} points
+                                    </small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% elif type == 'communities' %}
+                            {% for community in results_list %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5><a href="{{ url_for('community.community_page', community_name=community.name) }}" class="text-decoration-none">r/{{ community.name }}</a></h5>
+                                    {% if community.description %}
+                                    <p class="card-text">{{ community.description }}</p>
+                                    {% endif %}
+                                    <small class="text-muted">Created {{ community.created_at|timeago }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% elif type == 'users' %}
+                            {% for user in results_list %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5><a href="{{ url_for('profile.user_profile', username=user.username) }}" class="text-decoration-none">{{ user.username }}</a></h5>
+                                    {% if user.bio %}
+                                    <p class="card-text">{{ user.bio }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <!-- Pagination -->
+                        {% if pagination and pagination.pages > 1 %}
+                        <nav aria-label="Search results pagination">
+                            <ul class="pagination justify-content-center">
+                                {% if pagination.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('search.search', q=query, type=type, page=pagination.prev_num) }}">Previous</a>
+                                </li>
+                                {% endif %}
+                                
+                                {% for page_num in pagination.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num != pagination.page %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('search.search', q=query, type=type, page=page_num) }}">{{ page_num }}</a>
+                                        </li>
+                                        {% else %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ page_num }}</span>
+                                        </li>
+                                        {% endif %}
+                                    {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if pagination.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('search.search', q=query, type=type, page=pagination.next_num) }}">Next</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-search fa-3x mb-3"></i>
+                            <h4>No {{ type }} found</h4>
+                            <p>Try different keywords or check your spelling.</p>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

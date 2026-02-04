@@ -3,7 +3,7 @@ from __future__ import annotations
 from flask import Blueprint, abort, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from extensions import db
+from extensions import db, limiter
 from forms import CommentForm, PostForm
 from models import Comment, Post
 from routes.utils import get_identity
@@ -57,6 +57,7 @@ def create_post():
 
 @post_bp.post("/post/create")
 @login_required
+@limiter.limit("5 per minute")
 def create_post_post():
     """
     Create a post as the active identity.
@@ -148,6 +149,7 @@ def create_post_post():
 
 @post_bp.post("/post/<int:post_id>/comment")
 @login_required
+@limiter.limit("10 per minute")
 def add_comment(post_id: int):
     post = Post.query.get_or_404(post_id)
     form = CommentForm()
@@ -177,4 +179,166 @@ def add_comment(post_id: int):
 
     flash("Comment posted.", "success")
     return redirect(url_for("post.post_detail", post_id=post.id))
+
+
+@post_bp.get("/post/<int:post_id>/edit")
+@login_required
+def edit_post(post_id: int):
+    """Show form to edit an existing post."""
+    post = Post.query.get_or_404(post_id)
+    ident = get_identity()
+    
+    # Check ownership
+    if not ((post.author_user_id and post.author_user_id == ident.user_id) or
+            (post.author_persona_id and post.author_persona_id == ident.persona_id)):
+        flash("You can only edit your own posts.", "danger")
+        return redirect(url_for("post.post_detail", post_id=post_id))
+    
+    from models import Community
+    communities = Community.query.all()
+    
+    # Pre-populate form with existing data
+    form = PostForm()
+    form.title.data = post.title
+    form.body.data = post.body
+    form.image_url.data = post.image_url
+    
+    return render_template(
+        "edit_post.html",
+        form=form,
+        post=post,
+        communities=communities,
+        active_identity=ident,
+    )
+
+
+@post_bp.post("/post/<int:post_id>/edit")
+@login_required
+def edit_post_post(post_id: int):
+    """Update an existing post."""
+    post = Post.query.get_or_404(post_id)
+    ident = get_identity()
+    
+    # Check ownership
+    if not ((post.author_user_id and post.author_user_id == ident.user_id) or
+            (post.author_persona_id and post.author_persona_id == ident.persona_id)):
+        flash("You can only edit your own posts.", "danger")
+        return redirect(url_for("post.post_detail", post_id=post_id))
+    
+    form = PostForm()
+    if not form.validate_on_submit():
+        from models import Community
+        communities = Community.query.all()
+        flash("Please fix the form errors.", "danger")
+        return render_template(
+            "edit_post.html",
+            form=form,
+            post=post,
+            communities=communities,
+            active_identity=ident,
+        ), 400
+    
+    try:
+        # Update post fields
+        post.title = form.title.data.strip()
+        post.body = form.body.data.strip()
+        post.image_url = form.image_url.data.strip() if form.image_url.data else None
+        
+        db.session.commit()
+        flash("Post updated successfully.", "success")
+        return redirect(url_for("post.post_detail", post_id=post_id))
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERROR: Failed to update post: {e}")
+        flash("There was an error updating your post. Please try again.", "danger")
+        return redirect(url_for("post.edit_post", post_id=post_id))
+
+
+@post_bp.post("/post/<int:post_id>/delete")
+@login_required
+def delete_post(post_id: int):
+    """Delete an existing post."""
+    post = Post.query.get_or_404(post_id)
+    ident = get_identity()
+    
+    # Check ownership
+    if not ((post.author_user_id and post.author_user_id == ident.user_id) or
+            (post.author_persona_id and post.author_persona_id == ident.persona_id)):
+        flash("You can only delete your own posts.", "danger")
+        return redirect(url_for("post.post_detail", post_id=post_id))
+    
+    try:
+        community_name = post.community.name
+        db.session.delete(post)
+        db.session.commit()
+        
+        flash("Post deleted successfully.", "success")
+        return redirect(url_for("community.community_page", community_name=community_name))
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERROR: Failed to delete post: {e}")
+        flash("There was an error deleting your post. Please try again.", "danger")
+        return redirect(url_for("post.post_detail", post_id=post_id))
+
+
+@post_bp.post("/comment/<int:comment_id>/edit")
+@login_required
+def edit_comment(comment_id: int):
+    """Edit an existing comment via AJAX."""
+    comment = Comment.query.get_or_404(comment_id)
+    ident = get_identity()
+    
+    # Check ownership
+    if not ((comment.author_user_id and comment.author_user_id == ident.user_id) or
+            (comment.author_persona_id and comment.author_persona_id == ident.persona_id)):
+        return jsonify({"success": False, "message": "You can only edit your own comments."}), 403
+    
+    new_body = request.json.get('body', '').strip()
+    if not new_body:
+        return jsonify({"success": False, "message": "Comment cannot be empty."}), 400
+    
+    try:
+        comment.body = new_body
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": "Comment updated successfully.",
+            "body": comment.body
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERROR: Failed to update comment: {e}")
+        return jsonify({"success": False, "message": "Failed to update comment."}), 500
+
+
+@post_bp.post("/comment/<int:comment_id>/delete")
+@login_required
+def delete_comment(comment_id: int):
+    """Delete an existing comment."""
+    comment = Comment.query.get_or_404(comment_id)
+    ident = get_identity()
+    
+    # Check ownership
+    if not ((comment.author_user_id and comment.author_user_id == ident.user_id) or
+            (comment.author_persona_id and comment.author_persona_id == ident.persona_id)):
+        return jsonify({"success": False, "message": "You can only delete your own comments."}), 403
+    
+    try:
+        post_id = comment.post_id
+        db.session.delete(comment)
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": "Comment deleted successfully."
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERROR: Failed to delete comment: {e}")
+        return jsonify({"success": False, "message": "Failed to delete comment."}), 500
 
