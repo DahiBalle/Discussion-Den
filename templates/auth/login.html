@@ -2,86 +2,447 @@
 
 {% block title %}Login - Discussion Den{% endblock %}
 
+{% block extra_head %}
+<style>
+/* Login page specific styles */
+.auth-container {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8) var(--space-4);
+    background: var(--gradient-hero);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+    opacity: 0.3;
+}
+
+.auth-card {
+    background: var(--gradient-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-xl);
+    backdrop-filter: blur(20px);
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-accent);
+}
+
+.auth-header {
+    text-align: center;
+    padding: var(--space-8) var(--space-8) var(--space-6);
+}
+
+.auth-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+}
+
+.auth-brand-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--gradient-accent);
+    border-radius: var(--border-radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-xl);
+    color: white;
+    box-shadow: var(--shadow-glow);
+}
+
+.auth-brand-text {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+}
+
+.auth-title {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+}
+
+.auth-subtitle {
+    color: var(--text-secondary);
+    font-size: var(--text-base);
+    margin-bottom: 0;
+}
+
+.auth-body {
+    padding: 0 var(--space-8) var(--space-8);
+}
+
+.google-login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    width: 100%;
+    padding: var(--space-4) var(--space-6);
+    background: white;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    border-radius: var(--border-radius);
+    font-weight: var(--font-medium);
+    text-decoration: none;
+    transition: var(--transition-base);
+    margin-bottom: var(--space-6);
+}
+
+.google-login-btn:hover {
+    background: #f8f9fa;
+    color: #3c4043;
+    transform: var(--hover-lift);
+    box-shadow: var(--shadow-md);
+}
+
+.google-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    margin: var(--space-6) 0;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+}
+
+.divider span {
+    padding: 0 var(--space-4);
+    background: var(--bg-card);
+}
+
+.form-group-enhanced {
+    margin-bottom: var(--space-5);
+}
+
+.form-label-enhanced {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.form-control-enhanced {
+    width: 100%;
+    padding: var(--space-4) var(--space-5);
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    font-size: var(--text-base);
+    transition: var(--transition-base);
+}
+
+.form-control-enhanced:focus {
+    outline: none;
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    background: var(--bg-elevated);
+}
+
+.form-control-enhanced::placeholder {
+    color: var(--text-muted);
+}
+
+.form-control-enhanced.is-invalid {
+    border-color: var(--accent-danger);
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.invalid-feedback-enhanced {
+    display: block;
+    font-size: var(--text-sm);
+    color: var(--accent-danger);
+    margin-top: var(--space-2);
+}
+
+.btn-auth {
+    width: 100%;
+    padding: var(--space-4) var(--space-6);
+    background: var(--gradient-accent);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    transition: var(--transition-base);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-auth:hover {
+    transform: var(--hover-lift);
+    box-shadow: var(--shadow-glow), var(--shadow-md);
+}
+
+.btn-auth:active {
+    transform: var(--active-scale);
+}
+
+.btn-auth:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.privacy-notice {
+    text-align: center;
+    margin-bottom: var(--space-5);
+    padding: var(--space-3);
+    background: rgba(0, 212, 255, 0.05);
+    border: 1px solid rgba(0, 212, 255, 0.1);
+    border-radius: var(--border-radius);
+}
+
+.privacy-notice-text {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.privacy-notice-icon {
+    color: var(--accent-secondary);
+    margin-right: var(--space-2);
+}
+
+.auth-footer {
+    text-align: center;
+    padding: var(--space-4) var(--space-8) var(--space-8);
+    border-top: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.auth-footer-text {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    margin: 0;
+}
+
+.auth-footer-link {
+    color: var(--accent-primary);
+    font-weight: var(--font-medium);
+    text-decoration: none;
+    transition: var(--transition-base);
+}
+
+.auth-footer-link:hover {
+    color: var(--accent-secondary);
+    text-decoration: underline;
+}
+
+/* Loading state */
+.btn-auth.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn-auth.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Animations */
+.auth-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: var(--space-4);
+    }
+    
+    .auth-header,
+    .auth-body,
+    .auth-footer {
+        padding-left: var(--space-6);
+        padding-right: var(--space-6);
+    }
+    
+    .auth-title {
+        font-size: var(--text-2xl);
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="text-center mb-4">
-                <h1 class="h2 mb-2">Welcome Back</h1>
-                <p class="text-muted-custom">Sign in to your Discussion Den account</p>
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Header -->
+        <div class="auth-header">
+            <div class="auth-brand">
+                <div class="auth-brand-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="auth-brand-text">Discussion Den</div>
+            </div>
+            <h1 class="auth-title">Welcome Back</h1>
+            <p class="auth-subtitle">Sign in to continue your journey</p>
+        </div>
+        
+        <!-- Body -->
+        <div class="auth-body">
+            <!-- Google Login Button -->
+            <a href="{{ url_for('auth.google_login') }}" class="google-login-btn">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </a>
+            
+            <!-- Divider -->
+            <div class="divider">
+                <span>or continue with email</span>
             </div>
             
-            <div class="card">
-                <div class="card-body p-4">
-                    <!-- Google Login Button (always visible with graceful error handling) -->
-                    <!-- 
-                        IMPORTANT: Button is always visible to ensure users can access Google login.
-                        The route handler (/auth/google) provides appropriate error messages if OAuth is not configured.
-                        This prevents the button from being hidden due to timing issues or configuration detection problems.
-                    -->
-                    <div class="mb-4">
-                        <a href="{{ url_for('auth.google_login') }}" class="btn btn-outline-secondary btn-lg w-100 d-flex align-items-center justify-content-center gap-2" style="border-color: #dadce0; color: #3c4043;">
-                            <svg width="18" height="18" viewBox="0 0 24 24">
-                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                            </svg>
-                            Continue with Google
-                        </a>
-                        
-                        <!-- OR Divider -->
-                        <div class="d-flex align-items-center my-4">
-                            <hr class="flex-grow-1" style="border-color: var(--border-color);">
-                            <span class="px-3 text-muted-custom small">OR</span>
-                            <hr class="flex-grow-1" style="border-color: var(--border-color);">
+            <!-- Login Form -->
+            <form method="POST" action="{{ url_for('auth.login_post') }}" id="loginForm">
+                {{ form.hidden_tag() }}
+                
+                <div class="form-group-enhanced">
+                    <label for="username" class="form-label-enhanced">Username</label>
+                    <input type="text" 
+                           id="username" 
+                           name="username" 
+                           class="form-control-enhanced {% if form.username.errors %}is-invalid{% endif %}"
+                           placeholder="Enter your username"
+                           value="{{ form.username.data or '' }}"
+                           required>
+                    {% if form.username.errors %}
+                        <div class="invalid-feedback-enhanced">
+                            {% for error in form.username.errors %}{{ error }}{% endfor %}
                         </div>
-                    </div>
-                    
-                    <!-- Regular Login Form -->
-                    <form method="POST" action="{{ url_for('auth.login_post') }}">
-                        {{ form.hidden_tag() }}
-                        
-                        <div class="mb-4">
-                            {{ form.username.label(class="form-label") }}
-                            {{ form.username(class="form-control form-control-lg", placeholder="Enter your username") }}
-                            {% if form.username.errors %}
-                                <div class="text-danger small mt-2">
-                                    {% for error in form.username.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-4">
-                            {{ form.password.label(class="form-label") }}
-                            {{ form.password(class="form-control form-control-lg", placeholder="Enter your password") }}
-                            {% if form.password.errors %}
-                                <div class="text-danger small mt-2">
-                                    {% for error in form.password.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-4">Sign In</button>
-                    </form>
-                    
-                    <!-- Privacy Notice -->
-                    <div class="text-center mb-3">
-                        <small class="text-muted-custom">
-                            <i class="bi bi-shield-check me-1"></i>
-                            We don't post to your social accounts without permission
-                        </small>
-                    </div>
-                    
-                    <div class="text-center">
-                        <p class="text-muted-custom mb-0">
-                            Don't have an account? 
-                            <a href="{{ url_for('auth.register') }}" class="fw-medium" style="color: var(--accent-primary);">Create one</a>
-                        </p>
-                    </div>
+                    {% endif %}
                 </div>
+                
+                <div class="form-group-enhanced">
+                    <label for="password" class="form-label-enhanced">Password</label>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="form-control-enhanced {% if form.password.errors %}is-invalid{% endif %}"
+                           placeholder="Enter your password"
+                           required>
+                    {% if form.password.errors %}
+                        <div class="invalid-feedback-enhanced">
+                            {% for error in form.password.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn-auth" id="loginBtn">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </button>
+            </form>
+            
+            <!-- Privacy Notice -->
+            <div class="privacy-notice">
+                <p class="privacy-notice-text">
+                    <i class="fas fa-shield-alt privacy-notice-icon"></i>
+                    We protect your privacy and never post without permission
+                </p>
             </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="auth-footer">
+            <p class="auth-footer-text">
+                Don't have an account? 
+                <a href="{{ url_for('auth.register') }}" class="auth-footer-link">Create one here</a>
+            </p>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    
+    loginForm.addEventListener('submit', function(e) {
+        // Add loading state
+        loginBtn.classList.add('loading');
+        loginBtn.disabled = true;
+        
+        // Form will submit normally, loading state will show until page changes
+    });
+    
+    // Add focus animations to form controls
+    const formControls = document.querySelectorAll('.form-control-enhanced');
+    formControls.forEach(control => {
+        control.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+        });
+        
+        control.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
 {% endblock %}

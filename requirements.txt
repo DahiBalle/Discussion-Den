@@ -7,3 +7,4 @@ psycopg2-binary
 python-dotenv==1.0.0
 email_validator
 Authlib==1.2.1
+Flask-Limiter==3.5.0

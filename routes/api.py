@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify, request, session
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
-from extensions import db
+from extensions import db, limiter
 from models import Comment, Persona, Post, SavedPost, Vote
 from routes.utils import get_identity
 
@@ -159,6 +159,7 @@ def me_identity():
 
 @api_bp.post("/persona/switch")
 @login_required
+@limiter.limit("20 per minute")
 def persona_switch():
     # Handle both JSON and form data
     if request.content_type and 'application/json' in request.content_type:
@@ -246,6 +247,7 @@ def feed_json():
 
 @api_bp.post("/post/<int:post_id>/vote")
 @login_required
+@limiter.limit("30 per minute")
 def vote(post_id: int):
     data = request.get_json(silent=True) or {}
     try:
@@ -306,6 +308,7 @@ def vote(post_id: int):
 
 @api_bp.post("/post/<int:post_id>/save")
 @login_required
+@limiter.limit("60 per minute")
 def save(post_id: int):
     data = request.get_json(silent=True) or {}
     save_value = bool(data.get("save", True))
@@ -338,6 +341,7 @@ def save(post_id: int):
 
 @api_bp.post("/post/<int:post_id>/comment")
 @login_required
+@limiter.limit("10 per minute")
 def add_comment_api(post_id: int):
     """
     API endpoint for adding comments via AJAX.
