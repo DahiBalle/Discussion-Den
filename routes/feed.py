@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from flask import Blueprint, render_template
-from flask_login import login_required
+from flask import Blueprint, render_template, redirect, url_for
+from flask_login import current_user
 
 from extensions import db
 from forms import PostForm
@@ -12,7 +12,6 @@ feed_bp = Blueprint("feed", __name__)
 
 
 @feed_bp.get("/feed")
-@login_required
 def feed():
     """
     Main feed page with inline post creation and server-side post loading.
@@ -66,7 +65,7 @@ def feed():
         - Comment: Engagement metrics
     """
     from routes.utils import get_identity
-    from models import Post, Vote, SavedPost, User, Persona, Comment
+    from models import Post, Vote, SavedPost, Comment
     from sqlalchemy.orm import joinedload
     
     # Get all communities for the dropdown with error handling
@@ -106,14 +105,15 @@ def feed():
         if communities:
             default_community = communities[0]
     
-    # Get current user identity for personalization
+    # Get current user identity for personalization (only if authenticated)
     ident = None
-    try:
-        ident = get_identity()
-    except Exception as e:
-        print(f"ERROR: Failed to get user identity: {e}")
-        # This should not happen with proper authentication, but handle gracefully
-        return redirect(url_for('auth.login'))
+    if current_user.is_authenticated:
+        try:
+            ident = get_identity()
+        except Exception as e:
+            print(f"ERROR: Failed to get user identity: {e}")
+            # This should not happen with proper authentication, but handle gracefully
+            ident = None
     
     # PERFORMANCE: Load posts with pagination and eager loading to prevent N+1 queries
     # This is the most critical query for performance - must be optimized
@@ -147,8 +147,8 @@ def feed():
             post.comment_count = 0      # Zero comments by default
             
             # Get user-specific vote and save status efficiently
-            # Only query if we have a valid identity to avoid unnecessary database calls
-            if ident and ident.user_id:
+            # Only query if we have a valid identity (i.e., authenticated user)
+            if ident and getattr(ident, "user_id", None):
                 try:
                     if ident.is_persona and ident.persona_id:
                         # Query for persona-based interactions
@@ -170,9 +170,13 @@ def feed():
             # Get author name using eager-loaded relationships (no additional queries)
             # This provides better user experience by showing readable author names
             try:
-                if post.author_persona and hasattr(post.author_persona, 'name') and post.author_persona.name:
+                if hasattr(post, "author_persona") and post.author_persona and getattr(
+                    post.author_persona, "name", None
+                ):
                     post.author_name = post.author_persona.name
-                elif post.author_user and hasattr(post.author_user, 'username') and post.author_user.username:
+                elif hasattr(post, "author_user") and post.author_user and getattr(
+                    post.author_user, "username", None
+                ):
                     post.author_name = post.author_user.username
                 # If neither works, keep "Unknown" default
             except Exception as e:

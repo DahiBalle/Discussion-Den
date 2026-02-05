@@ -62,4 +62,3 @@ class CommunityForm(FlaskForm):
         "Community Rules", 
         validators=[Optional(), Length(max=1000, message="Rules too long")]
     )
-

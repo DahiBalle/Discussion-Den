@@ -7,15 +7,12 @@ from flask_login import current_user
 
 from models import Persona
 
-
 @dataclass(frozen=True)
 class IdentityContext:
     """
     Identity resolution used across routes and APIs.
-
     Why: business logic stays out of templates; routes use one shared, tested mental model.
     """
-
     active_persona: Persona | None
 
     @property
@@ -34,7 +31,6 @@ class IdentityContext:
     def user_id(self) -> int:
         return int(current_user.id)
 
-
 def get_active_persona() -> Persona | None:
     """
     Session-driven persona resolution.
@@ -52,7 +48,5 @@ def get_active_persona() -> Persona | None:
         return None
     return persona
 
-
 def get_identity() -> IdentityContext:
     return IdentityContext(active_persona=get_active_persona())
-

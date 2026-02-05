@@ -2,13 +2,157 @@
 
 {% block title %}r/{{ community.name }} - Discussion Den{% endblock %}
 
+{% block extra_head %}
+<style>
+/* Community page post cards matching feed design */
+.post-card-enhanced {
+    background: var(--gradient-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    transition: var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.post-card-enhanced::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-accent);
+    opacity: 0;
+    transition: var(--transition-base);
+}
+
+.post-card-enhanced:hover {
+    transform: var(--hover-lift);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-accent);
+}
+
+.post-card-enhanced:hover::before {
+    opacity: 1;
+}
+
+.post-header-enhanced {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.post-title-enhanced {
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+    line-height: 1.4;
+}
+
+.post-title-enhanced a {
+    color: inherit;
+    text-decoration: none;
+    transition: var(--transition-base);
+}
+
+.post-title-enhanced a:hover {
+    color: var(--accent-primary);
+}
+
+.post-body-enhanced {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--space-5);
+}
+
+.post-image-enhanced {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    margin-bottom: var(--space-5);
+    box-shadow: var(--shadow-md);
+}
+
+.action-buttons-enhanced {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.action-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.btn-action-enhanced {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-full);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    text-decoration: none;
+    transition: var(--transition-base);
+    cursor: pointer;
+}
+
+.btn-action-enhanced:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    transform: var(--hover-lift);
+    border-color: var(--border-accent);
+}
+
+.btn-action-enhanced.voted-up {
+    background: var(--user-bg);
+    color: var(--user-color);
+    border-color: var(--user-border);
+}
+
+.btn-action-enhanced.voted-down {
+    background: var(--persona-bg);
+    color: var(--persona-color);
+    border-color: var(--persona-border);
+}
+
+.btn-action-enhanced.saved {
+    background: var(--accent-warning);
+    color: white;
+    border-color: var(--accent-warning);
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Community Header -->
 <div class="card mb-4">
     <div class="card-body p-4">
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h1 class="h2 mb-0">r/{{ community.name }}</h1>
+            {% if current_user.is_authenticated %}
             <a href="{{ url_for('post.create_post') }}" class="btn btn-primary">Create Post</a>
+            {% else %}
+            <button type="button"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#authModal"
+                    data-auth-mode="login">
+                Create Post
+            </button>
+            {% endif %}
         </div>
         
         {% if community.description %}
@@ -27,46 +171,63 @@
 <!-- Posts -->
 {% if posts and posts|length > 0 %}
     {% for post in posts %}
-    <div class="post-card" data-post-id="{{ post.id }}">
-        <div class="post-header">
+    <article class="post-card-enhanced hover-lift" data-post-id="{{ post.id }}">
+        <header class="post-header-enhanced">
             {% if post.author_persona_id %}
-                <span class="persona-badge">Persona</span>
+                <div class="persona-badge-enhanced persona">
+                    <i class="fas fa-mask"></i>
+                    <span>Persona</span>
+                </div>
             {% else %}
-                <span class="user-badge">User</span>
+                <div class="persona-badge-enhanced user">
+                    <i class="fas fa-user"></i>
+                    <span>User</span>
+                </div>
             {% endif %}
             <span class="post-author">{{ post.author_name }}</span>
-            <span class="text-muted-custom">•</span>
-            <span class="post-meta">{{ post.created_at|timeago }}</span>
-        </div>
-        <h3 class="post-title">
-            <a href="{{ url_for('post.post_detail', post_id=post.id) }}" style="color: inherit; text-decoration: none;">
+            <span class="text-muted">•</span>
+            <time class="post-meta">{{ post.created_at|timeago }}</time>
+        </header>
+
+        <h2 class="post-title-enhanced">
+            <a href="{{ url_for('post.post_detail', post_id=post.id) }}">
                 {{ post.title }}
             </a>
-        </h3>
+        </h2>
+
         {% if post.body %}
-        <div class="post-body">{{ post.body }}</div>
+        <div class="post-body-enhanced">{{ post.body }}</div>
         {% endif %}
         {% if post.image_url %}
-        <img src="{{ post.image_url }}" alt="Post image" class="post-image">
+        <img src="{{ post.image_url }}" alt="Post image" class="post-image-enhanced">
         {% endif %}
-        <div class="action-buttons">
-            <button class="btn-action vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}" 
-                    data-post-id="{{ post.id }}" data-vote="1">
-                ▲ {{ post.upvotes or 0 }}
-            </button>
-            <button class="btn-action vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}" 
-                    data-post-id="{{ post.id }}" data-vote="-1">
-                ▼ {{ post.downvotes or 0 }}
-            </button>
-            <button class="btn-action save-btn {% if post.is_saved %}saved{% endif %}" 
-                    data-post-id="{{ post.id }}">
-                {% if post.is_saved %}★ Saved{% else %}☆ Save{% endif %}
-            </button>
-            <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn-action">
-                💬 Comments
-            </a>
-        </div>
-    </div>
+
+        <footer class="action-buttons-enhanced">
+            <div class="action-group">
+                <button class="btn-action-enhanced vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}"
+                        data-post-id="{{ post.id }}" data-vote="1">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>{{ post.upvotes or 0 }}</span>
+                </button>
+                <button class="btn-action-enhanced vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}"
+                        data-post-id="{{ post.id }}" data-vote="-1">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>{{ post.downvotes or 0 }}</span>
+                </button>
+                <button class="btn-action-enhanced save-btn {% if post.is_saved %}saved{% endif %}"
+                        data-post-id="{{ post.id }}">
+                    <i class="fas fa-{% if post.is_saved %}bookmark{% else %}bookmark-o{% endif %}"></i>
+                    <span>{% if post.is_saved %}Saved{% else %}Save{% endif %}</span>
+                </button>
+            </div>
+            <div class="action-group">
+                <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn-action-enhanced">
+                    <i class="fas fa-comments"></i>
+                    <span>Comments</span>
+                </a>
+            </div>
+        </footer>
+    </article>
     {% endfor %}
 {% else %}
     <div class="card">
@@ -76,7 +237,17 @@
                 <h3 class="h4 mb-3">No posts in r/{{ community.name }} yet</h3>
                 <p class="text-muted-custom mb-4">Be the first to start a discussion in this community.</p>
             </div>
+            {% if current_user.is_authenticated %}
             <a href="{{ url_for('post.create_post') }}" class="btn btn-primary btn-lg">Create First Post</a>
+            {% else %}
+            <button type="button"
+                    class="btn btn-primary btn-lg"
+                    data-bs-toggle="modal"
+                    data-bs-target="#authModal"
+                    data-auth-mode="login">
+                Create First Post
+            </button>
+            {% endif %}
         </div>
     </div>
 {% endif %}

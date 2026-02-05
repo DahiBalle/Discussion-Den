@@ -113,8 +113,16 @@ def register_post():
 
 @auth_bp.get("/login")
 def login():
-    form = LoginForm()
-    return render_template("auth/login.html", form=form)
+    # Unified auth experience: redirect to feed with query param so modal opens
+    if hasattr(login, "_redirect_guard"):
+        # Basic guard to avoid unlikely redirect loops
+        return redirect(url_for("feed.feed"))
+    setattr(login, "_redirect_guard", True)
+    try:
+        return redirect(url_for("feed.feed", auth="login"))
+    finally:
+        # remove guard for future requests
+        delattr(login, "_redirect_guard")
 
 
 @auth_bp.post("/login")

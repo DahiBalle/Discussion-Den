@@ -406,8 +406,13 @@ def add_comment_api(post_id: int):
 
 
 @api_bp.get("/post/<int:post_id>/comments")
-@login_required
 def comments(post_id: int):
+    """
+    Public comments endpoint.
+
+    - Read-only: anyone (authenticated or not) can view comments.
+    - Still validates post existence.
+    """
     Post.query.get_or_404(post_id)
     all_comments = (
         Comment.query.filter_by(post_id=post_id)
@@ -415,18 +420,34 @@ def comments(post_id: int):
         .all()
     )
 
-    personas = {p.id: p for p in Persona.query.filter(Persona.id.in_([c.author_persona_id for c in all_comments if c.author_persona_id])).all()}  # noqa: E501
+    personas = {
+        p.id: p
+        for p in Persona.query.filter(
+            Persona.id.in_(
+                [c.author_persona_id for c in all_comments if c.author_persona_id]
+            )
+        ).all()
+    }
 
     def to_json(c: Comment) -> dict:
-        author = None
         if c.author_persona_id:
             p = personas.get(c.author_persona_id)
-            author = {"type": "persona", "id": p.id, "name": p.name, "avatar": p.avatar}
+            author = {
+                "type": "persona",
+                "id": p.id if p else None,
+                "name": p.name if p else "Unknown",
+                "avatar": p.avatar if p else None,
+            }
         else:
             # Get username for user-type authors
             from models import User
+
             user = User.query.get(c.author_user_id) if c.author_user_id else None
-            author = {"type": "user", "id": c.author_user_id, "username": user.username if user else "Unknown"}
+            author = {
+                "type": "user",
+                "id": c.author_user_id,
+                "username": user.username if user else "Unknown",
+            }
         return {
             "id": c.id,
             "body": c.body,

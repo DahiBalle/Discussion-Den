@@ -274,7 +274,7 @@ a:hover {
 }
 
 .search-icon {
-    color: var(--text-muted);
+    color: var(--text-primary);
     margin: 0 var(--space-3);
     font-size: var(--text-sm);
 }
@@ -283,10 +283,9 @@ a:hover {
     flex: 1;
     background: none;
     border: none;
-    color: var(--text-primary);
+    color: var(--text-muted);
     font-size: var(--text-sm);
     outline: none;
-    padding: var(--space-1) 0;
 }
 
 .search-input::placeholder {

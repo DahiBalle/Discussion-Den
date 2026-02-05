@@ -3,14 +3,137 @@
 {% block title %}{{ post.title }} - Discussion Den{% endblock %}
 
 {% block extra_head %}
+<style>
+.post-card-enhanced {
+    background: var(--gradient-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    transition: var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.post-card-enhanced::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-accent);
+    opacity: 0;
+    transition: var(--transition-base);
+}
+
+.post-card-enhanced:hover {
+    transform: var(--hover-lift);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-accent);
+}
+
+.post-card-enhanced:hover::before {
+    opacity: 1;
+}
+
+.post-header-enhanced {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.post-title-enhanced {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+    line-height: 1.4;
+}
+
+.post-body-enhanced {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--space-5);
+}
+
+.post-image-enhanced {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    margin-bottom: var(--space-5);
+    box-shadow: var(--shadow-md);
+}
+
+.action-buttons-enhanced {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.action-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.btn-action-enhanced {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-full);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    text-decoration: none;
+    transition: var(--transition-base);
+    cursor: pointer;
+}
+
+.btn-action-enhanced:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    transform: var(--hover-lift);
+    border-color: var(--border-accent);
+}
+
+.btn-action-enhanced.voted-up {
+    background: var(--user-bg);
+    color: var(--user-color);
+    border-color: var(--user-border);
+}
+
+.btn-action-enhanced.voted-down {
+    background: var(--persona-bg);
+    color: var(--persona-color);
+    border-color: var(--persona-border);
+}
+
+.btn-action-enhanced.saved {
+    background: var(--accent-warning);
+    color: white;
+    border-color: var(--accent-warning);
+}
+</style>
 {% endblock %}
 
 {% block content %}
 <!-- Post Card -->
-<div class="post-card" data-post-id="{{ post.id }}">
-    <div class="post-header">
+<article class="post-card-enhanced hover-lift" data-post-id="{{ post.id }}">
+    <header class="post-header-enhanced">
         {% if post.author_persona_id %}
-            <span class="persona-badge">Persona</span>
+            <div class="persona-badge-enhanced persona">
+                <i class="fas fa-mask"></i>
+                <span>Persona</span>
+            </div>
             {% set author_persona = post.author_persona %}
             <span class="post-author">
                 <a href="{{ url_for('persona.persona_profile', persona_id=post.author_persona_id) }}" style="color: inherit; text-decoration: none;">
@@ -18,7 +141,10 @@
                 </a>
             </span>
         {% else %}
-            <span class="user-badge">User</span>
+            <div class="persona-badge-enhanced user">
+                <i class="fas fa-user"></i>
+                <span>User</span>
+            </div>
             {% set author_user = post.author_user %}
             <span class="post-author">
                 <a href="{{ url_for('profile.user_profile', username=author_user.username) if author_user else '#' }}" style="color: inherit; text-decoration: none;">
@@ -37,35 +163,42 @@
             </a>
         </span>
         {% endif %}
-    </div>
-    <h1 class="post-title">{{ post.title }}</h1>
+    </header>
+
+    <h1 class="post-title-enhanced">{{ post.title }}</h1>
     {% if post.body %}
-    <div class="post-body">{{ post.body }}</div>
+    <div class="post-body-enhanced">{{ post.body }}</div>
     {% endif %}
     {% if post.image_url %}
-    <img src="{{ post.image_url }}" alt="Post image" class="post-image">
+    <img src="{{ post.image_url }}" alt="Post image" class="post-image-enhanced">
     {% endif %}
-    <div class="action-buttons">
-        <button class="btn-action vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}" 
-                data-post-id="{{ post.id }}" data-vote="1">
-            ▲ {{ post.upvotes or 0 }}
-        </button>
-        <button class="btn-action vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}" 
-                data-post-id="{{ post.id }}" data-vote="-1">
-            ▼ {{ post.downvotes or 0 }}
-        </button>
-        <button class="btn-action save-btn {% if post.is_saved %}saved{% endif %}" 
-                data-post-id="{{ post.id }}">
-            {% if post.is_saved %}★ Saved{% else %}☆ Save{% endif %}
-        </button>
-        
+
+    <footer class="action-buttons-enhanced">
+        <div class="action-group">
+            <button class="btn-action-enhanced vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}" 
+                    data-post-id="{{ post.id }}" data-vote="1">
+                <i class="fas fa-arrow-up"></i>
+                <span>{{ post.upvotes or 0 }}</span>
+            </button>
+            <button class="btn-action-enhanced vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}" 
+                    data-post-id="{{ post.id }}" data-vote="-1">
+                <i class="fas fa-arrow-down"></i>
+                <span>{{ post.downvotes or 0 }}</span>
+            </button>
+            <button class="btn-action-enhanced save-btn {% if post.is_saved %}saved{% endif %}" 
+                    data-post-id="{{ post.id }}">
+                <i class="fas fa-{% if post.is_saved %}bookmark{% else %}bookmark-o{% endif %}"></i>
+                <span>{% if post.is_saved %}Saved{% else %}Save{% endif %}</span>
+            </button>
+        </div>
+
         <!-- Edit/Delete buttons for post owner -->
         {% if current_user.is_authenticated %}
             {% set current_identity = session.get('active_persona_id') %}
             {% if (post.author_user_id and post.author_user_id == current_user.id and not current_identity) or 
                   (post.author_persona_id and post.author_persona_id == current_identity) %}
-                <div class="ms-auto">
-                    <a href="{{ url_for('post.edit_post', post_id=post.id) }}" class="btn btn-sm btn-outline-secondary me-2">
+                <div class="ms-auto d-flex gap-2">
+                    <a href="{{ url_for('post.edit_post', post_id=post.id) }}" class="btn btn-sm btn-outline-secondary">
                         <i class="fas fa-edit"></i> Edit
                     </a>
                     <button class="btn btn-sm btn-outline-danger" onclick="confirmDeletePost({{ post.id }})">
@@ -74,10 +207,11 @@
                 </div>
             {% endif %}
         {% endif %}
-    </div>
-</div>
+    </footer>
+</article>
 
-<!-- Comment Form -->
+<!-- Comment Form (only shown for authenticated users) -->
+{% if current_user.is_authenticated %}
 <div class="card mb-4">
     <div class="card-header">
         <h5 class="mb-0">💬 Add a Comment</h5>
@@ -99,13 +233,14 @@
         </form>
     </div>
 </div>
+{% endif %}
 
 <!-- Comments Section -->
 <div class="card">
     <div class="card-header">
         <h5 class="mb-0">💬 Comments</h5>
     </div>
-    <div class="card-body p-4" id="comments-container">
+    <div class="card-body p-4" id="comments-container" data-is-authenticated="{{ '1' if current_user.is_authenticated else '0' }}">
         <!-- Comments will be loaded here -->
         <div class="loading">Loading comments...</div>
     </div>
@@ -115,6 +250,9 @@
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename='js/post.js') }}"></script>
 <script>
+// Server-side auth flag for comment reply behavior, derived from data attribute
+const IS_AUTHENTICATED = (document.getElementById('comments-container')?.dataset.isAuthenticated === '1');
+
 function confirmDeletePost(postId) {
     if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
         // Create a form and submit it
@@ -315,6 +453,20 @@ function formatTimeAgo(dateString) {
 
 // Reply form functions
 function showReplyForm(commentId) {
+    // If user is not authenticated, show auth modal instead of inline reply
+    if (!IS_AUTHENTICATED) {
+        if (typeof showAuthPrompt === 'function') {
+            showAuthPrompt('reply to comments');
+        } else if (typeof bootstrap !== 'undefined') {
+            const authModalEl = document.getElementById('authModal');
+            if (authModalEl) {
+                const authModal = new bootstrap.Modal(authModalEl);
+                authModal.show();
+            }
+        }
+        return;
+    }
+
     // Hide all other reply forms first
     document.querySelectorAll('.reply-form').forEach(form => {
         form.style.display = 'none';

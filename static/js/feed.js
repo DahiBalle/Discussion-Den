@@ -155,11 +155,11 @@ function createPostElement(post) {
         const div = document.createElement('div');
         div.className = 'post-card';
         div.setAttribute('data-post-id', post.id);
-        
-        const authorBadge = post.author_persona_id 
-            ? '<span class="persona-badge">Persona</span>' 
+
+        const authorBadge = post.author_persona_id
+            ? '<span class="persona-badge">Persona</span>'
             : '<span class="user-badge">User</span>';
-        
+
         // Safe time formatting with fallback
         let timeAgo = 'unknown';
         try {
@@ -168,7 +168,7 @@ function createPostElement(post) {
             console.warn('Error formatting time for post', post.id, timeError);
             timeAgo = 'recently';
         }
-        
+
         div.innerHTML = `
             <div class="post-header">
                 ${authorBadge}
@@ -198,23 +198,23 @@ function createPostElement(post) {
                 <a href="/post/${post.id}" class="btn-action">💬 ${post.comment_count || 0} Comments</a>
             </div>
         `;
-        
+
         // Re-attach event listeners
         const voteBtns = div.querySelectorAll('.vote-btn');
         voteBtns.forEach(btn => {
             btn.addEventListener('click', handleVote);
         });
-        
+
         const saveBtn = div.querySelector('.save-btn');
         if (saveBtn) {
             saveBtn.addEventListener('click', handleSave);
         }
-        
+
         return div;
-        
+
     } catch (error) {
         console.error('Error creating post element:', error, 'Post data:', post);
-        
+
         // Return a minimal error post element to prevent complete failure
         const errorDiv = document.createElement('div');
         errorDiv.className = 'post-card';
@@ -230,7 +230,6 @@ function createPostElement(post) {
         `;
         return errorDiv;
     }
-}
 }
 
 /**

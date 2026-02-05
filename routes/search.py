@@ -8,7 +8,6 @@ from models import Post, Community, User
 
 search_bp = Blueprint("search", __name__, url_prefix="/search")
 
-
 @search_bp.get("/")
 def search():
     """

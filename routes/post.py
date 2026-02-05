@@ -13,22 +13,23 @@ post_bp = Blueprint("post", __name__)
 
 
 @post_bp.get("/post/<int:post_id>")
-@login_required
 def post_detail(post_id: int):
     post = Post.query.get_or_404(post_id)
-    ident = get_identity()
-    
-    # Get vote and save status for current identity
-    from models import Vote, SavedPost
-    if ident.is_persona:
-        vote = Vote.query.filter_by(post_id=post_id, voted_by_persona_id=ident.persona_id).first()
-        saved = SavedPost.query.filter_by(post_id=post_id, saved_by_persona_id=ident.persona_id).first()
-    else:
-        vote = Vote.query.filter_by(post_id=post_id, voted_by_user_id=ident.user_id).first()
-        saved = SavedPost.query.filter_by(post_id=post_id, saved_by_user_id=ident.user_id).first()
-    
-    post.user_vote = vote.value if vote else 0
-    post.is_saved = saved is not None
+    # Only resolve identity and personalized data for authenticated users
+    post.user_vote = 0
+    post.is_saved = False
+    if current_user.is_authenticated:
+        from models import Vote, SavedPost
+        ident = get_identity()
+        if ident.is_persona:
+            vote = Vote.query.filter_by(post_id=post_id, voted_by_persona_id=ident.persona_id).first()
+            saved = SavedPost.query.filter_by(post_id=post_id, saved_by_persona_id=ident.persona_id).first()
+        else:
+            vote = Vote.query.filter_by(post_id=post_id, voted_by_user_id=ident.user_id).first()
+            saved = SavedPost.query.filter_by(post_id=post_id, saved_by_user_id=ident.user_id).first()
+        
+        post.user_vote = vote.value if vote else 0
+        post.is_saved = saved is not None
     
     return render_template(
         "post_detail.html",

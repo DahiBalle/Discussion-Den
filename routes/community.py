@@ -14,7 +14,6 @@ community_bp = Blueprint("community", __name__)
 
 
 @community_bp.get("/community/<string:community_name>")
-@login_required
 def community_page(community_name: str):
     """
     Display posts for a specific community.
@@ -27,8 +26,10 @@ def community_page(community_name: str):
     if not community:
         abort(404)
     
-    # Get identity for template context
-    ident = get_identity()
+    # Get identity for template context (only for authenticated users)
+    ident = None
+    if current_user.is_authenticated:
+        ident = get_identity()
     
     # Get recent posts for this community (limit for performance)
     posts = (
@@ -42,15 +43,20 @@ def community_page(community_name: str):
     # Add vote/save status for each post (reusing existing logic)
     from models import Vote, SavedPost
     for post in posts:
-        if ident.is_persona:
-            vote = Vote.query.filter_by(post_id=post.id, voted_by_persona_id=ident.persona_id).first()
-            saved = SavedPost.query.filter_by(post_id=post.id, saved_by_persona_id=ident.persona_id).first()
-        else:
-            vote = Vote.query.filter_by(post_id=post.id, voted_by_user_id=ident.user_id).first()
-            saved = SavedPost.query.filter_by(post_id=post.id, saved_by_user_id=ident.user_id).first()
-        
-        post.user_vote = vote.value if vote else 0
-        post.is_saved = saved is not None
+        # defaults for anonymous users
+        post.user_vote = 0
+        post.is_saved = False
+
+        if ident:
+            if ident.is_persona:
+                vote = Vote.query.filter_by(post_id=post.id, voted_by_persona_id=ident.persona_id).first()
+                saved = SavedPost.query.filter_by(post_id=post.id, saved_by_persona_id=ident.persona_id).first()
+            else:
+                vote = Vote.query.filter_by(post_id=post.id, voted_by_user_id=ident.user_id).first()
+                saved = SavedPost.query.filter_by(post_id=post.id, saved_by_user_id=ident.user_id).first()
+            
+            post.user_vote = vote.value if vote else 0
+            post.is_saved = saved is not None
         
         # Add author name for display (reusing API logic)
         if post.author_persona_id:
@@ -73,7 +79,6 @@ def community_page(community_name: str):
 
 
 @community_bp.get("/communities")
-@login_required
 def communities_list():
     """
     List all available communities.
@@ -81,7 +86,7 @@ def communities_list():
     Safety: Read-only operation, no modifications.
     """
     communities = Community.query.order_by(Community.name.asc()).all()
-    ident = get_identity()
+    ident = get_identity() if current_user.is_authenticated else None
     
     # Add post count for each community
     for community in communities:
