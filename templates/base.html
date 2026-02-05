@@ -1,6 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
+    <!-- Critical: Apply theme immediately before any rendering to prevent FOUC -->
+    <script>
+    (function() {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        const html = document.documentElement;
+        html.setAttribute('data-theme', savedTheme);
+        // Also set on body if it exists (for immediate styling)
+        if (document.body) {
+            document.body.setAttribute('data-theme', savedTheme);
+        }
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -272,6 +284,12 @@
                 <!-- User Menu -->
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
+                        <!-- Theme Toggle -->
+                        <li class="nav-item me-2">
+                            <button class="btn btn-outline-secondary btn-sm theme-toggle-btn" type="button" aria-label="Toggle theme">
+                                <i class="fas fa-moon theme-icon"></i>
+                            </button>
+                        </li>
                         <!-- Persona Switcher -->
                         <li class="nav-item dropdown me-3">
                             <a class="nav-link dropdown-toggle persona-switcher" href="#" id="personaDropdown" role="button" data-bs-toggle="dropdown">
@@ -349,6 +367,11 @@
                             </ul>
                         </li>
                     {% else %}
+                        <li class="nav-item me-2">
+                            <button class="btn btn-outline-secondary btn-sm theme-toggle-btn" type="button" aria-label="Toggle theme">
+                                <i class="fas fa-moon theme-icon"></i>
+                            </button>
+                        </li>
                         <li class="nav-item me-2">
                             <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-mode="login">
                                 <i class="fas fa-sign-in-alt me-1"></i>Login
@@ -602,6 +625,52 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/persona.js') }}"></script>
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script>
+    // Theme Toggle Functionality (UI updates only - theme is already set in head)
+    document.addEventListener('DOMContentLoaded', function() {
+        const html = document.documentElement;
+        const themeToggleButtons = document.querySelectorAll('.theme-toggle-btn');
+        const themeIcons = document.querySelectorAll('.theme-icon');
+        
+        // Get current theme (already set in head script)
+        const currentTheme = html.getAttribute('data-theme') || localStorage.getItem('theme') || 'dark';
+        
+        // Apply saved theme on page load
+        function applyTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            if (document.body) {
+                document.body.setAttribute('data-theme', theme);
+            }
+            localStorage.setItem('theme', theme);
+            
+            // Update all icons
+            themeIcons.forEach(icon => {
+                if (theme === 'light') {
+                    icon.className = 'fas fa-sun theme-icon';
+                } else {
+                    icon.className = 'fas fa-moon theme-icon';
+                }
+            });
+            
+            // Update all button aria-labels
+            themeToggleButtons.forEach(btn => {
+                btn.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+            });
+        }
+        
+        // Initialize icons based on current theme
+        applyTheme(currentTheme);
+        
+        // Toggle theme on button click (handle all toggle buttons)
+        themeToggleButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const currentTheme = html.getAttribute('data-theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                applyTheme(newTheme);
+            });
+        });
+    });
+    </script>
     
     <!-- Authentication Modal Script -->
     {% if not current_user.is_authenticated %}
