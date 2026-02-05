@@ -411,12 +411,12 @@
         Sign up or log in to create posts, engage with the community, and be part of meaningful discussions.
     </p>
     <div class="d-flex gap-3 justify-content-center">
-        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-mode="register">
             <i class="fas fa-user-plus me-2"></i>Sign Up
-        </a>
-        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">
+        </button>
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-mode="login">
             <i class="fas fa-sign-in-alt me-2"></i>Log In
-        </a>
+        </button>
     </div>
 </div>
 {% endif %}
@@ -508,12 +508,12 @@
             <p class="text-muted">Use the create post form above to get started!</p>
             {% else %}
             <div class="d-flex gap-3 justify-content-center">
-                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-mode="register">
                     <i class="fas fa-user-plus me-2"></i>Join Discussion Den
-                </a>
-                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">
+                </button>
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-mode="login">
                     <i class="fas fa-sign-in-alt me-2"></i>Login
-                </a>
+                </button>
             </div>
             {% endif %}
         </div>

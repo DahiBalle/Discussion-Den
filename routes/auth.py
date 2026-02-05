@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import secrets
 import string
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for, jsonify
 from flask_login import login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -75,13 +75,22 @@ def register():
 def register_post():
     form = RegisterForm()
     if not form.validate_on_submit():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return {"success": False, "errors": form.errors}, 400
         return render_template("auth/register.html", form=form), 400
 
     if User.query.filter_by(username=form.username.data.strip()).first():
-        flash("That username is taken.", "danger")
+        error_msg = "That username is taken."
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return {"success": False, "message": error_msg}, 400
+        flash(error_msg, "danger")
         return render_template("auth/register.html", form=form), 400
+        
     if User.query.filter_by(email=form.email.data.strip().lower()).first():
-        flash("That email is already registered.", "danger")
+        error_msg = "That email is already registered."
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return {"success": False, "message": error_msg}, 400
+        flash(error_msg, "danger")
         return render_template("auth/register.html", form=form), 400
 
     user = User(
@@ -94,6 +103,10 @@ def register_post():
 
     login_user(user)
     session["active_persona_id"] = None
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return {"success": True, "message": "Welcome! Your account is ready.", "redirect": url_for("feed.feed")}
+    
     flash("Welcome! Your account is ready.", "success")
     return redirect(url_for("feed.feed"))
 
@@ -108,17 +121,26 @@ def login():
 def login_post():
     form = LoginForm()
     if not form.validate_on_submit():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return {"success": False, "errors": form.errors}, 400
         return render_template("auth/login.html", form=form), 400
 
     user = User.query.filter_by(username=form.username.data.strip()).first()
     if not user or not check_password_hash(user.password_hash, form.password.data):
-        flash("Invalid username or password.", "danger")
+        error_msg = "Invalid username or password."
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return {"success": False, "message": error_msg}, 401
+        flash(error_msg, "danger")
         return render_template("auth/login.html", form=form), 401
 
     login_user(user)
     # Keep prior persona if still valid; otherwise reset.
     if request.args.get("reset_persona") == "1":
         session["active_persona_id"] = None
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return {"success": True, "message": "Logged in successfully!", "redirect": url_for("feed.feed")}
+    
     flash("Logged in.", "success")
     return redirect(url_for("feed.feed"))
 
