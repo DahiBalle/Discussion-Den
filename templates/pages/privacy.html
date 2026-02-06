@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - Discussion Den{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Reuse page styles from about.html - Theme-aware */
+.page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-6);
+}
+
+.page-hero {
+    background: var(--gradient-hero);
+    padding: var(--space-12) 0;
+    margin: calc(-1 * var(--space-8)) calc(-1 * var(--space-6)) var(--space-8);
+    border-radius: 0 0 var(--border-radius-xl) var(--border-radius-xl);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.02)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.5;
+}
+
+.page-hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.page-title {
+    font-size: var(--text-4xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-4);
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.content-section {
+    background: var(--gradient-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-8);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-md);
+}
+
+.content-section h2 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.content-section h2 i {
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-accent);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-lg);
+    color: white;
+}
+
+.content-section h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
+}
+
+.content-section p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-4);
+}
+
+.content-section strong {
+    color: var(--text-primary);
+}
+
+.content-section a {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.content-section a:hover {
+    text-decoration: underline;
+}
+
+.content-section ul {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-4);
+    padding-left: var(--space-6);
+}
+
+.content-section li {
+    margin-bottom: var(--space-2);
+}
+
+.highlight-box {
+    background: var(--bg-tertiary);
+    border-left: 4px solid var(--accent-primary);
+    padding: var(--space-4);
+    border-radius: var(--border-radius);
+    margin: var(--space-4) 0;
+}
+
+.highlight-box p {
+    margin-bottom: 0;
+}
+
+.highlight-box strong {
+    color: var(--text-primary);
+}
+
+.last-updated {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    margin-top: var(--space-8);
+    padding: var(--space-4);
+    background: var(--bg-tertiary);
+    border-radius: var(--border-radius);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Hero Section -->
+    <div class="page-hero">
+        <div class="page-hero-content">
+            <h1 class="page-title">Privacy Policy</h1>
+            <p class="page-subtitle">
+                Your privacy matters to us. Learn how we collect, use, and protect your information.
+            </p>
+        </div>
+    </div>
+
+    <!-- Introduction -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-shield-alt"></i>
+            Our Commitment to Privacy
+        </h2>
+        <p>
+            At Discussion Den, we take your privacy seriously. This Privacy Policy explains how we collect, 
+            use, disclose, and safeguard your information when you use our platform. Please read this policy 
+            carefully to understand our practices regarding your personal data.
+        </p>
+        <div class="highlight-box">
+            <p>
+                <strong>Key Principle:</strong> We only collect information necessary to provide and improve 
+                our services. We never sell your personal information to third parties.
+            </p>
+        </div>
+    </div>
+
+    <!-- Information We Collect -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-database"></i>
+            Information We Collect
+        </h2>
+        
+        <h3>1. Information You Provide</h3>
+        <p>When you create an account or use Discussion Den, you may provide:</p>
+        <ul>
+            <li><strong>Account Information:</strong> Username, email address, password (encrypted)</li>
+            <li><strong>Profile Information:</strong> Bio, profile customizations, persona details</li>
+            <li><strong>Content:</strong> Posts, comments, votes, and community interactions</li>
+            <li><strong>Communications:</strong> Messages sent through our platform or support channels</li>
+        </ul>
+
+        <h3>2. Automatically Collected Information</h3>
+        <p>When you use our platform, we automatically collect:</p>
+        <ul>
+            <li><strong>Usage Data:</strong> Pages visited, features used, time spent on platform</li>
+            <li><strong>Device Information:</strong> Browser type, operating system, IP address</li>
+            <li><strong>Cookies:</strong> Session cookies for authentication and preferences</li>
+        </ul>
+
+        <h3>3. OAuth Authentication</h3>
+        <p>If you sign in with Google OAuth:</p>
+        <ul>
+            <li>We receive your email address and name from Google</li>
+            <li>We do NOT store OAuth tokens or access your Google account data</li>
+            <li>You can revoke access anytime through your Google account settings</li>
+        </ul>
+    </div>
+
+    <!-- How We Use Information -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-cogs"></i>
+            How We Use Your Information
+        </h2>
+        <p>We use the collected information to:</p>
+        <ul>
+            <li><strong>Provide Services:</strong> Enable account creation, posting, commenting, and community features</li>
+            <li><strong>Improve Platform:</strong> Analyze usage patterns to enhance user experience</li>
+            <li><strong>Security:</strong> Detect and prevent fraud, abuse, and security threats</li>
+            <li><strong>Communication:</strong> Send important updates, notifications, and support responses</li>
+            <li><strong>Personalization:</strong> Customize your experience based on preferences</li>
+            <li><strong>Legal Compliance:</strong> Comply with applicable laws and regulations</li>
+        </ul>
+    </div>
+
+    <!-- Data Storage and Security -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-lock"></i>
+            Data Storage and Security
+        </h2>
+        <p>
+            We implement industry-standard security measures to protect your information:
+        </p>
+        <ul>
+            <li><strong>Encryption:</strong> Passwords are hashed using secure algorithms</li>
+            <li><strong>Secure Storage:</strong> Data stored in PostgreSQL database with access controls</li>
+            <li><strong>HTTPS:</strong> All data transmission encrypted using SSL/TLS</li>
+            <li><strong>CSRF Protection:</strong> Protection against cross-site request forgery</li>
+            <li><strong>Rate Limiting:</strong> Protection against brute force attacks</li>
+        </ul>
+        <div class="highlight-box">
+            <p>
+                <strong>Note:</strong> While we implement strong security measures, no system is 100% secure. 
+                Please use a strong, unique password for your account.
+            </p>
+        </div>
+    </div>
+
+    <!-- Data Sharing -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-share-alt"></i>
+            Information Sharing and Disclosure
+        </h2>
+        <p>We do NOT sell your personal information. We may share information only in these limited circumstances:</p>
+        <ul>
+            <li><strong>Public Content:</strong> Posts and comments you create are publicly visible</li>
+            <li><strong>Service Providers:</strong> Trusted third parties who help operate our platform (hosting, analytics)</li>
+            <li><strong>Legal Requirements:</strong> When required by law or to protect rights and safety</li>
+            <li><strong>Business Transfers:</strong> In case of merger, acquisition, or asset sale</li>
+        </ul>
+    </div>
+
+    <!-- Your Rights -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-user-shield"></i>
+            Your Privacy Rights
+        </h2>
+        <p>You have the following rights regarding your personal information:</p>
+        <ul>
+            <li><strong>Access:</strong> Request a copy of your personal data</li>
+            <li><strong>Correction:</strong> Update or correct inaccurate information</li>
+            <li><strong>Deletion:</strong> Request deletion of your account and data</li>
+            <li><strong>Export:</strong> Download your posts and comments</li>
+            <li><strong>Opt-Out:</strong> Unsubscribe from non-essential communications</li>
+        </ul>
+        <p>
+            To exercise these rights, please contact us at <strong>Discussionden@gmail.com</strong>.
+        </p>
+    </div>
+
+    <!-- Cookies -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-cookie-bite"></i>
+            Cookies and Tracking
+        </h2>
+        <p>
+            We use cookies and similar technologies to:
+        </p>
+        <ul>
+            <li>Keep you logged in to your account</li>
+            <li>Remember your preferences and settings</li>
+            <li>Understand how you use our platform</li>
+            <li>Improve platform performance and security</li>
+        </ul>
+        <p>
+            You can control cookies through your browser settings, but disabling cookies may affect 
+            platform functionality.
+        </p>
+    </div>
+
+    <!-- Children's Privacy -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-child"></i>
+            Children's Privacy
+        </h2>
+        <p>
+            Discussion Den is not intended for users under 13 years of age. We do not knowingly collect 
+            personal information from children under 13. If you believe we have collected information from 
+            a child under 13, please contact us immediately.
+        </p>
+    </div>
+
+    <!-- Changes to Policy -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-edit"></i>
+            Changes to This Policy
+        </h2>
+        <p>
+            We may update this Privacy Policy from time to time. We will notify you of significant changes 
+            by posting a notice on our platform or sending an email. Your continued use of Discussion Den 
+            after changes constitutes acceptance of the updated policy.
+        </p>
+    </div>
+
+    <!-- Contact -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-envelope"></i>
+            Contact Us
+        </h2>
+        <p>
+            If you have questions or concerns about this Privacy Policy or our data practices, please contact us:
+        </p>
+        <ul>
+            <li><strong>Email:</strong> Discussionden@gmail.com</li>
+            <li><strong>Support:</strong> <a href="{{ url_for('pages.help_page') }}">Visit our Help Center</a></li>
+        </ul>
+    </div>
+
+    <!-- Last Updated -->
+    <div class="last-updated">
+        <p><strong>Last Updated:</strong> January 2026</p>
+        <p>This policy is effective as of the date listed above.</p>
+    </div>
+</div>
+{% endblock %}

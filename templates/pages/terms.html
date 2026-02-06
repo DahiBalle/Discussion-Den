@@ -1,0 +1,435 @@
+{% extends "base.html" %}
+
+{% block title %}Terms of Service - Discussion Den{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Reuse page styles - Theme-aware */
+.page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-6);
+}
+
+.page-hero {
+    background: var(--gradient-hero);
+    padding: var(--space-12) 0;
+    margin: calc(-1 * var(--space-8)) calc(-1 * var(--space-6)) var(--space-8);
+    border-radius: 0 0 var(--border-radius-xl) var(--border-radius-xl);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.02)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.5;
+}
+
+.page-hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.page-title {
+    font-size: var(--text-4xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-4);
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.content-section {
+    background: var(--gradient-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-8);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-md);
+}
+
+.content-section h2 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.content-section h2 i {
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-accent);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-lg);
+    color: white;
+}
+
+.content-section h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
+}
+
+.content-section p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-4);
+}
+
+.content-section strong {
+    color: var(--text-primary);
+}
+
+.content-section a {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.content-section a:hover {
+    text-decoration: underline;
+}
+
+.content-section ul, .content-section ol {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-4);
+    padding-left: var(--space-6);
+}
+
+.content-section li {
+    margin-bottom: var(--space-2);
+}
+
+.highlight-box {
+    background: var(--bg-tertiary);
+    border-left: 4px solid var(--accent-warning);
+    padding: var(--space-4);
+    border-radius: var(--border-radius);
+    margin: var(--space-4) 0;
+}
+
+.highlight-box p {
+    margin-bottom: 0;
+}
+
+.highlight-box strong {
+    color: var(--text-primary);
+}
+
+.last-updated {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    margin-top: var(--space-8);
+    padding: var(--space-4);
+    background: var(--bg-tertiary);
+    border-radius: var(--border-radius);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Hero Section -->
+    <div class="page-hero">
+        <div class="page-hero-content">
+            <h1 class="page-title">Terms of Service</h1>
+            <p class="page-subtitle">
+                Please read these terms carefully before using Discussion Den
+            </p>
+        </div>
+    </div>
+
+    <!-- Introduction -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-file-contract"></i>
+            Agreement to Terms
+        </h2>
+        <p>
+            Welcome to Discussion Den! By accessing or using our platform, you agree to be bound by these 
+            Terms of Service ("Terms"). If you disagree with any part of these terms, you may not access 
+            or use our services.
+        </p>
+        <div class="highlight-box">
+            <p>
+                <strong>Important:</strong> These Terms constitute a legally binding agreement between you 
+                and Discussion Den. Please read them carefully.
+            </p>
+        </div>
+    </div>
+
+    <!-- Eligibility -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-user-check"></i>
+            Eligibility
+        </h2>
+        <p>To use Discussion Den, you must:</p>
+        <ul>
+            <li>Be at least 13 years of age</li>
+            <li>Have the legal capacity to enter into binding contracts</li>
+            <li>Not be prohibited from using our services under applicable laws</li>
+            <li>Provide accurate and complete registration information</li>
+        </ul>
+        <p>
+            If you are under 18, you represent that you have your parent or guardian's permission to use 
+            Discussion Den.
+        </p>
+    </div>
+
+    <!-- Account Responsibilities -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-user-shield"></i>
+            Account Responsibilities
+        </h2>
+        <p>When you create an account on Discussion Den, you agree to:</p>
+        <ul>
+            <li>Provide accurate, current, and complete information</li>
+            <li>Maintain the security of your password and account</li>
+            <li>Notify us immediately of any unauthorized access</li>
+            <li>Accept responsibility for all activities under your account</li>
+            <li>Not share your account credentials with others</li>
+            <li>Not create multiple accounts to evade bans or restrictions</li>
+        </ul>
+        <p>
+            You are solely responsible for your account and any consequences of its use or misuse.
+        </p>
+    </div>
+
+    <!-- Community Guidelines -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-gavel"></i>
+            Community Guidelines and Conduct
+        </h2>
+        <p>Discussion Den is built on respect and constructive dialogue. You agree NOT to:</p>
+        
+        <h3>Prohibited Content</h3>
+        <ul>
+            <li>Post illegal, harmful, threatening, or abusive content</li>
+            <li>Harass, bully, or intimidate other users</li>
+            <li>Share hate speech, discriminatory content, or incite violence</li>
+            <li>Post sexually explicit or inappropriate content</li>
+            <li>Share personal information of others without consent</li>
+            <li>Impersonate others or misrepresent your identity</li>
+            <li>Post spam, advertisements, or promotional content</li>
+        </ul>
+
+        <h3>Prohibited Activities</h3>
+        <ul>
+            <li>Manipulate votes or engagement metrics</li>
+            <li>Use bots, scripts, or automated tools without permission</li>
+            <li>Attempt to hack, disrupt, or compromise platform security</li>
+            <li>Scrape or collect user data without authorization</li>
+            <li>Interfere with other users' enjoyment of the platform</li>
+            <li>Violate intellectual property rights</li>
+        </ul>
+
+        <div class="highlight-box">
+            <p>
+                <strong>Enforcement:</strong> Violations may result in content removal, account suspension, 
+                or permanent ban, at our sole discretion.
+            </p>
+        </div>
+    </div>
+
+    <!-- Content and Intellectual Property -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-copyright"></i>
+            Content and Intellectual Property
+        </h2>
+        
+        <h3>Your Content</h3>
+        <p>
+            You retain ownership of content you post on Discussion Den. However, by posting content, you grant us:
+        </p>
+        <ul>
+            <li>A worldwide, non-exclusive, royalty-free license to use, display, and distribute your content</li>
+            <li>The right to modify content for technical compatibility</li>
+            <li>The right to remove content that violates these Terms</li>
+        </ul>
+
+        <h3>Platform Content</h3>
+        <p>
+            Discussion Den's design, features, and functionality are owned by us and protected by copyright, 
+            trademark, and other intellectual property laws. You may not:
+        </p>
+        <ul>
+            <li>Copy, modify, or create derivative works of our platform</li>
+            <li>Reverse engineer or attempt to extract source code</li>
+            <li>Use our trademarks or branding without permission</li>
+        </ul>
+    </div>
+
+    <!-- Privacy -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-lock"></i>
+            Privacy
+        </h2>
+        <p>
+            Your privacy is important to us. Our collection and use of personal information is governed by 
+            our <a href="{{ url_for('pages.privacy') }}">Privacy Policy</a>, which is incorporated into 
+            these Terms by reference.
+        </p>
+    </div>
+
+    <!-- Disclaimers -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-exclamation-triangle"></i>
+            Disclaimers and Limitations
+        </h2>
+        
+        <h3>Service "As Is"</h3>
+        <p>
+            Discussion Den is provided "as is" and "as available" without warranties of any kind, either 
+            express or implied. We do not guarantee:
+        </p>
+        <ul>
+            <li>Uninterrupted or error-free service</li>
+            <li>Accuracy or reliability of content</li>
+            <li>Security of data transmission</li>
+            <li>Compatibility with all devices or browsers</li>
+        </ul>
+
+        <h3>Limitation of Liability</h3>
+        <p>
+            To the maximum extent permitted by law, Discussion Den shall not be liable for:
+        </p>
+        <ul>
+            <li>Indirect, incidental, or consequential damages</li>
+            <li>Loss of profits, data, or goodwill</li>
+            <li>User-generated content or third-party actions</li>
+            <li>Service interruptions or technical issues</li>
+        </ul>
+    </div>
+
+    <!-- Termination -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-ban"></i>
+            Termination
+        </h2>
+        <p>
+            We reserve the right to suspend or terminate your account at any time, with or without notice, for:
+        </p>
+        <ul>
+            <li>Violation of these Terms</li>
+            <li>Fraudulent or illegal activity</li>
+            <li>Harm to other users or the platform</li>
+            <li>Extended inactivity</li>
+        </ul>
+        <p>
+            You may terminate your account at any time by contacting us. Upon termination, your right to 
+            use Discussion Den immediately ceases.
+        </p>
+    </div>
+
+    <!-- Modifications -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-edit"></i>
+            Changes to Terms
+        </h2>
+        <p>
+            We may modify these Terms at any time. We will notify you of significant changes by:
+        </p>
+        <ul>
+            <li>Posting a notice on our platform</li>
+            <li>Sending an email to your registered address</li>
+            <li>Updating the "Last Updated" date below</li>
+        </ul>
+        <p>
+            Your continued use of Discussion Den after changes constitutes acceptance of the modified Terms.
+        </p>
+    </div>
+
+    <!-- Governing Law -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-balance-scale"></i>
+            Governing Law and Disputes
+        </h2>
+        <p>
+            These Terms are governed by and construed in accordance with applicable laws. Any disputes 
+            arising from these Terms or your use of Discussion Den shall be resolved through:
+        </p>
+        <ol>
+            <li>Good faith negotiation between parties</li>
+            <li>Mediation, if negotiation fails</li>
+            <li>Binding arbitration or court proceedings as a last resort</li>
+        </ol>
+        <p>
+            <em>Note: Specific jurisdiction and venue details should be added based on your location.</em>
+        </p>
+    </div>
+
+    <!-- Contact -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-envelope"></i>
+            Contact Information
+        </h2>
+        <p>
+            If you have questions about these Terms, please contact us:
+        </p>
+        <ul>
+            <li><strong>Email:</strong> Discussionden@gmail.com</li>
+            <li><strong>Support:</strong> <a href="{{ url_for('pages.help_page') }}">Help Center</a></li>
+        </ul>
+    </div>
+
+    <!-- Severability -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-puzzle-piece"></i>
+            Miscellaneous
+        </h2>
+        <p>
+            <strong>Severability:</strong> If any provision of these Terms is found to be unenforceable, 
+            the remaining provisions will continue in full effect.
+        </p>
+        <p>
+            <strong>Entire Agreement:</strong> These Terms, along with our Privacy Policy, constitute the 
+            entire agreement between you and Discussion Den.
+        </p>
+        <p>
+            <strong>No Waiver:</strong> Our failure to enforce any right or provision does not constitute 
+            a waiver of that right or provision.
+        </p>
+    </div>
+
+    <!-- Last Updated -->
+    <div class="last-updated">
+        <p><strong>Last Updated:</strong> January 2026</p>
+        <p>These Terms are effective as of the date listed above.</p>
+    </div>
+</div>
+{% endblock %}

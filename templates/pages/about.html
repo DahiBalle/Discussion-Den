@@ -1,0 +1,368 @@
+{% extends "base.html" %}
+
+{% block title %}About - Discussion Den{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Page-specific styles - Theme-aware */
+.page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-6);
+}
+
+.page-hero {
+    background: var(--gradient-hero);
+    padding: var(--space-12) 0;
+    margin: calc(-1 * var(--space-8)) calc(-1 * var(--space-6)) var(--space-8);
+    border-radius: 0 0 var(--border-radius-xl) var(--border-radius-xl);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.02)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.02)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.5;
+}
+
+.page-hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.page-title {
+    font-size: var(--text-4xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-4);
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.content-section {
+    background: var(--gradient-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-8);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-md);
+}
+
+.content-section h2 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.content-section h2 i {
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-accent);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-lg);
+    color: white;
+}
+
+.content-section p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-4);
+}
+
+.content-section p:last-child {
+    margin-bottom: 0;
+}
+
+.content-section strong {
+    color: var(--text-primary);
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-6);
+    margin-top: var(--space-6);
+}
+
+.feature-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-6);
+    transition: var(--transition-base);
+}
+
+.feature-card:hover {
+    transform: var(--hover-lift);
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-md);
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--gradient-accent);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-xl);
+    color: white;
+    margin-bottom: var(--space-4);
+}
+
+.feature-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.feature-description {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+}
+
+.stat-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-6);
+    text-align: center;
+}
+
+.stat-value {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--space-2);
+}
+
+.stat-label {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cta-section {
+    background: var(--gradient-accent);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-8);
+    text-align: center;
+    color: white;
+    margin-top: var(--space-8);
+}
+
+.cta-title {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-4);
+}
+
+.cta-description {
+    font-size: var(--text-base);
+    margin-bottom: var(--space-6);
+    opacity: 0.9;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-cta {
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--border-radius-lg);
+    font-weight: var(--font-semibold);
+    transition: var(--transition-base);
+}
+
+.btn-cta-primary {
+    background: white;
+    color: var(--accent-primary);
+}
+
+.btn-cta-primary:hover {
+    transform: var(--hover-lift);
+    box-shadow: var(--shadow-lg);
+    color: var(--accent-primary);
+}
+
+.btn-cta-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: var(--hover-lift);
+    color: white;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Hero Section -->
+    <div class="page-hero">
+        <div class="page-hero-content">
+            <h1 class="page-title">About Discussion Den</h1>
+            <p class="page-subtitle">
+                A vibrant community platform where ideas flourish and meaningful conversations happen
+            </p>
+        </div>
+    </div>
+
+    <!-- Mission Section -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-bullseye"></i>
+            Our Mission
+        </h2>
+        <p>
+            Discussion Den was created to provide a safe, engaging, and inclusive space for people to share ideas, 
+            ask questions, and engage in meaningful conversations. We believe that everyone has valuable perspectives 
+            to contribute, and our platform is designed to amplify diverse voices while fostering respectful dialogue.
+        </p>
+        <p>
+            Whether you're passionate about technology, arts, science, or any other topic, Discussion Den provides 
+            the tools and community to help you connect with like-minded individuals and explore new perspectives.
+        </p>
+    </div>
+
+    <!-- Features Section -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-star"></i>
+            What Makes Us Special
+        </h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="feature-title">Community-Driven</div>
+                <div class="feature-description">
+                    Create and join communities around your interests. Build connections with people who share your passions.
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mask"></i>
+                </div>
+                <div class="feature-title">Persona System</div>
+                <div class="feature-description">
+                    Express different aspects of yourself with personas. Engage authentically in various contexts.
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="feature-title">Safe & Respectful</div>
+                <div class="feature-description">
+                    Community guidelines and moderation tools ensure a positive environment for everyone.
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="feature-title">Rich Discussions</div>
+                <div class="feature-description">
+                    Nested comments, voting, and bookmarking make it easy to follow and participate in conversations.
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="feature-title">Easy Discovery</div>
+                <div class="feature-description">
+                    Find trending posts, explore new communities, and discover content that matters to you.
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="feature-title">Modern Design</div>
+                <div class="feature-description">
+                    Beautiful, responsive interface that works seamlessly across all your devices.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technology Section -->
+    <div class="content-section">
+        <h2>
+            <i class="fas fa-code"></i>
+            Built With Care
+        </h2>
+        <p>
+            Discussion Den is built using modern web technologies to ensure a fast, secure, and reliable experience:
+        </p>
+        <p>
+            <strong>Backend:</strong> Python, Flask, PostgreSQL, SQLAlchemy<br>
+            <strong>Frontend:</strong> HTML5, CSS3, Bootstrap 5, JavaScript<br>
+            <strong>Features:</strong> Real-time updates, responsive design, accessibility-focused
+        </p>
+    </div>
+
+    <!-- CTA Section -->
+    {% if not current_user.is_authenticated %}
+    <div class="cta-section">
+        <h2 class="cta-title">Ready to Join the Conversation?</h2>
+        <p class="cta-description">
+            Create your account today and become part of our growing community
+        </p>
+        <div class="cta-buttons">
+            <button class="btn btn-cta btn-cta-primary" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-mode="register">
+                <i class="fas fa-user-plus me-2"></i>Sign Up Now
+            </button>
+            <a href="{{ url_for('pages.help_page') }}" class="btn btn-cta btn-cta-secondary">
+                <i class="fas fa-question-circle me-2"></i>Learn More
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

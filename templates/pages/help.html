@@ -1,0 +1,651 @@
+{% extends "base.html" %}
+
+{% block title %}Help & Support - Discussion Den{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Page styles - Theme-aware */
+.page-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-6);
+}
+
+.page-hero {
+    background: var(--gradient-hero);
+    padding: var(--space-12) 0;
+    margin: calc(-1 * var(--space-8)) calc(-1 * var(--space-6)) var(--space-8);
+    border-radius: 0 0 var(--border-radius-xl) var(--border-radius-xl);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.02)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.5;
+}
+
+.page-hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.page-title {
+    font-size: var(--text-4xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-4);
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.help-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+}
+
+.help-category-card {
+    background: var(--gradient-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-6);
+    transition: var(--transition-base);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+}
+
+.help-category-card:hover {
+    transform: var(--hover-lift);
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-md);
+}
+
+.category-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--gradient-accent);
+    border-radius: var(--border-radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-2xl);
+    color: white;
+    margin-bottom: var(--space-4);
+}
+
+.category-title {
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.category-description {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.faq-section {
+    background: var(--gradient-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-8);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-md);
+}
+
+.faq-section h2 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-6);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.faq-section h2 i {
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-accent);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-lg);
+    color: white;
+}
+
+.faq-item {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: var(--space-4);
+    overflow: hidden;
+    transition: var(--transition-base);
+}
+
+.faq-item:hover {
+    border-color: var(--border-accent);
+}
+
+.faq-question {
+    padding: var(--space-5);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    user-select: none;
+}
+
+.faq-question:hover {
+    background: var(--bg-hover);
+}
+
+.faq-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--accent-primary);
+    border-radius: var(--border-radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: var(--text-sm);
+    transition: var(--transition-base);
+}
+
+.faq-answer {
+    padding: 0 var(--space-5) var(--space-5);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    display: none;
+}
+
+.faq-answer a {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.faq-answer a:hover {
+    text-decoration: underline;
+}
+
+.faq-answer.active {
+    display: block;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.faq-item.active .faq-icon {
+    transform: rotate(45deg);
+}
+
+.contact-section {
+    background: var(--gradient-accent);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-8);
+    text-align: center;
+    color: white;
+    margin-top: var(--space-8);
+}
+
+.contact-title {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-4);
+}
+
+.contact-description {
+    font-size: var(--text-base);
+    margin-bottom: var(--space-6);
+    opacity: 0.9;
+}
+
+.contact-methods {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.contact-method {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-4) var(--space-6);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    transition: var(--transition-base);
+    text-decoration: none;
+    color: white;
+}
+
+.contact-method:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: var(--hover-lift);
+    color: white;
+}
+
+.contact-method i {
+    font-size: var(--text-xl);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Hero Section -->
+    <div class="page-hero">
+        <div class="page-hero-content">
+            <h1 class="page-title">Help & Support</h1>
+            <p class="page-subtitle">
+                Find answers to common questions and learn how to make the most of Discussion Den
+            </p>
+        </div>
+    </div>
+
+    <!-- Help Categories -->
+    <div class="help-categories">
+        <div class="help-category-card" onclick="scrollToSection('getting-started')">
+            <div class="category-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <div class="category-title">Getting Started</div>
+            <div class="category-description">
+                Learn the basics of creating an account and navigating Discussion Den
+            </div>
+        </div>
+
+        <div class="help-category-card" onclick="scrollToSection('posting')">
+            <div class="category-icon">
+                <i class="fas fa-pen"></i>
+            </div>
+            <div class="category-title">Posts & Comments</div>
+            <div class="category-description">
+                How to create posts, comment, and engage with the community
+            </div>
+        </div>
+
+        <div class="help-category-card" onclick="scrollToSection('communities')">
+            <div class="category-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="category-title">Communities</div>
+            <div class="category-description">
+                Join, create, and manage communities around your interests
+            </div>
+        </div>
+
+        <div class="help-category-card" onclick="scrollToSection('personas')">
+            <div class="category-icon">
+                <i class="fas fa-mask"></i>
+            </div>
+            <div class="category-title">Personas</div>
+            <div class="category-description">
+                Use personas to express different aspects of yourself
+            </div>
+        </div>
+
+        <div class="help-category-card" onclick="scrollToSection('account')">
+            <div class="category-icon">
+                <i class="fas fa-user-cog"></i>
+            </div>
+            <div class="category-title">Account Settings</div>
+            <div class="category-description">
+                Manage your profile, privacy, and account preferences
+            </div>
+        </div>
+
+        <div class="help-category-card" onclick="scrollToSection('safety')">
+            <div class="category-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="category-title">Safety & Privacy</div>
+            <div class="category-description">
+                Stay safe and protect your privacy on Discussion Den
+            </div>
+        </div>
+    </div>
+
+    <!-- Getting Started FAQ -->
+    <div class="faq-section" id="getting-started">
+        <h2>
+            <i class="fas fa-rocket"></i>
+            Getting Started
+        </h2>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>How do I create an account?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Click the "Join" button in the navigation bar, fill out the registration form with your username, 
+                email, and password, then click "Create Account". You can also sign up using Google OAuth for 
+                faster registration.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>What is Discussion Den?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Discussion Den is a community-driven platform where people can share ideas, ask questions, and 
+                engage in meaningful conversations. It features communities, posts, comments, voting, and a 
+                unique persona system.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>Is Discussion Den free to use?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Yes! Discussion Den is completely free to use. You can create an account, post content, join 
+                communities, and participate in discussions without any cost.
+            </div>
+        </div>
+    </div>
+
+    <!-- Posts & Comments FAQ -->
+    <div class="faq-section" id="posting">
+        <h2>
+            <i class="fas fa-pen"></i>
+            Posts & Comments
+        </h2>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>How do I create a post?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Click the "Create" button in the navigation bar or use the create post form on the feed page. 
+                Choose a community, add a title and body text, optionally add an image URL, then click "Publish Post".
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>Can I edit or delete my posts?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Yes! On your post detail page, you'll see "Edit" and "Delete" buttons if you're the author. 
+                Click "Edit" to modify your post or "Delete" to remove it permanently.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>How does voting work?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                You can upvote posts and comments you find valuable or downvote content that doesn't contribute 
+                to the discussion. Your votes help surface quality content and shape what the community sees.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>What are nested comments?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Nested comments allow you to reply directly to other comments, creating threaded conversations. 
+                Click "Reply" on any comment to respond to it specifically. Comments can be nested up to 3 levels deep.
+            </div>
+        </div>
+    </div>
+
+    <!-- Communities FAQ -->
+    <div class="faq-section" id="communities">
+        <h2>
+            <i class="fas fa-users"></i>
+            Communities
+        </h2>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>What are communities?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Communities (similar to subreddits) are dedicated spaces for specific topics or interests. 
+                Each community has its own feed of posts and discussions related to that topic.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>How do I create a community?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Click "Create Community" in the sidebar or navigation menu. Choose a unique name, add a 
+                description and rules, then submit. You'll become the community owner and can manage it.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>How do I join a community?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Browse communities from the "Communities" page, click on one that interests you, and click 
+                the "Join" button. You'll see posts from joined communities in your feed.
+            </div>
+        </div>
+    </div>
+
+    <!-- Personas FAQ -->
+    <div class="faq-section" id="personas">
+        <h2>
+            <i class="fas fa-mask"></i>
+            Personas
+        </h2>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>What are personas?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Personas allow you to express different aspects of yourself in different contexts. You might 
+                use one persona for professional discussions and another for hobbies, all under one account.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>How do I create a persona?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Click on the persona switcher in the navigation bar and select "New Persona". Give it a name 
+                and bio, then save. You can switch between your user identity and personas anytime.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>Can I switch between personas?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Yes! Use the persona switcher dropdown in the navigation bar to switch between your user 
+                identity and any personas you've created. Your active identity is shown with a badge.
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Settings FAQ -->
+    <div class="faq-section" id="account">
+        <h2>
+            <i class="fas fa-user-cog"></i>
+            Account Settings
+        </h2>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>How do I edit my profile?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Click on your username in the navigation bar, then select "Edit Profile". You can update your 
+                bio, email, and other profile information.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>How do I change my password?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Go to your profile settings and look for the password change section. Enter your current 
+                password and your new password, then save changes.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>Can I delete my account?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Yes. Contact us at Discussionden@gmail.com to request account deletion. 
+                Note that this action is permanent and cannot be undone.
+            </div>
+        </div>
+    </div>
+
+    <!-- Safety & Privacy FAQ -->
+    <div class="faq-section" id="safety">
+        <h2>
+            <i class="fas fa-shield-alt"></i>
+            Safety & Privacy
+        </h2>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>How do I report inappropriate content?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Click the "Report" button on any post or comment that violates our community guidelines. 
+                Provide details about the violation, and our team will review it promptly.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>Is my data secure?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                Yes! We use industry-standard security measures including password hashing, HTTPS encryption, 
+                CSRF protection, and secure database storage. Read our <a href="{{ url_for('pages.privacy') }}">Privacy Policy</a> 
+                for more details.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>Can I block or mute users?</span>
+                <div class="faq-icon"><i class="fas fa-plus"></i></div>
+            </div>
+            <div class="faq-answer">
+                User blocking features are coming soon! For now, you can report problematic users, and our 
+                moderation team will take appropriate action.
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="contact-section">
+        <h2 class="contact-title">Still Need Help?</h2>
+        <p class="contact-description">
+            Can't find what you're looking for? Our support team is here to help!
+        </p>
+        <div class="contact-methods">
+            <a href="mailto:Discussionden@gmail.com" class="contact-method">
+                <i class="fas fa-envelope"></i>
+                <span>Email Support</span>
+            </a>
+            <a href="{{ url_for('pages.about') }}" class="contact-method">
+                <i class="fas fa-info-circle"></i>
+                <span>About Us</span>
+            </a>
+            <a href="{{ url_for('feed.feed') }}" class="contact-method">
+                <i class="fas fa-comments"></i>
+                <span>Community Forum</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleFaq(element) {
+    const faqItem = element.parentElement;
+    const answer = faqItem.querySelector('.faq-answer');
+    const isActive = faqItem.classList.contains('active');
+    
+    // Close all other FAQs
+    document.querySelectorAll('.faq-item').forEach(item => {
+        item.classList.remove('active');
+        item.querySelector('.faq-answer').classList.remove('active');
+    });
+    
+    // Toggle current FAQ
+    if (!isActive) {
+        faqItem.classList.add('active');
+        answer.classList.add('active');
+    }
+}
+
+function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+</script>
+{% endblock %}

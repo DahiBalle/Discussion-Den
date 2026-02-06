@@ -151,29 +151,6 @@
             {% endif %}
         </div>
     </div>
-
-    <!-- User Stats Section (if authenticated) -->
-    {% if current_user.is_authenticated %}
-    <div class="offcanvas-section-enhanced">
-        <h6 class="offcanvas-section-title">
-            <i class="fas fa-chart-bar me-2"></i>Your Activity
-        </h6>
-        <div class="user-stats">
-            <div class="stat-item">
-                <div class="stat-value">{{ current_user.personas|length }}</div>
-                <div class="stat-label">Personas</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">0</div>
-                <div class="stat-label">Posts</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">0</div>
-                <div class="stat-label">Comments</div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
 </div>
 
 <style>

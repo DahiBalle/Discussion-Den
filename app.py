@@ -91,6 +91,7 @@ def create_app() -> Flask:
     from routes.post import post_bp
     from routes.profile import profile_bp
     from routes.search import search_bp
+    from routes.pages import pages_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(feed_bp)
@@ -100,6 +101,7 @@ def create_app() -> Flask:
     app.register_blueprint(community_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(search_bp)
+    app.register_blueprint(pages_bp)
 
     @app.route("/")
     def index():

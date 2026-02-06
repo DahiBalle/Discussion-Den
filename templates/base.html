@@ -27,6 +27,63 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
+    <!-- Scroll Navigation Button Styles -->
+    <style>
+    /* Scroll Navigation Button */
+    .scroll-nav-btn {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        width: 50px;
+        height: 50px;
+        background: var(--gradient-accent);
+        border: none;
+        border-radius: var(--border-radius-full);
+        color: white;
+        font-size: var(--text-lg);
+        cursor: pointer;
+        box-shadow: var(--shadow-lg);
+        transition: var(--transition-base);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(20px);
+    }
+
+    .scroll-nav-btn.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .scroll-nav-btn:hover {
+        transform: translateY(-4px) scale(1.1);
+        box-shadow: var(--shadow-glow), var(--shadow-xl);
+    }
+
+    .scroll-nav-btn:active {
+        transform: translateY(-2px) scale(1.05);
+    }
+
+    .scroll-nav-btn i {
+        transition: var(--transition-base);
+    }
+
+    /* Responsive positioning */
+    @media (max-width: 768px) {
+        .scroll-nav-btn {
+            bottom: 20px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            font-size: var(--text-base);
+        }
+    }
+    </style>
+    
     <!-- Authentication Modal Styles -->
     {% if not current_user.is_authenticated %}
     <style>
@@ -465,14 +522,22 @@
                     <span>Discussion Den</span>
                 </div>
                 <div class="footer-links">
-                    <a href="#" class="footer-link">About</a>
-                    <a href="#" class="footer-link">Privacy</a>
-                    <a href="#" class="footer-link">Terms</a>
-                    <a href="#" class="footer-link">Help</a>
+                    <a href="{{ url_for('pages.about') }}" class="footer-link">About</a>
+                    <a href="{{ url_for('pages.privacy') }}" class="footer-link">Privacy</a>
+                    <a href="{{ url_for('pages.terms') }}" class="footer-link">Terms</a>
+                    <a href="{{ url_for('pages.help_page') }}" class="footer-link">Help</a>
+                </div>
+                <div class="footer-copyright">
+                    <span>&copy; 2026 Discussion Den. All rights reserved.</span>
                 </div>
             </div>
         </div>
     </footer>
+
+    <!-- Scroll Navigation Button -->
+    <button id="scrollNavBtn" class="scroll-nav-btn" aria-label="Scroll navigation">
+        <i class="fas fa-arrow-up" id="scrollIcon"></i>
+    </button>
 
     <!-- Authentication Modal -->
     {% if not current_user.is_authenticated %}
@@ -920,6 +985,74 @@
     }
     </script>
     {% endif %}
+    
+    <!-- Scroll Navigation Button Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const scrollNavBtn = document.getElementById('scrollNavBtn');
+        const scrollIcon = document.getElementById('scrollIcon');
+        let lastScrollPosition = 0;
+        
+        // Show/hide button and change icon based on scroll position
+        function updateScrollButton() {
+            const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            
+            // Show button after scrolling 300px
+            if (scrollPosition > 300) {
+                scrollNavBtn.classList.add('visible');
+            } else {
+                scrollNavBtn.classList.remove('visible');
+            }
+            
+            // Change icon based on position
+            // If user is in the bottom half of the page, show up arrow
+            // If user is in the top half, show down arrow
+            const scrollPercentage = (scrollPosition + windowHeight) / documentHeight;
+            
+            if (scrollPercentage > 0.5) {
+                // User is in bottom half - show up arrow (scroll to top)
+                scrollIcon.className = 'fas fa-arrow-up';
+                scrollNavBtn.setAttribute('aria-label', 'Scroll to top');
+            } else {
+                // User is in top half - show down arrow (scroll to bottom)
+                scrollIcon.className = 'fas fa-arrow-down';
+                scrollNavBtn.setAttribute('aria-label', 'Scroll to bottom');
+            }
+            
+            lastScrollPosition = scrollPosition;
+        }
+        
+        // Handle button click
+        scrollNavBtn.addEventListener('click', function() {
+            const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollPercentage = (scrollPosition + windowHeight) / documentHeight;
+            
+            if (scrollPercentage > 0.5) {
+                // Scroll to top
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            } else {
+                // Scroll to bottom
+                window.scrollTo({
+                    top: documentHeight,
+                    behavior: 'smooth'
+                });
+            }
+        });
+        
+        // Listen to scroll events
+        window.addEventListener('scroll', updateScrollButton);
+        
+        // Initial check
+        updateScrollButton();
+    });
+    </script>
     
     {% block extra_scripts %}{% endblock %}
 </body>
