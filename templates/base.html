@@ -328,15 +328,18 @@
                 </ul>
                 
                 <!-- Enhanced Search -->
-                <form class="search-form me-4" method="GET" action="{{ url_for('search.search') }}" style="padding-right: 350px">
-                    <div class="search-container">
-                        <i class=""></i>
-                        <input class="search-input" type="search" name="q" width="2px" placeholder="Search discussions..." aria-label="Search">
-                        <button class="search-btn" type="submit">
-                            <i class="fas fa-search search-icon"></i>
-                        </button>
-                    </div>
-                </form>
+                <div class="navbar-search-wrapper position-relative me-4" style="padding-right: 350px" data-suggest-url="{{ url_for('search.suggest') }}">
+                    <form class="search-form" method="GET" action="{{ url_for('search.search') }}">
+                        <div class="search-container">
+                            <i class=""></i>
+                            <input class="search-input" id="navbar-search-input" type="search" name="q" width="2px" placeholder="Search discussions..." aria-label="Search" autocomplete="off">
+                            <button class="search-btn" type="submit">
+                                <i class="fas fa-search search-icon"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div id="search-suggestions-dropdown" class="search-suggestions-dropdown" aria-live="polite"></div>
+                </div>
                 
                 <!-- User Menu -->
                 <ul class="navbar-nav">
@@ -763,6 +766,9 @@
                 document.body.setAttribute('data-theme', theme);
             }
             localStorage.setItem('theme', theme);
+            if (window.DiscussionDenTheme && typeof window.DiscussionDenTheme.updateNavbarBackground === 'function') {
+                window.DiscussionDenTheme.updateNavbarBackground();
+            }
             
             // Update all icons
             themeIcons.forEach(icon => {

@@ -119,11 +119,32 @@ def create_app() -> Flask:
     def inject_sidebar_data():
         """
         Inject trending posts and recent communities for offcanvas sidebar.
-        
-        Safety: Uses simple queries with limits, handles empty results gracefully.
+        Also inject show_welcome_card: hide welcome card if user has created at least one post.
         """
+        from flask_login import current_user
+        from sqlalchemy import or_
         from models import Post, Community
-        
+
+        # Show welcome card only when user has never created a post (as user or any persona)
+        show_welcome_card = True
+        if current_user.is_authenticated:
+            try:
+                persona_ids = [p.id for p in current_user.personas]
+                if persona_ids:
+                    post_count = Post.query.filter(
+                        or_(
+                            Post.author_user_id == current_user.id,
+                            Post.author_persona_id.in_(persona_ids),
+                        )
+                    ).count()
+                else:
+                    post_count = Post.query.filter(
+                        Post.author_user_id == current_user.id
+                    ).count()
+                show_welcome_card = post_count == 0
+            except Exception:
+                show_welcome_card = True
+
         # Trending posts: highest upvotes, limit 5 for performance
         trending_posts = []
         try:
@@ -135,9 +156,8 @@ def create_app() -> Flask:
                 .all()
             )
         except Exception:
-            # Safety: If query fails, use empty list
             trending_posts = []
-        
+
         # Recent communities: newest first, limit 5 for performance
         recent_communities = []
         try:
@@ -148,12 +168,12 @@ def create_app() -> Flask:
                 .all()
             )
         except Exception:
-            # Safety: If query fails, use empty list
             recent_communities = []
-        
+
         return {
             "trending_posts": trending_posts,
-            "recent_communities": recent_communities
+            "recent_communities": recent_communities,
+            "show_welcome_card": show_welcome_card,
         }
     
     @app.context_processor

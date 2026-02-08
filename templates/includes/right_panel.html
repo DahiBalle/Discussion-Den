@@ -1,6 +1,7 @@
 <!-- Enhanced Right Panel Component -->
 <div class="sidebar-right-enhanced">
-    <!-- Welcome Card -->
+    <!-- Welcome Card (only when user has not created any post yet) -->
+    {% if show_welcome_card %}
     <div class="sidebar-card welcome-card">
         <div class="card-header-enhanced">
             <div class="card-icon">
@@ -27,6 +28,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- Community Guidelines -->
     <div class="sidebar-card guidelines-card">
