@@ -792,11 +792,11 @@ function handleVote(e) {
     e.preventDefault();
     const postId = this.getAttribute('data-post-id');
     const voteValue = parseInt(this.getAttribute('data-vote'));
-    
-    // Add loading animation
+    const postVoteBtns = document.querySelectorAll('.vote-btn[data-post-id="' + postId + '"]');
+    postVoteBtns.forEach(function(btn) { btn.disabled = true; });
     this.style.transform = 'scale(0.95)';
     this.style.opacity = '0.7';
-    
+
     fetch(`/api/post/${postId}/vote`, {
         method: 'POST',
         headers: {
@@ -809,20 +809,18 @@ function handleVote(e) {
     .then(data => {
         if (data.success) {
             updateVoteUI(postId, data.vote, data.upvotes, data.downvotes);
-            
-            // Show success feedback
             if (window.DiscussionDenTheme) {
                 const voteType = data.vote === 1 ? 'upvoted' : data.vote === -1 ? 'downvoted' : 'removed vote';
                 window.DiscussionDenTheme.showToast(
-                    `Post ${voteType}!`, 
-                    'success', 
+                    `Post ${voteType}!`,
+                    'success',
                     1500
                 );
             }
         } else {
             if (window.DiscussionDenTheme) {
                 window.DiscussionDenTheme.showToast(
-                    'Failed to vote: ' + (data.error || 'Unknown error'), 
+                    'Failed to vote: ' + (data.error || 'Unknown error'),
                     'danger'
                 );
             }
@@ -834,11 +832,11 @@ function handleVote(e) {
             window.DiscussionDenTheme.showToast('Error voting. Please try again.', 'danger');
         }
     })
-    .finally(() => {
-        // Restore button state
+    .finally(function() {
+        postVoteBtns.forEach(function(btn) { btn.disabled = false; });
         this.style.transform = 'scale(1)';
         this.style.opacity = '1';
-    });
+    }.bind(this));
 }
 
 function handleSave(e) {

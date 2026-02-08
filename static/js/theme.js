@@ -25,33 +25,33 @@ function initializeTheme() {
 }
 
 /**
+ * Update navbar background to match current theme and scroll position.
+ * Call this when theme changes so navbar doesn't keep the previous theme's inline style.
+ */
+function updateNavbarBackground() {
+    const navbar = document.getElementById('main-navbar');
+    if (!navbar) return;
+    const theme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'dark';
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    navbar.style.backdropFilter = 'blur(20px)';
+    if (theme === 'light') {
+        navbar.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 249, 250, 0.98) 100%)';
+    } else {
+        navbar.style.background = scrollTop > 50 ? 'rgba(15, 20, 25, 0.98)' : 'rgba(15, 20, 25, 0.95)';
+    }
+}
+
+/**
  * Initialize scroll effects
  */
 function initializeScrollEffects() {
-    let lastScrollTop = 0;
     const navbar = document.getElementById('main-navbar');
-    
+    if (!navbar) return;
+
+    updateNavbarBackground();
+
     window.addEventListener('scroll', function() {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        
-        // Navbar hide/show on scroll
-        if (scrollTop > lastScrollTop && scrollTop > 100) {
-            // Scrolling down
-            navbar.style.transform = 'translateY(-100%)';
-        } else {
-            // Scrolling up
-            navbar.style.transform = 'translateY(0)';
-        }
-        
-        // Add glass effect when scrolled
-        if (scrollTop > 50) {
-            navbar.style.background = 'rgba(15, 20, 25, 0.98)';
-            navbar.style.backdropFilter = 'blur(20px)';
-        } else {
-            navbar.style.background = 'rgba(15, 20, 25, 0.95)';
-        }
-        
-        lastScrollTop = scrollTop;
+        updateNavbarBackground();
     });
 }
 
@@ -190,34 +190,125 @@ function addRippleEffect() {
 }
 
 /**
+ * Hide search suggestions dropdown
+ */
+function hideSearchSuggestions() {
+    const el = document.getElementById('search-suggestions-dropdown');
+    if (el) {
+        el.classList.remove('open');
+        el.innerHTML = '';
+    }
+}
+
+/**
+ * Render search suggestions dropdown (posts, communities, users) or "Not found"
+ */
+function renderSearchSuggestions(data, query) {
+    const dropdown = document.getElementById('search-suggestions-dropdown');
+    if (!dropdown) return;
+    const posts = data.posts || [];
+    const communities = data.communities || [];
+    const users = data.users || [];
+    const hasAny = posts.length > 0 || communities.length > 0 || users.length > 0;
+
+    if (!hasAny) {
+        dropdown.innerHTML = '<div class="search-suggest-item search-suggest-notfound">Not found</div>';
+    } else {
+        var html = '';
+        if (posts.length > 0) {
+            html += '<div class="search-suggest-section">Posts</div>';
+            posts.forEach(function(p) {
+                html += '<a class="search-suggest-item" href="' + (p.url || '#') + '"><i class="fas fa-file-alt me-2"></i>' + escapeHtml((p.title || '').slice(0, 60)) + (p.title && p.title.length > 60 ? '...' : '') + '</a>';
+            });
+        }
+        if (communities.length > 0) {
+            html += '<div class="search-suggest-section">Communities</div>';
+            communities.forEach(function(c) {
+                html += '<a class="search-suggest-item" href="' + (c.url || '#') + '"><i class="fas fa-users me-2"></i>r/' + escapeHtml(c.name || '') + '</a>';
+            });
+        }
+        if (users.length > 0) {
+            html += '<div class="search-suggest-section">Users</div>';
+            users.forEach(function(u) {
+                html += '<a class="search-suggest-item" href="' + (u.url || '#') + '"><i class="fas fa-user me-2"></i>' + escapeHtml(u.username || '') + '</a>';
+            });
+        }
+        dropdown.innerHTML = html;
+    }
+    dropdown.classList.add('open');
+}
+
+function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
  * Initialize navbar enhancements
  */
 function initializeNavbar() {
-    // Enhanced search functionality
-    const searchInput = document.querySelector('.search-input');
+    const searchInput = document.getElementById('navbar-search-input');
     const searchContainer = document.querySelector('.search-container');
-    
+    const searchWrapper = document.querySelector('.navbar-search-wrapper');
+    const suggestionsDropdown = document.getElementById('search-suggestions-dropdown');
+
+    // Offcanvas "Search" link: close offcanvas and focus navbar search (no navigation to /search)
+    document.querySelectorAll('.offcanvas-focus-navbar-search').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            const offcanvasEl = document.getElementById('sidebarOffcanvas');
+            if (offcanvasEl && typeof bootstrap !== 'undefined') {
+                const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
+                if (bsOffcanvas) bsOffcanvas.hide();
+            }
+            if (searchInput) searchInput.focus();
+        });
+    });
+
     if (searchInput && searchContainer) {
         searchInput.addEventListener('focus', function() {
             searchContainer.style.transform = 'scale(1.05)';
             searchContainer.style.boxShadow = '0 0 0 3px rgba(0, 212, 255, 0.2)';
         });
-        
+
         searchInput.addEventListener('blur', function() {
             searchContainer.style.transform = 'scale(1)';
             searchContainer.style.boxShadow = 'none';
-        });
-        
-        // Add search suggestions (placeholder)
-        searchInput.addEventListener('input', function() {
-            const query = this.value.trim();
-            if (query.length > 2) {
-                // Placeholder for search suggestions
-                console.log('Search query:', query);
-            }
+            setTimeout(function() { hideSearchSuggestions(); }, 200);
         });
     }
-    
+
+    // Search suggestions: debounced fetch, dropdown, "Not found" when empty
+    if (searchInput && suggestionsDropdown && searchWrapper) {
+        const suggestUrl = searchWrapper.getAttribute('data-suggest-url') || '/search/suggest';
+        let suggestDebounce = null;
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            clearTimeout(suggestDebounce);
+            if (query.length < 2) {
+                hideSearchSuggestions();
+                return;
+            }
+            suggestDebounce = setTimeout(function() {
+                fetch(suggestUrl + '?q=' + encodeURIComponent(query))
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        renderSearchSuggestions(data, query);
+                    })
+                    .catch(function() {
+                        suggestionsDropdown.innerHTML = '<div class="search-suggest-item search-suggest-notfound">Not found</div>';
+                        suggestionsDropdown.classList.add('open');
+                    });
+            }, 300);
+        });
+
+        searchWrapper.querySelector('form')?.addEventListener('submit', function() {
+            hideSearchSuggestions();
+        });
+    }
+
     // Enhanced dropdown animations
     document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
         toggle.addEventListener('click', function() {
@@ -322,5 +413,6 @@ window.DiscussionDenTheme = {
     showToast,
     showLoading,
     hideLoading,
-    smoothTransition
+    smoothTransition,
+    updateNavbarBackground
 };

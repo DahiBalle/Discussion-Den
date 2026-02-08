@@ -1,12 +1,53 @@
 from __future__ import annotations
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, jsonify, render_template, request, url_for
 from sqlalchemy import or_
 
 from extensions import db
 from models import Post, Community, User
 
 search_bp = Blueprint("search", __name__, url_prefix="/search")
+
+
+def _run_search(query: str, limit: int = 5):
+    """Return (posts, communities, users) for a given query. Used by search and suggest."""
+    posts = []
+    communities = []
+    users = []
+    if not query or len(query) < 2:
+        return posts, communities, users
+    try:
+        posts = (
+            Post.query.filter(
+                or_(
+                    Post.title.ilike(f'%{query}%'),
+                    Post.body.ilike(f'%{query}%'),
+                )
+            )
+            .order_by(Post.created_at.desc())
+            .limit(limit)
+            .all()
+        )
+        communities = (
+            Community.query.filter(
+                or_(
+                    Community.name.ilike(f'%{query}%'),
+                    Community.description.ilike(f'%{query}%'),
+                )
+            )
+            .order_by(Community.created_at.desc())
+            .limit(limit)
+            .all()
+        )
+        users = (
+            User.query.filter(User.username.ilike(f'%{query}%'))
+            .order_by(User.username)
+            .limit(limit)
+            .all()
+        )
+    except Exception as e:
+        print(f"Search error: {e}")
+    return posts, communities, users
 
 @search_bp.get("/")
 def search():
@@ -99,5 +140,20 @@ def search():
         print(f"Search error: {e}")
         # Return empty results on error
         pass
-    
+
     return render_template('search/results.html', **results)
+
+
+@search_bp.get("/suggest")
+def suggest():
+    """
+    JSON API for navbar search suggestions.
+    Returns limited posts, communities, and users matching query.
+    """
+    query = request.args.get('q', '').strip()
+    posts, communities, users = _run_search(query, limit=5)
+    return jsonify({
+        'posts': [{'id': p.id, 'title': p.title, 'url': url_for('post.post_detail', post_id=p.id)} for p in posts],
+        'communities': [{'id': c.id, 'name': c.name, 'url': url_for('community.community_page', community_name=c.name)} for c in communities],
+        'users': [{'id': u.id, 'username': u.username, 'url': url_for('profile.user_profile', username=u.username)} for u in users],
+    })

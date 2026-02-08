@@ -281,6 +281,24 @@ def vote(post_id: int):
     if existing:
         existing.value = value
     else:
+        # Re-query to handle race: another request may have created a vote already
+        if ident.is_persona:
+            existing = Vote.query.filter_by(post_id=post_id, voted_by_persona_id=ident.persona_id).first()
+        else:
+            existing = Vote.query.filter_by(post_id=post_id, voted_by_user_id=ident.user_id).first()
+        if existing:
+            existing.value = value
+            db.session.commit()
+            post = Post.query.get_or_404(post_id)
+            return jsonify(
+                {
+                    "success": True,
+                    "upvotes": post.upvotes,
+                    "downvotes": post.downvotes,
+                    "vote": value,
+                    "score": post.upvotes - post.downvotes,
+                }
+            )
         existing = Vote(
             post_id=post_id,
             voted_by_persona_id=ident.persona_id if ident.is_persona else None,

@@ -328,15 +328,18 @@
                 </ul>
                 
                 <!-- Enhanced Search -->
-                <form class="search-form me-4" method="GET" action="{{ url_for('search.search') }}" style="padding-right: 350px">
-                    <div class="search-container">
-                        <i class=""></i>
-                        <input class="search-input" type="search" name="q" width="2px" placeholder="Search discussions..." aria-label="Search">
-                        <button class="search-btn" type="submit">
-                            <i class="fas fa-search search-icon"></i>
-                        </button>
-                    </div>
-                </form>
+                <div class="navbar-search-wrapper position-relative me-4" style="padding-right: 350px" data-suggest-url="{{ url_for('search.suggest') }}">
+                    <form class="search-form" method="GET" action="{{ url_for('search.search') }}">
+                        <div class="search-container">
+                            <i class=""></i>
+                            <input class="search-input" id="navbar-search-input" type="search" name="q" width="2px" placeholder="Search discussions..." aria-label="Search" autocomplete="off">
+                            <button class="search-btn" type="submit">
+                                <i class="fas fa-search search-icon"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div id="search-suggestions-dropdown" class="search-suggestions-dropdown" aria-live="polite"></div>
+                </div>
                 
                 <!-- User Menu -->
                 <ul class="navbar-nav">
@@ -516,19 +519,75 @@
     <!-- Footer -->
     <footer class="footer-enhanced">
         <div class="container-fluid">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <i class="fas fa-comments me-2"></i>
-                    <span>Discussion Den</span>
+            <div class="footer-grid">
+                <!-- Brand & Description -->
+                <div class="footer-brand-col">
+                    <div class="footer-logo">
+                        <i class="fas fa-comments"></i>
+                        <span>Discussion Den</span>
+                    </div>
+                    <p class="footer-desc">
+                        A modern space for meaningful conversations. Join our community to share ideas, connect with others, and explore diverse perspectives in a safe and engaging environment.
+                    </p>
+                    <div class="footer-social-links">
+                        <a href="#" class="social-link" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Discord">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="footer-links">
-                    <a href="{{ url_for('pages.about') }}" class="footer-link">About</a>
-                    <a href="{{ url_for('pages.privacy') }}" class="footer-link">Privacy</a>
-                    <a href="{{ url_for('pages.terms') }}" class="footer-link">Terms</a>
-                    <a href="{{ url_for('pages.help_page') }}" class="footer-link">Help</a>
+
+                <!-- Product Links -->
+                <div class="footer-links-col">
+                    <h6 class="footer-heading">Product</h6>
+                    <ul class="footer-links-list">
+                        <li class="footer-link-item"><a href="{{ url_for('feed.feed') }}">Feed</a></li>
+                        <li class="footer-link-item"><a href="{{ url_for('community.communities_list') }}">Communities</a></li>
+                        <li class="footer-link-item"><a href="{{ url_for('search.search') }}">Explore</a></li>
+                        <li class="footer-link-item"><a href="#">Changelog</a></li>
+                    </ul>
                 </div>
+
+                <!-- Company Links -->
+                <div class="footer-links-col">
+                    <h6 class="footer-heading">Company</h6>
+                    <ul class="footer-links-list">
+                        <li class="footer-link-item"><a href="{{ url_for('pages.about') }}">About</a></li>
+                        <li class="footer-link-item"><a href="#">Careers</a></li>
+                        <li class="footer-link-item"><a href="{{ url_for('pages.terms') }}">Legal</a></li>
+                        <li class="footer-link-item"><a href="{{ url_for('pages.help_page') }}">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter -->
+                <div class="footer-newsletter">
+                    <h6 class="footer-heading">Stay Updated</h6>
+                    <p class="text-secondary small mb-3">Subscribe to our newsletter for the latest updates and community highlights.</p>
+                    <form class="newsletter-form" onsubmit="event.preventDefault();">
+                        <input type="email" class="newsletter-input" placeholder="Enter your email" required>
+                        <button type="submit" class="newsletter-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
                 <div class="footer-copyright">
-                    <span>&copy; 2026 Discussion Den. All rights reserved.</span>
+                    <span>&copy; {{ now.year if now else 2026 }} Discussion Den. All rights reserved.</span>
+                </div>
+                <div class="footer-legal">
+                    <a href="{{ url_for('pages.privacy') }}">Privacy Policy</a>
+                    <a href="{{ url_for('pages.terms') }}">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
                 </div>
             </div>
         </div>
@@ -707,6 +766,9 @@
                 document.body.setAttribute('data-theme', theme);
             }
             localStorage.setItem('theme', theme);
+            if (window.DiscussionDenTheme && typeof window.DiscussionDenTheme.updateNavbarBackground === 'function') {
+                window.DiscussionDenTheme.updateNavbarBackground();
+            }
             
             // Update all icons
             themeIcons.forEach(icon => {

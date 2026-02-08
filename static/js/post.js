@@ -34,7 +34,9 @@ function handleVote(e) {
     e.preventDefault();
     const postId = this.getAttribute('data-post-id');
     const voteValue = parseInt(this.getAttribute('data-vote'));
-    
+    const postVoteBtns = document.querySelectorAll('.vote-btn[data-post-id="' + postId + '"]');
+    postVoteBtns.forEach(function(btn) { btn.disabled = true; });
+
     fetch(`/api/post/${postId}/vote`, {
         method: 'POST',
         headers: {
@@ -54,6 +56,9 @@ function handleVote(e) {
     .catch(error => {
         console.error('Error voting:', error);
         alert('Error voting. Please try again.');
+    })
+    .finally(function() {
+        postVoteBtns.forEach(function(btn) { btn.disabled = false; });
     });
 }
 
