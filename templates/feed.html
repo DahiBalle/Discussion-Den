@@ -8,26 +8,49 @@
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<!--<div class="hero-section">-->
-<!--    <div class="hero-content">-->
-<!--        <h1 class="hero-title">Welcome to Discussion Den</h1>-->
-<!--        <p class="hero-subtitle">-->
-<!--            Connect, share ideas, and engage in meaningful conversations with a vibrant community of thinkers and creators.-->
-<!--        </p>-->
-<!--    </div>-->
-<!--</div>-->
+<!-- Trending Carousel -->
+{% if trending_posts %}
+<div id="trendingCarousel" class="carousel slide trending-carousel mb-4" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        {% for post in trending_posts %}
+        <button type="button" data-bs-target="#trendingCarousel" data-bs-slide-to="{{ loop.index0 }}"
+            class="{% if loop.first %}active{% endif %}" aria-current="{% if loop.first %}true{% endif %}"
+            aria-label="Slide {{ loop.index }}"></button>
+        {% endfor %}
+    </div>
+    <div class="carousel-inner">
+        {% for post in trending_posts %}
+        <div class="carousel-item {% if loop.first %}active{% endif %}">
+            <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="carousel-link">
+                <div class="carousel-image-container">
+                    <img src="{{ post.image_url }}" class="d-block w-100" alt="{{ post.title }}">
+                    <div class="carousel-overlay"></div>
+                </div>
+                <div class="carousel-caption">
+                    <h5 class="carousel-post-title">{{ post.title }}</h5>
+                    <p class="carousel-post-author">
+                        <i class="fas fa-user-circle me-1"></i> Posted by {{ post.author_name }}
+                    </p>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#trendingCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#trendingCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+{% endif %}
 
 <!-- Feed Filters -->
 <div class="feed-filters">
     <button class="filter-btn active" data-filter="new">
         <i class="fas fa-clock me-2"></i>New
-    </button>
-    <button class="filter-btn" data-filter="hot">
-        <i class="fas fa-fire me-2"></i>Hot
-    </button>
-    <button class="filter-btn" data-filter="top">
-        <i class="fas fa-arrow-up me-2"></i>Top
     </button>
     <button class="filter-btn" data-filter="trending">
         <i class="fas fa-trending-up me-2"></i>Trending
@@ -306,34 +329,25 @@
 
         filterButtons.forEach(button => {
             button.addEventListener('click', function () {
-                // Remove active class from all buttons
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-
-                // Add active class to clicked button
-                this.classList.add('active');
-
-                // Get filter type
                 const filterType = this.getAttribute('data-filter');
-
-                // Show loading state
-                const feedContainer = document.getElementById('feed-container');
-                feedContainer.style.opacity = '0.6';
-
-                // Simulate filter loading (in real app, this would make an API call)
-                setTimeout(() => {
-                    feedContainer.style.opacity = '1';
-
-                    // Show toast notification
-                    if (window.DiscussionDenTheme) {
-                        window.DiscussionDenTheme.showToast(
-                            `Showing ${filterType} posts`,
-                            'info',
-                            2000
-                        );
-                    }
-                }, 500);
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('sort', filterType);
+                window.location.href = currentUrl.toString();
             });
         });
+
+        // Set active state based on URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentSort = urlParams.get('sort') || 'new';
+
+        filterButtons.forEach(btn => {
+            if (btn.getAttribute('data-filter') === currentSort) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
     }
 
     /**

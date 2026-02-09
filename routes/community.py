@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from extensions import db
 from forms import CommunityForm
 from models import Community, Post
-from routes.utils import get_identity
+from .utils import get_identity
 
 
 community_bp = Blueprint("community", __name__)

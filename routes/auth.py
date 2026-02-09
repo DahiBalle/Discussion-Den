@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from datetime import datetime
 import secrets
 import string
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for, jsonify
 from flask_login import login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from extensions import db, oauth
+from flask_mail import Message
+from extensions import db, oauth, mail
 from forms import LoginForm, RegisterForm
 from models import User
 
@@ -93,22 +95,150 @@ def register_post():
         flash(error_msg, "danger")
         return render_template("auth/register.html", form=form), 400
 
-    user = User(
-        username=form.username.data.strip(),
-        email=form.email.data.strip().lower(),
-        password_hash=generate_password_hash(form.password.data),
-    )
-    db.session.add(user)
-    db.session.commit()
+    # Stop: Do not create user yet. Start OTP flow.
+    # Generate 6-digit OTP
+    otp = ''.join(secrets.choice(string.digits) for _ in range(6))
+    
+    # Store data in session
+    session['registration_data'] = {
+        'username': form.username.data.strip(),
+        'email': form.email.data.strip().lower(),
+        'password': form.password.data  # Will be hashed later
+    }
+    session['registration_otp'] = otp
+    session['registration_otp_time'] = datetime.utcnow().timestamp()
+    
+    # Send Email
+    try:
+        with mail.connect() as conn:
+            msg = Message(
+                subject="Verify your Discussion Den Account",
+                recipients=[form.email.data.strip().lower()],
+                body=f"Your verification code is: {otp}\n\nThis code expires in 10 minutes.",
+                html=f"""
+                <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto;">
+                    <h2>Welcome to Discussion Den!</h2>
+                    <p>Please use the following code to verify your email address:</p>
+                    <div style="background: #f0f2f5; padding: 20px; text-align: center; border-radius: 8px; font-size: 24px; letter-spacing: 5px; font-weight: bold; margin: 20px 0;">
+                        {otp}
+                    </div>
+                    <p>This code expires in 10 minutes.</p>
+                    <p>If you didn't request this, please ignore this email.</p>
+                </div>
+                """
+            )
+            conn.send(msg)
+            print(f"DEBUG: Email sent to {form.email.data}")
+    except Exception as e:
+        print(f"ERROR: Failed to send email: {e}")
+        # For development fallback if SMTP fails
+        print(f"DEBUG FALLBACK: OTP for {form.email.data} is {otp}")
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+             # In production, we might want to fail here, but for now we proceed to allow testing
+             pass
 
-    login_user(user)
-    session["active_persona_id"] = None
-    
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return {"success": True, "message": "Welcome! Your account is ready.", "redirect": url_for("feed.feed")}
+        return {
+            "success": True, 
+            "message": "Verification code sent to your email.", 
+            "require_otp": True,
+            "email": form.email.data.strip().lower()
+        }
     
-    flash("Welcome! Your account is ready.", "success")
-    return redirect(url_for("feed.feed"))
+    # Fallback for non-JS (shouldn't happen with current UI)
+    flash("Verification code sent to your email.", "info")
+    return render_template("auth/verify_otp.html") # We'll need a template or just reuse register
+
+
+@auth_bp.post("/verify-otp")
+def verify_otp():
+    """
+    Verify the OTP and create the account.
+    """
+    data = request.json
+    entered_otp = data.get('otp') if data else None
+    
+    stored_otp = session.get('registration_otp')
+    stored_data = session.get('registration_data')
+    timestamp = session.get('registration_otp_time')
+    
+    # Debug logging
+    print(f"DEBUG verify_otp: entered_otp={entered_otp}, stored_otp={stored_otp}, has_stored_data={bool(stored_data)}, timestamp={timestamp}")
+    
+    if not entered_otp or not stored_otp or not stored_data:
+        return {"success": False, "message": "Invalid or expired session. Please register again."}, 400
+        
+    # Check expiration (10 minutes)
+    if datetime.utcnow().timestamp() - timestamp > 600:
+        session.pop('registration_otp', None)
+        session.pop('registration_data', None)
+        return {"success": False, "message": "Code expired. Please register again."}, 400
+        
+    if entered_otp != stored_otp:
+        return {"success": False, "message": "Invalid code. Please try again."}, 400
+        
+    # OTP Valid: Create User
+    try:
+        user = User(
+            username=stored_data['username'],
+            email=stored_data['email'],
+            password_hash=generate_password_hash(stored_data['password']),
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        login_user(user)
+        session["active_persona_id"] = None
+        
+        # Clear session
+        session.pop('registration_otp', None)
+        session.pop('registration_data', None)
+        session.pop('registration_otp_time', None)
+        
+        return {"success": True, "message": "Account verified! Welcome to Discussion Den.", "redirect": url_for("feed.feed")}
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERROR creating user: {e}")
+        return {"success": False, "message": "Database error. Please try again."}, 500
+
+
+@auth_bp.post("/resend-otp")
+def resend_otp():
+    """Resend the OTP to the email in session."""
+    stored_data = session.get('registration_data')
+    if not stored_data:
+        return {"success": False, "message": "Session expired."}, 400
+        
+    # Generate new OTP
+    otp = ''.join(secrets.choice(string.digits) for _ in range(6))
+    session['registration_otp'] = otp
+    session['registration_otp_time'] = datetime.utcnow().timestamp()
+    
+    # Send Email
+    try:
+        with mail.connect() as conn:
+            msg = Message(
+                subject="Verify your Discussion Den Account (Resend)",
+                recipients=[stored_data['email']],
+                body=f"Your new verification code is: {otp}",
+                 html=f"""
+                <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto;">
+                    <h2>Discussion Den Verification</h2>
+                    <p>Your new verification code is:</p>
+                    <div style="background: #f0f2f5; padding: 20px; text-align: center; border-radius: 8px; font-size: 24px; letter-spacing: 5px; font-weight: bold; margin: 20px 0;">
+                        {otp}
+                    </div>
+                </div>
+                """
+            )
+            conn.send(msg)
+            return {"success": True, "message": "New code sent."}
+    except Exception as e:
+        print(f"ERROR: Failed to resend email: {e}")
+        # Fallback debug
+        print(f"DEBUG FALLBACK: OTP for {stored_data['email']} is {otp}")
+        return {"success": True, "message": "New code sent (dev mode)."}
 
 
 @auth_bp.get("/login")

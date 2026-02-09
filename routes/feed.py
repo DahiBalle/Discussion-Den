@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-from flask import Blueprint, render_template, redirect, url_for
+from typing import cast
+
+from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import current_user
 
 from extensions import db
 from forms import PostForm
 from models import Community
+from .utils import get_identity, IdentityContext
 
 
 feed_bp = Blueprint("feed", __name__)
@@ -64,7 +67,9 @@ def feed():
         - Persona: Alternative author identities
         - Comment: Engagement metrics
     """
-    from routes.utils import get_identity
+    # from routes.utils import get_identity  <-- Removed local import
+    # But actually I should remove the line entirely. 
+    # Let me just replace the block.
     from models import Post, Vote, SavedPost, Comment
     from sqlalchemy.orm import joinedload
     
@@ -106,7 +111,7 @@ def feed():
             default_community = communities[0]
     
     # Get current user identity for personalization (only if authenticated)
-    ident = None
+    ident: IdentityContext | None = None
     if current_user.is_authenticated:
         try:
             ident = get_identity()
@@ -119,21 +124,49 @@ def feed():
     # This is the most critical query for performance - must be optimized
     posts = []
     try:
-        posts = (
-            Post.query
-            .options(
-                joinedload(Post.community),      # Prevent N+1 for community data
-                joinedload(Post.author_user),    # Prevent N+1 for user authors
-                joinedload(Post.author_persona)  # Prevent N+1 for persona authors
-            )
-            .order_by(Post.created_at.desc())   # Most recent first
-            .limit(50)  # SAFETY: Limit to prevent memory issues with large datasets
-            .all()
+        # Sort parameter
+        sort_by = request.args.get('sort', 'new')
+        
+        query = Post.query.options(
+            joinedload(Post.community),
+            joinedload(Post.author_user),
+            joinedload(Post.author_persona)
         )
+
+        if sort_by == 'trending':
+            # Simple trending: sort by upvotes (descending)
+            # Note: In a real app this would be more complex (recency + engagement)
+            query = query.order_by(Post.upvotes.desc())
+        else: # Default to 'new'
+            query = query.order_by(Post.created_at.desc())
+
+        posts = query.limit(50).all()
         print(f"INFO: Loaded {len(posts)} posts for feed")
     except Exception as e:
         print(f"ERROR: Failed to load posts: {e}")
         posts = []  # SAFETY: Always provide a list, even if empty
+
+    # FEATURE: Trending Posts Carousel
+    # Fetch top 5 posts with images for the carousel
+    trending_posts = []
+    try:
+        trending_posts = Post.query.filter(Post.image_url.isnot(None), Post.image_url != "").order_by(Post.upvotes.desc()).limit(5).all()
+    except Exception as e:
+        print(f"WARNING: Failed to load trending posts: {e}")
+        trending_posts = []
+
+    # Helper to enhance posts (consolidated logic could be moved to a util function)
+    # For now, we just need author names for the carousel
+    for post in trending_posts:
+        try:
+            post.author_name = "Unknown"
+            if hasattr(post, "author_persona") and post.author_persona and getattr(post.author_persona, "name", None):
+                post.author_name = post.author_persona.name
+            elif hasattr(post, "author_user") and post.author_user and getattr(post.author_user, "username", None):
+                post.author_name = post.author_user.username
+        except:
+            pass
+
     
     # ENHANCEMENT: Add user-specific data to each post (votes, saves, author names, etc.)
     # This provides personalized experience without additional page loads
@@ -148,16 +181,17 @@ def feed():
             
             # Get user-specific vote and save status efficiently
             # Only query if we have a valid identity (i.e., authenticated user)
-            if ident and getattr(ident, "user_id", None):
+            if ident is not None:
+                ident_ctx = cast(IdentityContext, ident)
                 try:
-                    if ident.is_persona and ident.persona_id:
+                    if ident_ctx.is_persona:
                         # Query for persona-based interactions
-                        vote = Vote.query.filter_by(post_id=post.id, voted_by_persona_id=ident.persona_id).first()
-                        saved = SavedPost.query.filter_by(post_id=post.id, saved_by_persona_id=ident.persona_id).first()
+                        vote = Vote.query.filter_by(post_id=post.id, voted_by_persona_id=ident_ctx.persona_id).first()
+                        saved = SavedPost.query.filter_by(post_id=post.id, saved_by_persona_id=ident_ctx.persona_id).first()
                     else:
                         # Query for user-based interactions
-                        vote = Vote.query.filter_by(post_id=post.id, voted_by_user_id=ident.user_id).first()
-                        saved = SavedPost.query.filter_by(post_id=post.id, saved_by_user_id=ident.user_id).first()
+                        vote = Vote.query.filter_by(post_id=post.id, voted_by_user_id=ident_ctx.user_id).first()
+                        saved = SavedPost.query.filter_by(post_id=post.id, saved_by_user_id=ident_ctx.user_id).first()
                     
                     # Apply user-specific data
                     post.user_vote = vote.value if vote else 0
@@ -214,6 +248,7 @@ def feed():
         communities=communities or [],  # SAFETY: Ensure it's always a list
         post_form=form, 
         posts=enhanced_posts,  # SAFETY: Always a list, even if empty
-        active_identity=ident
+        active_identity=ident,
+        trending_posts=trending_posts
     )
 

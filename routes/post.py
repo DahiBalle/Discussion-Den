@@ -6,7 +6,7 @@ from flask_login import current_user, login_required
 from extensions import db, limiter
 from forms import CommentForm, PostForm
 from models import Comment, Post
-from routes.utils import get_identity
+from .utils import get_identity
 
 
 post_bp = Blueprint("post", __name__)

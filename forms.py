@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, EmailField, PasswordField, StringField, TextAreaField
-from wtforms.validators import Email, InputRequired, Length, Optional, URL
+from wtforms.validators import Email, EqualTo, InputRequired, Length, Optional, URL
 
 
 class RegisterForm(FlaskForm):
@@ -11,6 +11,9 @@ class RegisterForm(FlaskForm):
     )
     email = EmailField("Email", validators=[InputRequired(), Email(), Length(max=255)])
     password = PasswordField("Password", validators=[InputRequired(), Length(min=6, max=72)])
+    confirm_password = PasswordField(
+        "Confirm Password", validators=[InputRequired(), EqualTo("password", message="Passwords must match.")]
+    )
 
 
 class LoginForm(FlaskForm):

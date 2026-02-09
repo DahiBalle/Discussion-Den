@@ -28,7 +28,7 @@ def user_profile(username: str):
         # We query Post joined with SavedPost to get the actual Post objects
         # ordered by when they were saved (most recent first)
         from models import SavedPost, Vote, Comment
-        from routes.utils import get_identity
+        from .utils import get_identity
         
         posts_list = (
             db.session.query(Post)

@@ -289,6 +289,49 @@ a:hover {
     max-width: 1800px;
 }
 
+/* Fix white background in navbar-collapse */
+.navbar-collapse {
+    background: transparent !important;
+}
+
+/* Fix white background in container-fluid inside navbar */
+#main-navbar .container-fluid {
+    background: transparent !important;
+}
+
+/* Ensure navbar children are all transparent */
+#main-navbar .navbar-collapse,
+#main-navbar .collapse,
+#main-navbar>.container-fluid {
+    background-color: transparent !important;
+}
+
+/* Nuclear fix - force ALL elements inside navbar to be transparent 
+   EXCEPT for search elements and dropdown menus */
+#main-navbar *:not(.btn):not(button):not(input):not(.search-btn):not(.search-container):not(.dropdown-menu):not(.dropdown-item):not(.dropdown-divider):not(.dropdown-header) {
+    background-color: transparent !important;
+}
+
+/* Specifically target navbar-expand-lg */
+.navbar-expand-lg .navbar-collapse {
+    background: transparent !important;
+}
+
+/* Target any divs inside navbar */
+#main-navbar div:not(.search-container):not(.brand-icon):not(.dropdown-menu-enhanced):not(.dropdown-item) {
+    background-color: transparent !important;
+}
+
+/* Fix Bootstrap btn-link background in navbar */
+#main-navbar .btn-link,
+#main-navbar .btn-link:hover,
+#main-navbar .btn-link:focus,
+#main-navbar .btn-link:active {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
 /* Light Theme Navbar */
 [data-theme="light"] #main-navbar {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 249, 250, 0.98) 100%);
@@ -1575,6 +1618,120 @@ button:focus,
     margin-right: auto;
 }
 
+/* Trending Carousel */
+.trending-carousel {
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.carousel-image-container {
+    height: 400px;
+    position: relative;
+    overflow: hidden;
+}
+
+.carousel-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.trending-carousel .carousel-item:hover .carousel-image-container img {
+    transform: scale(1.05);
+}
+
+.carousel-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0) 100%);
+}
+
+.carousel-caption {
+    text-align: left;
+    bottom: var(--space-8);
+    left: var(--space-8);
+    right: 30%;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    padding: 0;
+}
+
+.carousel-post-title {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-2);
+    color: white;
+}
+
+.carousel-post-author {
+    font-size: var(--text-base);
+    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    font-weight: var(--font-medium);
+}
+
+.carousel-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.carousel-indicators {
+    margin-bottom: var(--space-4);
+}
+
+.carousel-indicators button {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5) !important;
+    margin: 0 4px !important;
+    border: none !important;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.carousel-indicators button.active {
+    background-color: var(--accent-primary) !important;
+    transform: scale(1.2);
+    opacity: 1;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 10%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.trending-carousel:hover .carousel-control-prev,
+.trending-carousel:hover .carousel-control-next {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .carousel-image-container {
+        height: 250px;
+    }
+
+    .carousel-post-title {
+        font-size: var(--text-lg);
+    }
+
+    .carousel-caption {
+        right: var(--space-6);
+        bottom: var(--space-4);
+        left: var(--space-4);
+    }
+}
+
 /* Enhanced Post Card */
 .post-card-enhanced {
     background: var(--gradient-card);
@@ -1796,6 +1953,7 @@ button:focus,
     background: var(--bg-card);
     border-radius: var(--border-radius-lg);
     border: 1px solid var(--border-color);
+    width: fit-content;
 }
 
 .filter-btn {
@@ -1816,167 +1974,561 @@ button:focus,
     color: white;
     border-color: transparent;
     box-shadow: var(--shadow-glow);
+}
 
-    /* =========================================
+/* =========================================
    Responsive Design & Mobile Optimizations
    ========================================= */
 
-    /* Mobile Breakpoint (Phones) */
-    @media (max-width: 768px) {
+/* Mobile Breakpoint (Phones) */
+@media (max-width: 768px) {
 
-        /* Layout Adjustments */
-        :root {
-            --space-6: 1rem;
-            /* Reduce spacing on mobile */
-            --space-8: 1.5rem;
-            --space-12: 2rem;
-            --text-4xl: 2rem;
-            /* Smaller hero text */
-            --text-2xl: 1.5rem;
-        }
+    /* Layout Adjustments */
+    :root {
+        --space-6: 1rem;
+        /* Reduce spacing on mobile */
+        --space-8: 1.5rem;
+        --space-12: 2rem;
+        --text-4xl: 2rem;
+        /* Smaller hero text */
+        --text-2xl: 1.5rem;
+    }
 
-        .container,
-        .container-fluid {
-            padding-left: var(--space-4);
-            padding-right: var(--space-4);
-        }
+    .container,
+    .container-fluid {
+        padding-left: var(--space-4);
+        padding-right: var(--space-4);
+    }
 
-        /* Navbar Optimizations */
-        .navbar-search-wrapper {
-            min-width: auto !important;
-            width: 100%;
-            margin: var(--space-3) 0;
-            order: 3;
-            /* Move search to bottom of expanded menu */
-        }
+    /* Navbar Optimizations */
+    .navbar-search-wrapper {
+        min-width: auto !important;
+        width: 100%;
+        margin: var(--space-3) 0;
+        order: 3;
+        /* Move search to bottom of expanded menu */
+    }
 
-        .navbar-collapse {
-            background: var(--bg-secondary);
-            padding: var(--space-4);
-            border-radius: var(--border-radius-lg);
-            margin-top: var(--space-3);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-lg);
-        }
+    .navbar-collapse {
+        background: var(--bg-secondary);
+        padding: var(--space-4);
+        border-radius: var(--border-radius-lg);
+        margin-top: var(--space-3);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-lg);
+    }
 
-        .navbar-nav .nav-link {
-            padding: var(--space-3) var(--space-4);
-            border-radius: var(--border-radius);
-        }
+    .navbar-nav .nav-link {
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--border-radius);
+    }
 
-        .navbar-nav .nav-link:hover {
-            background: var(--bg-tertiary);
-        }
+    .navbar-nav .nav-link:hover {
+        background: var(--bg-tertiary);
+    }
 
-        /* Hide username on mobile to save space */
-        .user-name {
-            display: none;
-        }
+    /* Hide username on mobile to save space */
+    .user-name {
+        display: none;
+    }
 
-        .persona-display span {
-            display: none;
-            /* Hide persona label text too on mobile */
-        }
+    .persona-display span {
+        display: none;
+        /* Hide persona label text too on mobile */
+    }
 
-        /* Feed Filters - Horizontal Scroll */
-        .feed-filters {
-            overflow-x: auto;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-            /* Smooth scroll on iOS */
-            padding-bottom: var(--space-3);
-            /* Space for scrollbar */
-            scrollbar-width: none;
-            /* Hide scrollbar Firefox */
-        }
+    /* Feed Filters - Horizontal Scroll */
+    .feed-filters {
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        /* Smooth scroll on iOS */
+        padding-bottom: var(--space-3);
+        /* Space for scrollbar */
+        scrollbar-width: none;
+        /* Hide scrollbar Firefox */
+    }
 
-        .feed-filters::-webkit-scrollbar {
-            display: none;
-            /* Hide scrollbar Chrome/Safari */
-        }
+    .feed-filters::-webkit-scrollbar {
+        display: none;
+        /* Hide scrollbar Chrome/Safari */
+    }
 
-        .filter-btn {
-            flex-shrink: 0;
-        }
+    .filter-btn {
+        flex-shrink: 0;
+    }
 
-        /* Post Card Mobile */
-        .post-card-enhanced {
-            padding: var(--space-4);
-            margin-bottom: var(--space-4);
-        }
+    /* Post Card Mobile */
+    .post-card-enhanced {
+        padding: var(--space-4);
+        margin-bottom: var(--space-4);
+    }
 
-        .post-header-enhanced {
-            font-size: var(--text-sm);
-        }
+    .post-header-enhanced {
+        font-size: var(--text-sm);
+    }
 
-        .post-title-enhanced {
-            font-size: 1.25rem;
-        }
+    .post-title-enhanced {
+        font-size: 1.25rem;
+    }
 
-        .action-buttons-enhanced {
-            gap: var(--space-2);
-        }
+    .action-buttons-enhanced {
+        gap: var(--space-2);
+    }
 
-        .btn-action-enhanced {
-            padding: var(--space-2) var(--space-3);
-            font-size: 0.8rem;
-        }
+    .btn-action-enhanced {
+        padding: var(--space-2) var(--space-3);
+        font-size: 0.8rem;
+    }
 
+    .btn-action-enhanced span {
+        display: none;
+        /* Hide text, show icons only on very small screens if needed */
+    }
+
+    /* Reveal text again if there's enough space, e.g. slightly larger phones */
+    @media (min-width: 400px) {
         .btn-action-enhanced span {
-            display: none;
-            /* Hide text, show icons only on very small screens if needed */
-        }
-
-        /* Reveal text again if there's enough space, e.g. slightly larger phones */
-        @media (min-width: 400px) {
-            .btn-action-enhanced span {
-                display: inline;
-            }
-        }
-
-        /* Profile Header Mobile */
-        .profile-header {
-            text-align: center;
-            padding: var(--space-6);
-        }
-
-        .profile-header .d-flex.align-items-start {
-            flex-direction: column;
-            align-items: center !important;
-        }
-
-        .profile-avatar {
-            width: 100px;
-            height: 100px;
-            font-size: 2.5rem !important;
-            margin-right: 0;
-            margin-bottom: var(--space-4);
-        }
-
-        .profile-name {
-            font-size: 1.75rem;
-        }
-
-        .profile-bio {
-            margin-bottom: var(--space-4);
-        }
-
-        .profile-header .btn {
-            width: 100%;
-            /* Full width buttons */
-            margin-top: var(--space-3);
-        }
-
-        /* Right Sidebar - hidden by d-none d-lg-block, but just in case */
-        .sidebar-right {
-            display: none;
+            display: inline;
         }
     }
 
-    /* Tablet/Desktop Tweaks */
-    @media (min-width: 769px) {
-        .navbar-search-wrapper {
-            width: 400px;
-            /* Fixed width on desktop */
-        }
+    /* Profile Header Mobile */
+    .profile-header {
+        text-align: center;
+        padding: var(--space-6);
     }
+
+    .profile-header .d-flex.align-items-start {
+        flex-direction: column;
+        align-items: center !important;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem !important;
+        margin-right: 0;
+        margin-bottom: var(--space-4);
+    }
+
+    .profile-name {
+        font-size: 1.75rem;
+    }
+
+    .profile-bio {
+        margin-bottom: var(--space-4);
+    }
+
+    .profile-header .btn {
+        width: 100%;
+        /* Full width buttons */
+        margin-top: var(--space-3);
+    }
+
+    /* Right Sidebar - hidden by d-none d-lg-block, but just in case */
+    .sidebar-right {
+        display: none;
+    }
+}
+
+/* Tablet/Desktop Tweaks */
+@media (min-width: 769px) {
+    .navbar-search-wrapper {
+        width: 400px;
+        /* Fixed width on desktop */
+    }
+}
+
+/* Persona Switcher Alignment Fix */
+.persona-switcher {
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--space-2);
+}
+
+/* 1365px Responsive Navbar Layout */
+@media (max-width: 1365px) {
+
+    /* Hide Desktop Nav and User Menu */
+    .desktop-nav,
+    .user-nav {
+        display: none !important;
+    }
+
+    /* Show Right Offcanvas Toggle */
+    .user-offcanvas-toggle {
+        display: block !important;
+        background: none !important;
+        background-color: transparent !important;
+        border: none;
+        padding: var(--space-2);
+        color: var(--text-primary) !important;
+    }
+
+    .user-offcanvas-toggle:hover {
+        color: var(--accent-primary) !important;
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+
+    /* Center Search Bar */
+    .navbar-collapse {
+        justify-content: center;
+    }
+
+    .navbar-search-wrapper {
+        margin: 0 auto;
+        /* Make search wider on these screens */
+        max-width: 600px;
+    }
+}
+
+/* 1200px Responsive Feed Alignment (Center Posts) */
+@media (max-width: 1200px) {
+
+    /* Hide sidebars that might interfering with centering */
+    .desktop-nav,
+    .user-nav,
+    .right-sidebar,
+    .left-sidebar {
+        display: none !important;
+    }
+
+    /* Center the main content */
+    .col-lg-6,
+    .col-md-8,
+    .main-content {
+        width: 100% !important;
+        max-width: 800px !important;
+        margin: 0 auto !important;
+        float: none !important;
+    }
+
+    /* Ensure feed container is centered */
+    #feed-container {
+        margin: 0 auto;
+        max-width: 700px;
+    }
+
+    /* Ensure rows are centered */
+    .row {
+        justify-content: center !important;
+    }
+}
+
+/* Responsive fixes for screens below Bootstrap's lg breakpoint (992px) */
+@media (max-width: 991px) {
+
+    /* Force navbar-collapse to always be visible (override Bootstrap) */
+    .navbar-collapse {
+        display: flex !important;
+        flex-basis: auto;
+    }
+
+    /* Hide the hamburger toggle button (not needed) */
+    .navbar-toggler {
+        display: none !important;
+    }
+
+    /* Make search bar smaller and flexible */
+    .navbar-search-wrapper {
+        max-width: 350px;
+        min-width: 180px;
+        flex: 1;
+    }
+
+    /* Ensure right offcanvas toggle stays visible */
+    .user-offcanvas-toggle {
+        display: block !important;
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+
+    /* Ensure mobile toggle is hidden above 770px (between 770 and 991) */
+    .mobile-user-toggle {
+        display: none !important;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 576px) {
+    .navbar-search-wrapper {
+        max-width: 200px;
+        min-width: 120px;
+    }
+
+    /* Make search input smaller */
+    .navbar-search-wrapper input {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+}
+
+/* Fix messy layout for screens below 770px */
+@media (max-width: 769px) {
+
+    /* Hide brand text, keep only icon */
+    .brand-text {
+        display: none !important;
+    }
+
+    .brand-container {
+        width: auto;
+    }
+
+    .brand-icon {
+        margin-right: 0;
+    }
+
+    /* Reduce navbar padding */
+    .container-fluid.px-4 {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    /* Hide navbar search - it's now in the offcanvas */
+    .navbar-search-wrapper {
+        display: none !important;
+    }
+
+    /* CRITICAL FIX: Hide navbar-collapse completely to prevent white overlay */
+    .navbar-collapse {
+        display: none !important;
+    }
+
+    /* Show the new mobile-only toggle button */
+    .mobile-user-toggle {
+        display: block !important;
+        background: transparent !important;
+        border: none;
+        padding: var(--space-2);
+        color: var(--text-primary) !important;
+    }
+
+    /* Show mobile search in offcanvas */
+    .offcanvas-mobile-search {
+        display: block !important;
+    }
+
+    /* Make toggle buttons more compact */
+    .navbar-toggler-custom,
+    .user-offcanvas-toggle {
+        padding: 0.5rem !important;
+        font-size: 1.1rem;
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+
+    /* Tighten spacing */
+    .navbar-brand {
+        margin-right: 0.5rem !important;
+    }
+
+    .navbar-toggler-custom {
+        margin-right: 0.5rem !important;
+    }
+}
+
+/* Mobile search in offcanvas - hidden by default, shown below 770px */
+.offcanvas-mobile-search {
+    display: none;
+}
+
+.mobile-search-wrapper {
+    padding: 0 var(--space-6);
+}
+
+.offcanvas-mobile-search .search-container {
+    display: flex;
+    align-items: center;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-2) var(--space-3);
+    transition: var(--transition-base);
+}
+
+.offcanvas-mobile-search .search-container:focus-within {
+    border-color: var(--accent-primary);
+    background: var(--bg-card);
+}
+
+.offcanvas-mobile-search .search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    padding: var(--space-2);
+}
+
+.offcanvas-mobile-search .search-input:focus {
+    outline: none;
+}
+
+.offcanvas-mobile-search .search-btn {
+    background: var(--gradient-accent);
+    border: none;
+    color: white;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition-base);
+}
+
+.offcanvas-mobile-search .search-btn:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-glow);
+}
+
+/* Toast Notifications */
+.flash-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    /* Above Bootstrap modal (1055) */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    /* Let clicks pass through container */
+}
+
+.alert-enhanced {
+    pointer-events: auto;
+    /* Re-enable clicks on alerts */
+    min-width: 300px;
+    max-width: 400px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-3) var(--space-4);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    animation: slideInRight 0.3s ease-out;
+    backdrop-filter: blur(10px);
+}
+
+.alert-enhanced .alert-content {
+    flex: 1;
+    display: flex;
+    gap: var(--space-3);
+}
+
+.alert-enhanced .alert-icon {
+    font-size: var(--text-lg);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.alert-success {
+    border-left: 4px solid var(--accent-success);
+}
+
+.alert-success .alert-icon {
+    color: var(--accent-success);
+}
+
+.alert-danger {
+    border-left: 4px solid var(--accent-danger);
+}
+
+.alert-danger .alert-icon {
+    color: var(--accent-danger);
+}
+
+.alert-info,
+.alert-primary {
+    border-left: 4px solid var(--accent-primary);
+}
+
+.alert-info .alert-icon,
+.alert-primary .alert-icon {
+    color: var(--accent-primary);
+}
+
+.alert-warning {
+    border-left: 4px solid var(--accent-warning);
+}
+
+.alert-warning .alert-icon {
+    color: var(--accent-warning);
+}
+
+.alert-enhanced .btn-close-enhanced {
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    opacity: 0.5;
+}
+
+.alert-enhanced .btn-close-enhanced:hover {
+    opacity: 1;
+    background: rgba(128, 128, 128, 0.1);
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* OTP Verification Styles */
+.otp-input-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.otp-input {
+    width: 200px;
+    height: 60px;
+    font-size: 32px;
+    letter-spacing: 15px;
+    text-align: center;
+    border: 2px solid var(--border-color);
+    background: var(--bg-body);
+    color: var(--text-primary);
+    border-radius: var(--border-radius-lg);
+    transition: all 0.3s ease;
+    padding-left: 15px;
+    /* Offset for letter-spacing to center text */
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.otp-input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 4px rgba(var(--accent-primary-rgb), 0.15);
+    transform: scale(1.05);
+}
+
+.otp-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.3;
+    letter-spacing: 5px;
+    font-size: 24px;
+}

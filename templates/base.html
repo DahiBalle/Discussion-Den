@@ -310,9 +310,18 @@
                 </div>
             </a>
 
+            <!-- Mobile User Toggle (Visible < 770px) -->
+            {% if current_user.is_authenticated %}
+            <button class="btn btn-link text-light user-offcanvas-toggle mobile-user-toggle ms-auto" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#userOffcanvas" style="display: none;">
+                <i class="fas fa-user-circle fa-lg"></i>
+            </button>
+            {% endif %}
+
             <!-- Desktop Navigation -->
             <div class="collapse navbar-collapse align-items-center" id="navbarNav">
-                <ul class="navbar-nav me-3">
+                <!-- Left Nav: Hidden at 1365px -->
+                <ul class="navbar-nav me-3 desktop-nav">
                     <li class="nav-item">
                         <a class="nav-link nav-link-enhanced" href="{{ url_for('feed.feed') }}">
                             <i class="fas fa-home me-2"></i>Feed
@@ -348,8 +357,16 @@
                     <div id="search-suggestions-dropdown" class="search-suggestions-dropdown" aria-live="polite"></div>
                 </div>
 
-                <!-- User Menu -->
-                <ul class="navbar-nav ms-auto align-items-center">
+                <!-- Right Offcanvas Toggle (Visible <= 1365px) -->
+                {% if current_user.is_authenticated %}
+                <button class="btn btn-link text-light d-none user-offcanvas-toggle ms-auto" type="button"
+                    data-bs-toggle="offcanvas" data-bs-target="#userOffcanvas">
+                    <i class="fas fa-user-circle fa-lg"></i>
+                </button>
+                {% endif %}
+
+                <!-- User Menu: Hidden at 1365px -->
+                <ul class="navbar-nav ms-auto align-items-center user-nav">
                     {% if current_user.is_authenticated %}
                     <!-- Theme Toggle -->
                     <li class="nav-item me-2">
@@ -498,6 +515,22 @@
         </div>
     </div>
 
+    <!-- Enhanced Right Offcanvas (User Menu) -->
+    {% if current_user.is_authenticated %}
+    <div class="offcanvas offcanvas-end offcanvas-enhanced" tabindex="-1" id="userOffcanvas"
+        aria-labelledby="userOffcanvasLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="userOffcanvasLabel">User Menu</h5>
+            <button type="button" class="btn-close btn-close-enhanced" data-bs-dismiss="offcanvas" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="offcanvas-body">
+            {% include 'includes/offcanvas_user.html' %}
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Flash Messages Enhanced -->
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -607,12 +640,73 @@
                     <h6 class="footer-heading">Stay Updated</h6>
                     <p class="text-secondary small mb-3">Subscribe to our newsletter for the latest updates and
                         community highlights.</p>
-                    <form class="newsletter-form" onsubmit="event.preventDefault();">
-                        <input type="email" class="newsletter-input" placeholder="Enter your email" required>
+                    <form class="newsletter-form" id="newsletter-form">
+                        <input type="email" class="newsletter-input" id="newsletter-email"
+                            placeholder="Enter your email" required>
                         <button type="submit" class="newsletter-btn">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </form>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const newsletterForm = document.getElementById('newsletter-form');
+                            if (newsletterForm) {
+                                newsletterForm.addEventListener('submit', function (e) {
+                                    e.preventDefault();
+
+                                    const emailInput = document.getElementById('newsletter-email');
+                                    const submitBtn = newsletterForm.querySelector('button[type="submit"]');
+                                    const email = emailInput.value;
+
+                                    // Show loading state
+                                    const originalBtnContent = submitBtn.innerHTML;
+                                    submitBtn.disabled = true;
+                                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                                    // Get CSRF token
+                                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                                        document.querySelector('input[name="csrf_token"]')?.value;
+
+                                    fetch('/api/subscribe', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRFToken': csrfToken
+                                        },
+                                        body: JSON.stringify({ email: email })
+                                    })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (data.success) {
+                                                if (window.DiscussionDenTheme) {
+                                                    window.DiscussionDenTheme.showToast('Thanks for subscribing! Check your inbox. 📧', 'success');
+                                                } else {
+                                                    alert('Thanks for subscribing!');
+                                                }
+                                                emailInput.value = '';
+                                            } else {
+                                                if (window.DiscussionDenTheme) {
+                                                    window.DiscussionDenTheme.showToast(data.error || 'Subscription failed. Please try again.', 'danger');
+                                                } else {
+                                                    alert(data.error || 'Subscription failed.');
+                                                }
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('Error:', error);
+                                            if (window.DiscussionDenTheme) {
+                                                window.DiscussionDenTheme.showToast('Something went wrong. Please try again.', 'danger');
+                                            }
+                                        })
+                                        .finally(() => {
+                                            submitBtn.disabled = false;
+                                            submitBtn.innerHTML = originalBtnContent;
+                                        });
+                                });
+                            }
+                        });
+                    </script>
                 </div>
             </div>
 
@@ -739,22 +833,30 @@
                             </div>
                             <div class="mb-3">
                                 <label for="register-password" class="form-label">Password</label>
-                                <div class="input-group input-group-enhanced">
+                                <div class="input-group input-group-enhanced password-group">
                                     <span class="input-group-text">
                                         <i class="fas fa-lock"></i>
                                     </span>
                                     <input type="password" class="form-control" id="register-password" name="password"
                                         required>
+                                    <button type="button" class="input-group-text password-toggle"
+                                        aria-label="Show password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="mb-4">
                                 <label for="register-confirm-password" class="form-label">Confirm Password</label>
-                                <div class="input-group input-group-enhanced">
+                                <div class="input-group input-group-enhanced password-group">
                                     <span class="input-group-text">
                                         <i class="fas fa-lock"></i>
                                     </span>
                                     <input type="password" class="form-control" id="register-confirm-password"
                                         name="confirm_password" required>
+                                    <button type="button" class="input-group-text password-toggle"
+                                        aria-label="Show password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 btn-enhanced">
@@ -772,6 +874,38 @@
                                 </a>
                             </span>
                         </div>
+                    </div>
+
+                    <!-- OTP Verification Form -->
+                    <div id="otp-form-container" class="auth-form-container" style="display: none;">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-envelope-open-text fa-3x text-primary mb-3"></i>
+                            <h5>Verify Your Email</h5>
+                            <p class="text-muted small">We sent a verification code to <br><b
+                                    id="otp-email-display">email@example.com</b></p>
+                        </div>
+
+                        <form id="modal-otp-form" method="POST" action="{{ url_for('auth.verify_otp') }}">
+                            <div class="mb-4">
+                                <label for="otp-input" class="form-label text-center w-100">Enter Verification
+                                    Code</label>
+                                <div class="otp-input-wrapper">
+                                    <input type="text" class="form-control text-center otp-input" id="otp-input"
+                                        name="otp" placeholder="000000" maxlength="6" pattern="\d{6}" required
+                                        autocomplete="one-time-code">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 btn-enhanced">
+                                <i class="fas fa-check-circle me-2"></i>Verify & Login
+                            </button>
+
+                            <div class="text-center mt-3">
+                                <button type="button" class="btn btn-link btn-sm text-muted" id="resend-otp-btn">
+                                    Resend Code
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -871,9 +1005,9 @@
             const authSwitchBtns = document.querySelectorAll('.auth-switch-btn');
             const loginContainer = document.getElementById('login-form-container');
             const registerContainer = document.getElementById('register-form-container');
+            const otpContainer = document.getElementById('otp-form-container');
             const modalTitle = document.getElementById('authModalLabel');
-            const passwordToggle = document.querySelector('.password-toggle');
-            const passwordInput = document.getElementById('login-password');
+
 
             // Handle auth mode switching
             authSwitchBtns.forEach(btn => {
@@ -899,6 +1033,8 @@
                 });
 
                 // Update form visibility
+                otpContainer.style.display = 'none'; // Always hide OTP when switching modes
+
                 if (mode === 'login') {
                     loginContainer.style.display = 'block';
                     registerContainer.style.display = 'none';
@@ -913,6 +1049,8 @@
             // Handle form submissions
             const loginForm = document.getElementById('modal-login-form');
             const registerForm = document.getElementById('modal-register-form');
+            const otpForm = document.getElementById('modal-otp-form');
+            const resendOtpBtn = document.getElementById('resend-otp-btn');
 
             if (loginForm) {
                 loginForm.addEventListener('submit', function (e) {
@@ -928,19 +1066,63 @@
                 });
             }
 
-            // Password show/hide toggle
-            if (passwordToggle && passwordInput) {
-                passwordToggle.addEventListener('click', function () {
-                    const isPassword = passwordInput.type === 'password';
-                    passwordInput.type = isPassword ? 'text' : 'password';
-                    const icon = this.querySelector('i');
-                    if (icon) {
-                        icon.classList.toggle('fa-eye');
-                        icon.classList.toggle('fa-eye-slash');
-                    }
-                    this.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+            if (otpForm) {
+                otpForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    submitAuthForm(this, 'otp');
                 });
             }
+
+            if (resendOtpBtn) {
+                resendOtpBtn.addEventListener('click', function () {
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+                    fetch("{{ url_for('auth.resend_otp') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': "{{ csrf_token() }}"
+                        }
+                    })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (window.DiscussionDenTheme) {
+                                window.DiscussionDenTheme.showToast(data.message, data.success ? 'success' : 'danger');
+                            } else {
+                                alert(data.message);
+                            }
+                        })
+                        .finally(() => {
+                            setTimeout(() => {
+                                this.disabled = false;
+                                this.textContent = 'Resend Code';
+                            }, 30000); // 30s cooldown
+                        });
+                });
+            }
+
+            // Password show/hide toggle
+            // Password show/hide toggle - Generic for all password fields
+            document.querySelectorAll('.password-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function () {
+                    const inputGroup = this.closest('.input-group');
+                    const passwordInput = inputGroup.querySelector('input');
+
+                    if (passwordInput) {
+                        const isPassword = passwordInput.type === 'password';
+                        passwordInput.type = isPassword ? 'text' : 'password';
+
+                        const icon = this.querySelector('i');
+                        if (icon) {
+                            icon.classList.toggle('fa-eye');
+                            icon.classList.toggle('fa-eye-slash');
+                        }
+
+                        this.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+                    }
+                });
+            });
 
             // Basic forgot password handler (placeholder UX)
             document.querySelectorAll('.forgot-password-link').forEach(link => {
@@ -967,23 +1149,75 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Please wait...';
 
-            const formData = new FormData(form);
+            let body;
+            let headers = {
+                'X-Requested-With': 'XMLHttpRequest'
+            };
+
+            if (mode === 'otp') {
+                const formData = new FormData(form);
+                body = JSON.stringify(Object.fromEntries(formData));
+                headers['Content-Type'] = 'application/json';
+                headers['X-CSRFToken'] = "{{ csrf_token() }}";
+            } else {
+                body = new FormData(form);
+            }
 
             fetch(form.action, {
                 method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                body: body,
+                headers: headers
             })
-                .then(response => {
+                .then(async response => {
                     if (response.ok) {
-                        // Success - redirect to feed
-                        window.location.href = "{{ url_for('feed.feed') }}";
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.indexOf("application/json") !== -1) {
+                            const data = await response.json();
+
+                            // Check if OTP view is required (Registration step 1 success)
+                            if (data.require_otp) {
+                                // Hide register, Show OTP
+                                document.getElementById('register-form-container').style.display = 'none';
+                                document.getElementById('login-form-container').style.display = 'none';
+                                document.getElementById('otp-form-container').style.display = 'block';
+
+                                // Update title and message
+                                document.getElementById('authModalLabel').textContent = 'Verification Required';
+                                if (data.email) {
+                                    document.getElementById('otp-email-display').textContent = data.email;
+                                }
+
+                                // Show toast
+                                if (window.DiscussionDenTheme) {
+                                    window.DiscussionDenTheme.showToast(data.message, 'success');
+                                }
+                                return; // Stop here, don't redirect
+                            }
+
+                            if (data.redirect) {
+                                window.location.href = data.redirect;
+                            } else {
+                                window.location.href = "{{ url_for('feed.feed') }}";
+                            }
+                        } else {
+                            // Fallback for non-JSON success
+                            window.location.href = "{{ url_for('feed.feed') }}";
+                        }
                     } else {
-                        return response.text().then(text => {
+                        // Try to parse JSON error
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.indexOf("application/json") !== -1) {
+                            const data = await response.json();
+                            if (data.errors) {
+                                // Format multiple errors
+                                const errorMessages = Object.values(data.errors).flat().join('\n');
+                                throw new Error(errorMessages || 'Authentication failed');
+                            }
+                            throw new Error(data.message || 'Authentication failed');
+                        } else {
+                            const text = await response.text();
                             throw new Error('Authentication failed');
-                        });
+                        }
                     }
                 })
                 .catch(error => {
@@ -992,11 +1226,11 @@
                     // Show error message
                     if (window.DiscussionDenTheme) {
                         window.DiscussionDenTheme.showToast(
-                            'Authentication failed. Please check your credentials and try again.',
+                            error.message,
                             'danger'
                         );
                     } else {
-                        alert('Authentication failed. Please check your credentials and try again.');
+                        alert(error.message);
                     }
                 })
                 .finally(() => {

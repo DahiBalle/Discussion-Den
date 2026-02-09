@@ -6,7 +6,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from flask import Flask, redirect, url_for
 
-from extensions import csrf, db, login_manager, oauth, limiter
+from extensions import csrf, db, login_manager, oauth, limiter, mail
 
 
 def create_app() -> Flask:
@@ -32,6 +32,17 @@ def create_app() -> Flask:
     db.init_app(app)
     csrf.init_app(app)
     limiter.init_app(app)
+    
+    # Mail Configuration
+    app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER')
+    app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
+    app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True').lower() in ['true', 'on', '1']
+    app.config['MAIL_USE_SSL'] = os.environ.get('MAIL_USE_SSL', 'False').lower() in ['true', 'on', '1']
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+    app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', app.config['MAIL_USERNAME'])
+    
+    mail.init_app(app)
 
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"

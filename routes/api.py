@@ -6,12 +6,71 @@ from flask import Blueprint, jsonify, request, session
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
-from extensions import db, limiter
+from flask_mail import Message
+
+from extensions import db, limiter, mail
 from models import Comment, Persona, Post, SavedPost, Vote
-from routes.utils import get_identity
+from .utils import get_identity
 
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
+
+
+@api_bp.route("/subscribe", methods=["POST"])
+@limiter.limit("5 per hour")
+def subscribe_newsletter():
+    data = request.get_json()
+    email = data.get("email")
+
+    if not email or "@" not in email:
+        return jsonify({"success": False, "error": "Invalid email address"}), 400
+
+    try:
+        # Send Thank You Email
+        msg = Message(
+            subject="Welcome to Discussion Den Newsletter!",
+            sender=("Discussion Den", "noreply@discussionden.com"),
+            recipients=[email],
+        )
+        msg.html = """
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h1 style="color: #ff6b35;">Discussion Den</h1>
+            </div>
+            <h2 style="color: #333;">Thanks for Subscribing! 🎉</h2>
+            <p style="color: #555; line-height: 1.6;">
+                Hi there,
+            </p>
+            <p style="color: #555; line-height: 1.6;">
+                Thank you for joining the <strong>Discussion Den</strong> newsletter! We're excited to have you on board.
+            </p>
+            <p style="color: #555; line-height: 1.6;">
+                You'll now be the first to know about:
+            </p>
+            <ul style="color: #555; line-height: 1.6;">
+                <li>🔥 Trending discussions and hot topics</li>
+                <li>🚀 New features and platform updates</li>
+                <li>💡 Community highlights and success stories</li>
+            </ul>
+            <p style="color: #555; line-height: 1.6;">
+                Stay tuned for our next update!
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center;">
+                © 2026 Discussion Den. All rights reserved.<br>
+                If you didn't subscribe, you can ignore this email.
+            </p>
+        </div>
+        """
+        mail.send(msg)
+        
+        return jsonify({"success": True, "message": "Subscription successful! Check your inbox."})
+    
+    except Exception as e:
+        print(f"Error sending subscription email: {e}")
+        # Return success anyway to user so they don't retry endlessly if it's a server config issue
+        # but log the error on backend
+        return jsonify({"success": True, "message": "Subscription successful!"})
 
 
 def _post_author_payload(post: Post) -> dict:
@@ -275,6 +334,18 @@ def vote(post_id: int):
     post = Post.query.get_or_404(post_id)
     ident = get_identity()
 
+    # Get the user's existing vote (before deletion) to calculate the delta
+    if ident.is_persona:
+        old_vote = Vote.query.filter_by(
+            post_id=post_id, voted_by_persona_id=ident.persona_id
+        ).first()
+    else:
+        old_vote = Vote.query.filter_by(
+            post_id=post_id, voted_by_user_id=ident.user_id
+        ).first()
+    
+    old_value = old_vote.value if old_vote else 0
+
     # Robust handling: Delete ALL existing votes for this user/post to clean up any duplicates
     if ident.is_persona:
         db.session.query(Vote).filter_by(
@@ -298,10 +369,20 @@ def vote(post_id: int):
     # Commit the vote change first
     db.session.commit()
 
-    # Recalculate counts strictly from the database to ensure accuracy and self-healing
-    # This fixes any previous drift or double-counting bugs
-    post.upvotes = Vote.query.filter_by(post_id=post_id, value=1).count()
-    post.downvotes = Vote.query.filter_by(post_id=post_id, value=-1).count()
+    # Update counts by incrementing/decrementing from existing values
+    # This preserves imported data and avoids resetting to Vote.count()
+    
+    # Remove effect of old vote
+    if old_value == 1:
+        post.upvotes = max(0, post.upvotes - 1)
+    elif old_value == -1:
+        post.downvotes = max(0, post.downvotes - 1)
+    
+    # Add effect of new vote
+    if value == 1:
+        post.upvotes += 1
+    elif value == -1:
+        post.downvotes += 1
     
     db.session.commit()
 
