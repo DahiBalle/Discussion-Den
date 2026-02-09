@@ -240,24 +240,12 @@ def google_callback():
             flash(f"Welcome back, {user.username}!", "success")
             return redirect(url_for("feed.feed"))
 
-        # Create new user
-        username = _generate_safe_username(email)
-        dummy_password_hash = generate_password_hash("google_oauth_no_password")
-
-        new_user = User(
-            username=username,
-            email=email,
-            password_hash=dummy_password_hash,
-            bio=f"Joined via Google. {name}" if name else "Joined via Google."
-        )
-
-        db.session.add(new_user)
-        db.session.commit()
-
-        login_user(new_user)
-        session["active_persona_id"] = None
-        flash(f"Welcome to Discussion Den, {username}!", "success")
-        return redirect(url_for("feed.feed"))
+        # Instead of creating user immediately, redirect to completion page
+        session['google_signup_data'] = {
+            'email': email,
+            'name': name
+        }
+        return redirect(url_for("auth.complete_google_signup"))
 
     except Exception as e:
         print(f"ERROR: Google OAuth callback failed: {e}")
@@ -266,3 +254,65 @@ def google_callback():
             "danger"
         )
         return redirect(url_for("auth.login"))
+
+
+@auth_bp.route("/complete-google-signup", methods=["GET", "POST"])
+def complete_google_signup():
+    """
+    Final step of Google Signup: Ask user for a username.
+    """
+    signup_data = session.get('google_signup_data')
+    if not signup_data:
+        flash("Google signup session expired or invalid. Please try logging in again.", "warning")
+        return redirect(url_for("auth.login"))
+
+    from forms import GoogleSignupForm # Avoid circular import if needed, or move to top
+    form = GoogleSignupForm()
+
+    # Pre-fill username on GET if not already submitted
+    if request.method == "GET" and not form.username.data:
+        # Generate a safe suggestion
+        base_suggestion = _generate_safe_username(signup_data['email'])
+        form.username.data = base_suggestion
+
+    if form.validate_on_submit():
+        desired_username = form.username.data.strip()
+        
+        # Check if username exists
+        if User.query.filter_by(username=desired_username).first():
+            flash("That username is already taken. Please choose another.", "danger")
+            return render_template("auth/complete_google_signup.html", form=form)
+
+        # Create the user
+        try:
+            email = signup_data['email']
+            name = signup_data['name']
+            dummy_password_hash = generate_password_hash("google_oauth_no_password") # Or random secure string
+
+            new_user = User(
+                username=desired_username,
+                email=email,
+                password_hash=dummy_password_hash,
+                bio=f"Joined via Google. {name}" if name else "Joined via Google."
+            )
+
+            db.session.add(new_user)
+            db.session.commit()
+
+            # Log them in
+            login_user(new_user)
+            session["active_persona_id"] = None
+            
+            # Clean up session
+            session.pop('google_signup_data', None)
+
+            flash(f"Welcome to Discussion Den, {desired_username}!", "success")
+            return redirect(url_for("feed.feed"))
+            
+        except Exception as e:
+            db.session.rollback()
+            print(f"ERROR creating Google user: {e}")
+            flash("An error occurred while creating your account. Please try again.", "danger")
+            return redirect(url_for("auth.login"))
+
+    return render_template("auth/complete_google_signup.html", form=form)

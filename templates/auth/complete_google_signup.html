@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Signup - Discussion Den{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Reusing Auth styles from login/register for consistency */
+    .auth-container {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-8) var(--space-4);
+        background: var(--gradient-hero);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .auth-card {
+        background: var(--gradient-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-xl);
+        box-shadow: var(--shadow-xl);
+        backdrop-filter: blur(20px);
+        width: 100%;
+        max-width: 420px;
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-accent);
+    }
+
+    .auth-header {
+        text-align: center;
+        padding: var(--space-8) var(--space-8) var(--space-6);
+    }
+
+    .auth-brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-3);
+        margin-bottom: var(--space-6);
+    }
+
+    .auth-brand-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--gradient-accent);
+        border-radius: var(--border-radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--text-xl);
+        color: white;
+        box-shadow: var(--shadow-glow);
+    }
+
+    .auth-brand-text {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
+        color: var(--text-primary);
+    }
+
+    .auth-title {
+        font-size: var(--text-3xl);
+        font-weight: var(--font-bold);
+        color: var(--text-primary);
+        margin-bottom: var(--space-3);
+    }
+
+    .auth-subtitle {
+        color: var(--text-secondary);
+        font-size: var(--text-base);
+        margin-bottom: 0;
+    }
+
+    .auth-body {
+        padding: 0 var(--space-8) var(--space-8);
+    }
+
+    .form-group-enhanced {
+        margin-bottom: var(--space-5);
+    }
+
+    .form-label-enhanced {
+        display: block;
+        font-size: var(--text-sm);
+        font-weight: var(--font-medium);
+        color: var(--text-primary);
+        margin-bottom: var(--space-2);
+    }
+
+    .form-control-enhanced {
+        width: 100%;
+        padding: var(--space-4) var(--space-5);
+        background: var(--bg-input);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        color: var(--text-primary);
+        font-size: var(--text-base);
+        transition: var(--transition-base);
+    }
+
+    .form-control-enhanced:focus {
+        outline: none;
+        border-color: var(--accent-secondary);
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        background: var(--bg-elevated);
+    }
+
+    .form-control-enhanced::placeholder {
+        color: var(--text-muted);
+    }
+
+    .form-control-enhanced.is-invalid {
+        border-color: var(--accent-danger);
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+
+    .invalid-feedback-enhanced {
+        display: block;
+        font-size: var(--text-sm);
+        color: var(--accent-danger);
+        margin-top: var(--space-2);
+    }
+
+    .btn-auth {
+        width: 100%;
+        padding: var(--space-4) var(--space-6);
+        background: var(--gradient-accent);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: var(--text-base);
+        font-weight: var(--font-semibold);
+        cursor: pointer;
+        transition: var(--transition-base);
+        margin-bottom: var(--space-6);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-auth:hover {
+        transform: var(--hover-lift);
+        box-shadow: var(--shadow-glow), var(--shadow-md);
+    }
+
+    .btn-auth:active {
+        transform: var(--active-scale);
+    }
+
+    /* Animations */
+    .auth-card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Header -->
+        <div class="auth-header">
+            <div class="auth-brand">
+                <div class="auth-brand-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="auth-brand-text">Almost There!</div>
+            </div>
+            <h1 class="auth-title">Choose Username</h1>
+            <p class="auth-subtitle">Pick a unique username to complete your registration.</p>
+        </div>
+
+        <!-- Body -->
+        <div class="auth-body">
+
+            <form method="POST" action="{{ url_for('auth.complete_google_signup') }}" id="signupForm">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group-enhanced">
+                    <label for="username" class="form-label-enhanced">Username</label>
+                    <input type="text" id="username" name="username"
+                        class="form-control-enhanced {% if form.username.errors %}is-invalid{% endif %}"
+                        placeholder="Enter your desired username" value="{{ form.username.data or '' }}" required
+                        minlength="3" maxlength="32">
+
+                    {% if form.username.errors %}
+                    <div class="invalid-feedback-enhanced">
+                        {% for error in form.username.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% else %}
+                    <small class="text-muted mt-2 d-block">
+                        This will be your unique handle on Discussion Den.
+                    </small>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn-auth" id="signupBtn">
+                    <i class="fas fa-rocket me-2"></i>Complete Signup
+                </button>
+            </form>
+
+            <div class="text-center">
+                <a href="{{ url_for('auth.logout') }}" class="text-muted small text-decoration-none">
+                    Cancel and return to login
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const signupForm = document.getElementById('signupForm');
+        const signupBtn = document.getElementById('signupBtn');
+
+        signupForm.addEventListener('submit', function (e) {
+            signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Account...';
+            signupBtn.style.opacity = '0.8';
+            signupBtn.style.cursor = 'wait';
+        });
+    });
+</script>
+{% endblock %}

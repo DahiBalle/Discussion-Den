@@ -11,24 +11,27 @@
                 {% if user.avatar %}
                 <img src="{{ user.avatar }}" alt="{{ user.username }}" class="profile-avatar">
                 {% else %}
-                <div class="profile-avatar" style="background: linear-gradient(135deg, var(--accent-primary), var(--persona-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; font-weight: bold;">
+                <div class="profile-avatar"
+                    style="background: linear-gradient(135deg, var(--accent-primary), var(--persona-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; font-weight: bold;">
                     {{ user.username[0].upper() }}
                 </div>
                 {% endif %}
-                
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
+
+                <div
+                    class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start">
+                    <div class="text-center text-md-start">
                         <h1 class="profile-name">{{ user.username }}</h1>
                         {% if user.bio %}
                         <p class="profile-bio">{{ user.bio }}</p>
                         {% endif %}
-                        
+
                         <!-- Public Personas -->
                         {% if public_personas %}
-                        <div class="persona-list mt-3">
+                        <div class="persona-list mt-3 justify-content-center justify-content-md-start">
                             <span class="text-muted-custom me-2">Public Personas:</span>
                             {% for persona in public_personas %}
-                            <a href="{{ url_for('persona.persona_profile', persona_id=persona.id) }}" class="persona-item">
+                            <a href="{{ url_for('persona.persona_profile', persona_id=persona.id) }}"
+                                class="persona-item">
                                 <span class="persona-badge">Persona</span>
                                 {{ persona.name }}
                             </a>
@@ -36,9 +39,11 @@
                         </div>
                         {% endif %}
                     </div>
-                    
+
                     {% if is_owner %}
-                    <a href="{{ url_for('profile.edit_profile') }}" class="btn btn-secondary">Edit Profile</a>
+                    <div class="d-flex flex-column w-100 w-md-auto mt-3 mt-md-0" style="gap: 10px;">
+                        <a href="{{ url_for('profile.edit_profile') }}" class="btn btn-secondary w-100">Edit Profile</a>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -46,41 +51,125 @@
             <!-- User Posts -->
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Posts by {{ user.username }}</h5>
+                    <h5 class="mb-0">
+                        {% if current_view == 'saved' %}
+                        Saved Posts
+                        {% else %}
+                        Posts by {{ user.username }}
+                        {% endif %}
+                    </h5>
                 </div>
                 <div class="card-body">
                     {% if user_posts %}
-                        {% for post in user_posts %}
-                        <div class="post-card mb-3" style="padding: var(--spacing-md);">
-                            <div class="post-header">
-                                <span class="user-badge">User</span>
-                                <span class="post-author">{{ user.username }}</span>
-                                <span class="text-muted-custom">•</span>
-                                <span class="post-meta">{{ post.created_at|timeago }}</span>
-                                {% if post.community %}
-                                <span class="text-muted-custom">•</span>
-                                <span class="post-meta">r/{{ post.community.name }}</span>
-                                {% endif %}
+                    {% for post in user_posts %}
+                    {% if current_view == 'saved' %}
+                    <!-- Feed-style Post Card for Saved Posts -->
+                    <article class="post-card-enhanced hover-lift mb-4" data-post-id="{{ post.id }}">
+                        <header class="post-header-enhanced">
+                            {% if post.author_persona_id %}
+                            <div class="persona-badge-enhanced persona">
+                                <i class="fas fa-mask"></i>
+                                <span>Persona</span>
                             </div>
-                            <h4 class="post-title">
-                                <a href="{{ url_for('post.post_detail', post_id=post.id) }}" style="color: inherit; text-decoration: none;">
-                                    {{ post.title }}
-                                </a>
-                            </h4>
-                            {% if post.body %}
-                            <div class="post-body">{{ post.body[:200] }}{% if post.body|length > 200 %}...{% endif %}</div>
+                            {% else %}
+                            <div class="persona-badge-enhanced user">
+                                <i class="fas fa-user"></i>
+                                <span>User</span>
+                            </div>
                             {% endif %}
-                            <div class="action-buttons mt-2">
-                                <span class="text-muted-custom">▲ {{ post.upvotes or 0 }}</span>
-                                <span class="text-muted-custom">▼ {{ post.downvotes or 0 }}</span>
-                                <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn-action">
-                                    💬 {{ post.comments|length }} Comments
-                                </a>
+                            <span class="post-author">{{ post.author_name }}</span>
+                            <span class="text-muted">•</span>
+                            <time class="post-meta">{{ post.created_at|timeago }}</time>
+                            {% if post.community %}
+                            <span class="text-muted">•</span>
+                            <a href="{{ url_for('community.community_page', community_name=post.community.name) }}"
+                                class="post-meta" style="color: var(--accent-primary);">
+                                <i class="fas fa-users me-1"></i>r/{{ post.community.name }}
+                            </a>
+                            {% endif %}
+                        </header>
+
+                        <h2 class="post-title-enhanced">
+                            <a href="{{ url_for('post.post_detail', post_id=post.id) }}">
+                                {{ post.title }}
+                            </a>
+                        </h2>
+
+                        {% if post.body %}
+                        <div class="post-body-enhanced">{{ post.body }}</div>
+                        {% endif %}
+
+                        {% if post.image_url %}
+                        <img src="{{ post.image_url }}" alt="Post image" class="post-image-enhanced">
+                        {% endif %}
+
+                        <footer class="action-buttons-enhanced">
+                            <div class="action-group">
+                                <button
+                                    class="btn-action-enhanced vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}"
+                                    data-post-id="{{ post.id }}" data-vote="1">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>{{ post.upvotes or 0 }}</span>
+                                </button>
+                                <button
+                                    class="btn-action-enhanced vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}"
+                                    data-post-id="{{ post.id }}" data-vote="-1">
+                                    <i class="fas fa-arrow-down"></i>
+                                    <span>{{ post.downvotes or 0 }}</span>
+                                </button>
+                                <button class="btn-action-enhanced save-btn {% if post.is_saved %}saved{% endif %}"
+                                    data-post-id="{{ post.id }}">
+                                    <i class="fas fa-{% if post.is_saved %}bookmark{% else %}bookmark-o{% endif %}"></i>
+                                    <span>{% if post.is_saved %}Saved{% else %}Save{% endif %}</span>
+                                </button>
                             </div>
-                        </div>
-                        {% endfor %}
+                            <div class="action-group">
+                                <a href="{{ url_for('post.post_detail', post_id=post.id) }}"
+                                    class="btn-action-enhanced">
+                                    <i class="fas fa-comments"></i>
+                                    <span>{{ post.comment_count or 0 }} Comments</span>
+                                </a>
+                                <button class="btn-action-enhanced share-btn" onclick="sharePost({{ post.id }})">
+                                    <i class="fas fa-share"></i>
+                                    <span>Share</span>
+                                </button>
+                            </div>
+                        </footer>
+                    </article>
                     {% else %}
-                        <p class="text-muted-custom text-center py-4">No posts yet.</p>
+                    <!-- Standard Profile Post Card -->
+                    <div class="post-card mb-3" style="padding: var(--spacing-md);">
+                        <div class="post-header">
+                            <span class="user-badge">User</span>
+                            <span class="post-author">{{ user.username }}</span>
+                            <span class="text-muted-custom">•</span>
+                            <span class="post-meta">{{ post.created_at|timeago }}</span>
+                            {% if post.community %}
+                            <span class="text-muted-custom">•</span>
+                            <span class="post-meta">r/{{ post.community.name }}</span>
+                            {% endif %}
+                        </div>
+                        <h4 class="post-title">
+                            <a href="{{ url_for('post.post_detail', post_id=post.id) }}"
+                                style="color: inherit; text-decoration: none;">
+                                {{ post.title }}
+                            </a>
+                        </h4>
+                        {% if post.body %}
+                        <div class="post-body">{{ post.body[:200] }}{% if post.body|length > 200 %}...{% endif %}</div>
+                        {% endif %}
+                        <div class="action-buttons mt-2">
+                            <span class="text-muted-custom">▲ {{ post.upvotes or 0 }}</span>
+                            <span class="text-muted-custom">▼ {{ post.downvotes or 0 }}</span>
+                            <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn-action">
+                                💬 {{ post.comments|length }} Comments
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted-custom text-center py-4">No posts yet.</p>
                     {% endif %}
                 </div>
             </div>

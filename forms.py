@@ -62,3 +62,9 @@ class CommunityForm(FlaskForm):
         "Community Rules", 
         validators=[Optional(), Length(max=1000, message="Rules too long")]
     )
+
+
+class GoogleSignupForm(FlaskForm):
+    username = StringField(
+        "Username", validators=[InputRequired(), Length(min=3, max=32)]
+    )

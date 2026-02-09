@@ -3,287 +3,8 @@
 {% block title %}Feed - Discussion Den{% endblock %}
 
 {% block extra_head %}
-<style>
-/* Feed-specific enhancements */
-.hero-section {
-    background: var(--gradient-hero);
-    padding: var(--space-12) 0 var(--space-8);
-    margin: calc(-1 * var(--space-8)) calc(-1 * var(--space-6)) var(--space-8);
-    border-radius: 0 0 var(--border-radius-xl) var(--border-radius-xl);
-    position: relative;
-    overflow: hidden;
-}
-
-.hero-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.02)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.02)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.01)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.5;
-}
-
-.hero-content {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-}
-
-.hero-title {
-    font-size: var(--text-4xl);
-    font-weight: var(--font-bold);
-    margin-bottom: var(--space-4);
-    background: var(--gradient-accent);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.hero-subtitle {
-    font-size: var(--text-lg);
-    color: var(--text-secondary);
-    margin-bottom: var(--space-8);
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.post-card-enhanced {
-    background: var(--gradient-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: var(--space-6);
-    margin-bottom: var(--space-6);
-    transition: var(--transition-base);
-    position: relative;
-    overflow: hidden;
-}
-
-.post-card-enhanced::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--gradient-accent);
-    opacity: 0;
-    transition: var(--transition-base);
-}
-
-.post-card-enhanced:hover {
-    transform: var(--hover-lift);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--border-accent);
-}
-
-.post-card-enhanced:hover::before {
-    opacity: 1;
-}
-
-.post-header-enhanced {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-4);
-    flex-wrap: wrap;
-}
-
-.post-title-enhanced {
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-3);
-    line-height: 1.4;
-}
-
-.post-title-enhanced a {
-    color: inherit;
-    text-decoration: none;
-    transition: var(--transition-base);
-}
-
-.post-title-enhanced a:hover {
-    color: var(--accent-primary);
-}
-
-.post-body-enhanced {
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: var(--space-5);
-}
-
-.post-image-enhanced {
-    width: 100%;
-    max-height: 400px;
-    object-fit: cover;
-    border-radius: var(--border-radius);
-    margin-bottom: var(--space-5);
-    box-shadow: var(--shadow-md);
-}
-
-.action-buttons-enhanced {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
-
-.action-group {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-}
-
-.btn-action-enhanced {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-full);
-    color: var(--text-secondary);
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    text-decoration: none;
-    transition: var(--transition-base);
-    cursor: pointer;
-}
-
-.btn-action-enhanced:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-    transform: var(--hover-lift);
-    border-color: var(--border-accent);
-}
-
-.btn-action-enhanced.voted-up {
-    background: var(--user-bg);
-    color: var(--user-color);
-    border-color: var(--user-border);
-}
-
-.btn-action-enhanced.voted-down {
-    background: var(--persona-bg);
-    color: var(--persona-color);
-    border-color: var(--persona-border);
-}
-
-.btn-action-enhanced.saved {
-    background: var(--accent-warning);
-    color: white;
-    border-color: var(--accent-warning);
-}
-
-.create-post-enhanced {
-    background: var(--gradient-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: var(--space-6);
-    margin-bottom: var(--space-8);
-    box-shadow: var(--shadow-md);
-}
-
-.create-post-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-5);
-}
-
-.create-post-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-}
-
-.create-post-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--gradient-accent);
-    border-radius: var(--border-radius);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: var(--text-lg);
-}
-
-.identity-display {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    color: var(--text-muted);
-}
-
-.empty-state {
-    text-align: center;
-    padding: var(--space-16) var(--space-8);
-    background: var(--gradient-card);
-    border-radius: var(--border-radius-lg);
-    border: 1px solid var(--border-color);
-}
-
-.empty-state-icon {
-    font-size: 4rem;
-    color: var(--text-muted);
-    margin-bottom: var(--space-6);
-    opacity: 0.7;
-}
-
-.empty-state-title {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-4);
-}
-
-.empty-state-description {
-    color: var(--text-secondary);
-    margin-bottom: var(--space-8);
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.feed-filters {
-    display: flex;
-    gap: var(--space-3);
-    margin-bottom: var(--space-6);
-    padding: var(--space-4);
-    background: var(--bg-card);
-    border-radius: var(--border-radius-lg);
-    border: 1px solid var(--border-color);
-}
-
-.filter-btn {
-    padding: var(--space-2) var(--space-4);
-    background: transparent;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-full);
-    color: var(--text-secondary);
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    cursor: pointer;
-    transition: var(--transition-base);
-}
-
-.filter-btn:hover,
-.filter-btn.active {
-    background: var(--gradient-accent);
-    color: white;
-    border-color: transparent;
-    box-shadow: var(--shadow-glow);
-}
-</style>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="user-authenticated" content="{{ 'true' if current_user.is_authenticated else 'false' }}">
 {% endblock %}
 
 {% block content %}
@@ -424,526 +145,566 @@
 <!-- Feed Container -->
 <div id="feed-container">
     {% if posts and posts|length > 0 %}
-        {% for post in posts %}
-        <article class="post-card-enhanced hover-lift" data-post-id="{{ post.id }}">
-            <header class="post-header-enhanced">
-                {% if post.author_persona_id %}
-                    <div class="persona-badge-enhanced persona">
-                        <i class="fas fa-mask"></i>
-                        <span>Persona</span>
-                    </div>
-                {% else %}
-                    <div class="persona-badge-enhanced user">
-                        <i class="fas fa-user"></i>
-                        <span>User</span>
-                    </div>
-                {% endif %}
-                <span class="post-author">{{ post.author_name }}</span>
-                <span class="text-muted">•</span>
-                <time class="post-meta">{{ post.created_at|timeago }}</time>
-                {% if post.community %}
-                <span class="text-muted">•</span>
-                <a href="{{ url_for('community.community_page', community_name=post.community.name) }}" 
-                   class="post-meta" style="color: var(--accent-primary);">
-                    <i class="fas fa-users me-1"></i>r/{{ post.community.name }}
-                </a>
-                {% endif %}
-            </header>
-            
-            <h2 class="post-title-enhanced">
-                <a href="{{ url_for('post.post_detail', post_id=post.id) }}">
-                    {{ post.title }}
-                </a>
-            </h2>
-            
-            {% if post.body %}
-            <div class="post-body-enhanced">{{ post.body }}</div>
-            {% endif %}
-            
-            {% if post.image_url %}
-            <img src="{{ post.image_url }}" alt="Post image" class="post-image-enhanced">
-            {% endif %}
-            
-            <footer class="action-buttons-enhanced">
-                <div class="action-group">
-                    <button class="btn-action-enhanced vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}" 
-                            data-post-id="{{ post.id }}" data-vote="1">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>{{ post.upvotes or 0 }}</span>
-                    </button>
-                    <button class="btn-action-enhanced vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}" 
-                            data-post-id="{{ post.id }}" data-vote="-1">
-                        <i class="fas fa-arrow-down"></i>
-                        <span>{{ post.downvotes or 0 }}</span>
-                    </button>
-                    <button class="btn-action-enhanced save-btn {% if post.is_saved %}saved{% endif %}" 
-                            data-post-id="{{ post.id }}">
-                        <i class="fas fa-{% if post.is_saved %}bookmark{% else %}bookmark-o{% endif %}"></i>
-                        <span>{% if post.is_saved %}Saved{% else %}Save{% endif %}</span>
-                    </button>
-                </div>
-                <div class="action-group">
-                    <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn-action-enhanced">
-                        <i class="fas fa-comments"></i>
-                        <span>{{ post.comment_count or 0 }} Comments</span>
-                    </a>
-                    <button class="btn-action-enhanced share-btn" onclick="sharePost({{ post.id }})">
-                        <i class="fas fa-share"></i>
-                        <span>Share</span>
-                    </button>
-                </div>
-            </footer>
-        </article>
-        {% endfor %}
-    {% else %}
-        <div class="empty-state">
-            <div class="empty-state-icon">
-                <i class="fas fa-comments"></i>
+    {% for post in posts %}
+    <article class="post-card-enhanced hover-lift" data-post-id="{{ post.id }}">
+        <header class="post-header-enhanced">
+            {% if post.author_persona_id %}
+            <div class="persona-badge-enhanced persona">
+                <i class="fas fa-mask"></i>
+                <span>Persona</span>
             </div>
-            <h3 class="empty-state-title">No Posts Yet</h3>
-            <p class="empty-state-description">
-                Be the first to start a conversation and share your thoughts with the community.
-            </p>
-            {% if current_user.is_authenticated %}
-            <p class="text-muted">Use the create post form above to get started!</p>
             {% else %}
-            <div class="d-flex gap-3 justify-content-center">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-mode="register">
-                    <i class="fas fa-user-plus me-2"></i>Join Discussion Den
+            <div class="persona-badge-enhanced user">
+                <i class="fas fa-user"></i>
+                <span>User</span>
+            </div>
+            {% endif %}
+            <span class="post-author">{{ post.author_name }}</span>
+            <span class="text-muted">•</span>
+            <time class="post-meta">{{ post.created_at|timeago }}</time>
+            {% if post.community %}
+            <span class="text-muted">•</span>
+            <a href="{{ url_for('community.community_page', community_name=post.community.name) }}" class="post-meta"
+                style="color: var(--accent-primary);">
+                <i class="fas fa-users me-1"></i>r/{{ post.community.name }}
+            </a>
+            {% endif %}
+        </header>
+
+        <h2 class="post-title-enhanced">
+            <a href="{{ url_for('post.post_detail', post_id=post.id) }}">
+                {{ post.title }}
+            </a>
+        </h2>
+
+        {% if post.body %}
+        <div class="post-body-enhanced">{{ post.body }}</div>
+        {% endif %}
+
+        {% if post.image_url %}
+        <img src="{{ post.image_url }}" alt="Post image" class="post-image-enhanced">
+        {% endif %}
+
+        <footer class="action-buttons-enhanced">
+            <div class="action-group">
+                <button class="btn-action-enhanced vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}"
+                    data-post-id="{{ post.id }}" data-vote="1">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>{{ post.upvotes or 0 }}</span>
                 </button>
-                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-mode="login">
-                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                <button class="btn-action-enhanced vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}"
+                    data-post-id="{{ post.id }}" data-vote="-1">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>{{ post.downvotes or 0 }}</span>
                 </button>
+                <button class="btn-action-enhanced save-btn {% if post.is_saved %}saved{% endif %}"
+                    data-post-id="{{ post.id }}">
+                    <i class="fas fa-{% if post.is_saved %}bookmark{% else %}bookmark-o{% endif %}"></i>
+                    <span>{% if post.is_saved %}Saved{% else %}Save{% endif %}</span>
+                </button>
+            </div>
+            <div class="action-group">
+                <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn-action-enhanced">
+                    <i class="fas fa-comments"></i>
+                    <span>{{ post.comment_count or 0 }} Comments</span>
+                </a>
+                <button class="btn-action-enhanced share-btn" onclick="sharePost({{ post.id }})">
+                    <i class="fas fa-share"></i>
+                    <span>Share</span>
+                </button>
+            </div>
+        </footer>
+
+        <!-- Inline Comments Section (Hidden by default) -->
+        <div id="comments-section-{{ post.id }}" class="comments-section mt-3 pt-3 border-top"
+            style="display: none; border-color: var(--border-color) !important;">
+            <!-- Loading State -->
+            <div class="text-center p-3 loading-spinner">
+                <div class="spinner-border text-primary spinner-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Comments Container -->
+            <div class="comments-container mb-4"></div>
+
+            <!-- Comment Form (Authenticated) - Moved to bottom -->
+            {% if current_user.is_authenticated %}
+            <div class="comment-form-container">
+                <form class="inline-comment-form" data-post-id="{{ post.id }}">
+                    <div class="d-flex gap-2 align-items-end">
+                        <textarea class="form-control" name="body" rows="1" placeholder="Write a comment..."
+                            style="resize:none; overflow:hidden; min-height: 38px;"
+                            oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
+                            required></textarea>
+                        <button type="submit" class="btn btn-primary"
+                            style="height: 38px; width: 38px; display: flex; align-items: center; justify-content: center; padding: 0;">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% else %}
+            <div class="alert alert-info py-2 small mb-3">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#authModal">Log in</a> to comment.
             </div>
             {% endif %}
         </div>
+    </article>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="fas fa-comments"></i>
+        </div>
+        <h3 class="empty-state-title">No Posts Yet</h3>
+        <p class="empty-state-description">
+            Be the first to start a conversation and share your thoughts with the community.
+        </p>
+        {% if current_user.is_authenticated %}
+        <p class="text-muted">Use the create post form above to get started!</p>
+        {% else %}
+        <div class="d-flex gap-3 justify-content-center">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#authModal"
+                data-auth-mode="register">
+                <i class="fas fa-user-plus me-2"></i>Join Discussion Den
+            </button>
+            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#authModal"
+                data-auth-mode="login">
+                <i class="fas fa-sign-in-alt me-2"></i>Login
+            </button>
+        </div>
+        {% endif %}
+    </div>
     {% endif %}
 </div>
+
 
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/feed-comments.js') }}"></script>
 <script>
-// Enhanced Feed JavaScript with Modern Interactions
+    // Enhanced Feed JavaScript with Modern Interactions
 
-// Disable infinite scroll since posts are loaded server-side
-let infiniteScrollEnabled = false;
+    // Disable infinite scroll since posts are loaded server-side
+    let infiniteScrollEnabled = false;
 
-// Initialize enhanced interactions
-document.addEventListener('DOMContentLoaded', function() {
-    initializeFeedFilters();
-    initializePostInteractions();
-    initializeCreatePostForm();
-    initializeShareFunctionality();
-});
+    // Initialize enhanced interactions
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeFeedFilters();
+        initializePostInteractions();
+        initializeCreatePostForm();
+        initializeShareFunctionality();
+    });
 
-/**
- * Initialize feed filter functionality
- */
-function initializeFeedFilters() {
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active class from all buttons
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Add active class to clicked button
-            this.classList.add('active');
-            
-            // Get filter type
-            const filterType = this.getAttribute('data-filter');
-            
-            // Show loading state
-            const feedContainer = document.getElementById('feed-container');
-            feedContainer.style.opacity = '0.6';
-            
-            // Simulate filter loading (in real app, this would make an API call)
+    /**
+     * Initialize feed filter functionality
+     */
+    function initializeFeedFilters() {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                // Get filter type
+                const filterType = this.getAttribute('data-filter');
+
+                // Show loading state
+                const feedContainer = document.getElementById('feed-container');
+                feedContainer.style.opacity = '0.6';
+
+                // Simulate filter loading (in real app, this would make an API call)
+                setTimeout(() => {
+                    feedContainer.style.opacity = '1';
+
+                    // Show toast notification
+                    if (window.DiscussionDenTheme) {
+                        window.DiscussionDenTheme.showToast(
+                            `Showing ${filterType} posts`,
+                            'info',
+                            2000
+                        );
+                    }
+                }, 500);
+            });
+        });
+    }
+
+    /**
+     * Initialize enhanced post interactions
+     */
+    function initializePostInteractions() {
+        // Setup vote and save buttons for existing posts
+        setupVoteButtons();
+        setupSaveButtons();
+
+        // Add hover effects to post cards
+        const postCards = document.querySelectorAll('.post-card-enhanced');
+        postCards.forEach(card => {
+            card.addEventListener('mouseenter', function () {
+                this.style.transform = 'translateY(-4px)';
+                this.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.3)';
+            });
+
+            card.addEventListener('mouseleave', function () {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+            });
+        });
+    }
+
+    /**
+     * Initialize enhanced create post form
+     */
+    function initializeCreatePostForm() {
+        const quickPostForm = document.getElementById('quick-post-form');
+        if (!quickPostForm) return;
+
+        quickPostForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(quickPostForm);
+            const submitBtn = quickPostForm.querySelector('button[type="submit"]');
+
+            // Show enhanced loading state
+            if (window.DiscussionDenTheme) {
+                const originalContent = window.DiscussionDenTheme.showLoading(
+                    submitBtn,
+                    'Publishing...'
+                );
+
+                fetch(quickPostForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Clear form and show success message
+                            clearForm();
+                            window.DiscussionDenTheme.showToast(
+                                data.message || 'Post created successfully!',
+                                'success'
+                            );
+
+                            // Reload page to show the new post with smooth transition
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            // Handle validation errors
+                            handleFormErrors(data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error creating post:', error);
+                        window.DiscussionDenTheme.showToast(
+                            'There was an error creating your post. Please try again.',
+                            'danger'
+                        );
+                    })
+                    .finally(() => {
+                        // Restore button state
+                        window.DiscussionDenTheme.hideLoading(submitBtn, originalContent);
+                    });
+            }
+        });
+    }
+
+    /**
+     * Initialize share functionality
+     */
+    function initializeShareFunctionality() {
+        window.sharePost = function (postId) {
+            const postUrl = `${window.location.origin}/post/${postId}`;
+
+            if (navigator.share) {
+                // Use native share API if available
+                navigator.share({
+                    title: 'Check out this post on Discussion Den',
+                    url: postUrl
+                }).catch(err => console.log('Error sharing:', err));
+            } else {
+                // Fallback to clipboard
+                navigator.clipboard.writeText(postUrl).then(() => {
+                    if (window.DiscussionDenTheme) {
+                        window.DiscussionDenTheme.showToast(
+                            'Post link copied to clipboard!',
+                            'success',
+                            2000
+                        );
+                    }
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    // Fallback to prompt
+                    prompt('Copy this link:', postUrl);
+                });
+            }
+        };
+    }
+
+    /**
+     * Handle form validation errors
+     */
+    function handleFormErrors(data) {
+        if (data.errors) {
+            let errorMessage = 'Please fix the following errors:\n';
+            for (const field in data.errors) {
+                data.errors[field].forEach(error => {
+                    errorMessage += '• ' + error + '\n';
+                });
+            }
+
+            if (window.DiscussionDenTheme) {
+                window.DiscussionDenTheme.showToast(errorMessage, 'danger', 5000);
+            } else {
+                alert(errorMessage);
+            }
+        } else {
+            const message = data.message || 'There was an error creating your post. Please try again.';
+            if (window.DiscussionDenTheme) {
+                window.DiscussionDenTheme.showToast(message, 'danger');
+            } else {
+                alert(message);
+            }
+        }
+    }
+
+    // Create Post Form Functions
+    function clearForm() {
+        const form = document.getElementById('quick-post-form');
+        if (form) {
+            form.reset();
+            // Reset community dropdown to default
+            const communitySelect = form.querySelector('select[name="community_id"]');
+            if (communitySelect) {
+                communitySelect.selectedIndex = 0;
+            }
+
+            // Add clear animation
+            form.style.animation = 'pulse 0.3s ease-out';
             setTimeout(() => {
-                feedContainer.style.opacity = '1';
-                
-                // Show toast notification
-                if (window.DiscussionDenTheme) {
-                    window.DiscussionDenTheme.showToast(
-                        `Showing ${filterType} posts`, 
-                        'info', 
-                        2000
-                    );
-                }
-            }, 500);
-        });
-    });
-}
+                form.style.animation = '';
+            }, 300);
+        }
+    }
 
-/**
- * Initialize enhanced post interactions
- */
-function initializePostInteractions() {
-    // Setup vote and save buttons for existing posts
-    setupVoteButtons();
-    setupSaveButtons();
-    
-    // Add hover effects to post cards
-    const postCards = document.querySelectorAll('.post-card-enhanced');
-    postCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-4px)';
-            this.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.3)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-        });
-    });
-}
+    function toggleCreatePost() {
+        const card = document.getElementById('create-post-card');
+        const cardBody = card.querySelector('form').parentElement;
+        const toggleText = document.getElementById('toggle-text');
+        const toggleIcon = document.querySelector('#toggle-text').previousElementSibling;
 
-/**
- * Initialize enhanced create post form
- */
-function initializeCreatePostForm() {
-    const quickPostForm = document.getElementById('quick-post-form');
-    if (!quickPostForm) return;
-    
-    quickPostForm.addEventListener('submit', function(e) {
+        if (cardBody.style.display === 'none') {
+            cardBody.style.display = 'block';
+            cardBody.style.animation = 'fadeInUp 0.3s ease-out';
+            toggleText.textContent = 'Minimize';
+            toggleIcon.className = 'fas fa-minus me-2';
+        } else {
+            cardBody.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => {
+                cardBody.style.display = 'none';
+                toggleText.textContent = 'Expand';
+                toggleIcon.className = 'fas fa-plus me-2';
+            }, 300);
+        }
+    }
+
+    function getCSRFToken() {
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        if (metaTag) {
+            return metaTag.getAttribute('content');
+        }
+
+        const csrfInput = document.querySelector('input[name="csrf_token"]');
+        if (csrfInput) {
+            return csrfInput.value;
+        }
+
+        return '';
+    }
+
+    // Enhanced Vote and Save button functions
+    function setupVoteButtons() {
+        const voteButtons = document.querySelectorAll('.vote-btn');
+        voteButtons.forEach(btn => {
+            btn.addEventListener('click', handleVote);
+        });
+    }
+
+    function setupSaveButtons() {
+        const saveButtons = document.querySelectorAll('.save-btn');
+        saveButtons.forEach(btn => {
+            btn.addEventListener('click', handleSave);
+        });
+    }
+
+    function handleVote(e) {
         e.preventDefault();
-        
-        const formData = new FormData(quickPostForm);
-        const submitBtn = quickPostForm.querySelector('button[type="submit"]');
-        
-        // Show enhanced loading state
-        if (window.DiscussionDenTheme) {
-            const originalContent = window.DiscussionDenTheme.showLoading(
-                submitBtn, 
-                'Publishing...'
-            );
-            
-            fetch(quickPostForm.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': getCSRFToken(),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
+        const postId = this.getAttribute('data-post-id');
+        const voteValue = parseInt(this.getAttribute('data-vote'));
+        const postVoteBtns = document.querySelectorAll('.vote-btn[data-post-id="' + postId + '"]');
+        postVoteBtns.forEach(function (btn) { btn.disabled = true; });
+        this.style.transform = 'scale(0.95)';
+        this.style.opacity = '0.7';
+
+        fetch(`/api/post/${postId}/vote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ vote: voteValue })
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Clear form and show success message
-                    clearForm();
-                    window.DiscussionDenTheme.showToast(
-                        data.message || 'Post created successfully!', 
-                        'success'
-                    );
-                    
-                    // Reload page to show the new post with smooth transition
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
+                    updateVoteUI(postId, data.vote, data.upvotes, data.downvotes);
+                    if (window.DiscussionDenTheme) {
+                        const voteType = data.vote === 1 ? 'upvoted' : data.vote === -1 ? 'downvoted' : 'removed vote';
+                        window.DiscussionDenTheme.showToast(
+                            `Post ${voteType}!`,
+                            'success',
+                            1500
+                        );
+                    }
                 } else {
-                    // Handle validation errors
-                    handleFormErrors(data);
+                    if (window.DiscussionDenTheme) {
+                        window.DiscussionDenTheme.showToast(
+                            'Failed to vote: ' + (data.error || 'Unknown error'),
+                            'danger'
+                        );
+                    }
                 }
             })
             .catch(error => {
-                console.error('Error creating post:', error);
-                window.DiscussionDenTheme.showToast(
-                    'There was an error creating your post. Please try again.', 
-                    'danger'
-                );
+                console.error('Error voting:', error);
+                if (window.DiscussionDenTheme) {
+                    window.DiscussionDenTheme.showToast('Error voting. Please try again.', 'danger');
+                }
+            })
+            .finally(function () {
+                postVoteBtns.forEach(function (btn) { btn.disabled = false; });
+                this.style.transform = 'scale(1)';
+                this.style.opacity = '1';
+            }.bind(this));
+    }
+
+    function handleSave(e) {
+        e.preventDefault();
+        const postId = this.getAttribute('data-post-id');
+        const isCurrentlySaved = this.classList.contains('saved');
+
+        // Add loading animation
+        this.style.transform = 'scale(0.95)';
+
+        fetch(`/api/post/${postId}/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ save: !isCurrentlySaved })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateSaveUI(postId, data.is_saved);
+
+                    // Show success feedback
+                    if (window.DiscussionDenTheme) {
+                        const action = data.is_saved ? 'saved' : 'unsaved';
+                        window.DiscussionDenTheme.showToast(
+                            `Post ${action}!`,
+                            'success',
+                            1500
+                        );
+                    }
+                } else {
+                    if (window.DiscussionDenTheme) {
+                        window.DiscussionDenTheme.showToast(
+                            'Failed to save: ' + (data.error || 'Unknown error'),
+                            'danger'
+                        );
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error saving:', error);
+                if (window.DiscussionDenTheme) {
+                    window.DiscussionDenTheme.showToast('Error saving. Please try again.', 'danger');
+                }
             })
             .finally(() => {
                 // Restore button state
-                window.DiscussionDenTheme.hideLoading(submitBtn, originalContent);
+                this.style.transform = 'scale(1)';
             });
-        }
-    });
-}
+    }
 
-/**
- * Initialize share functionality
- */
-function initializeShareFunctionality() {
-    window.sharePost = function(postId) {
-        const postUrl = `${window.location.origin}/post/${postId}`;
-        
-        if (navigator.share) {
-            // Use native share API if available
-            navigator.share({
-                title: 'Check out this post on Discussion Den',
-                url: postUrl
-            }).catch(err => console.log('Error sharing:', err));
-        } else {
-            // Fallback to clipboard
-            navigator.clipboard.writeText(postUrl).then(() => {
-                if (window.DiscussionDenTheme) {
-                    window.DiscussionDenTheme.showToast(
-                        'Post link copied to clipboard!', 
-                        'success', 
-                        2000
-                    );
-                }
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-                // Fallback to prompt
-                prompt('Copy this link:', postUrl);
-            });
-        }
-    };
-}
+    function updateVoteUI(postId, userVote, upvotes, downvotes) {
+        const postCard = document.querySelector(`[data-post-id="${postId}"]`);
+        if (!postCard) return;
 
-/**
- * Handle form validation errors
- */
-function handleFormErrors(data) {
-    if (data.errors) {
-        let errorMessage = 'Please fix the following errors:\n';
-        for (const field in data.errors) {
-            data.errors[field].forEach(error => {
-                errorMessage += '• ' + error + '\n';
-            });
+        const upBtn = postCard.querySelector(`.vote-btn[data-vote="1"]`);
+        const downBtn = postCard.querySelector(`.vote-btn[data-vote="-1"]`);
+
+        // Reset classes
+        if (upBtn) {
+            upBtn.classList.remove('voted-up', 'voted-down');
+            upBtn.querySelector('span').textContent = upvotes || 0;
         }
-        
-        if (window.DiscussionDenTheme) {
-            window.DiscussionDenTheme.showToast(errorMessage, 'danger', 5000);
-        } else {
-            alert(errorMessage);
+        if (downBtn) {
+            downBtn.classList.remove('voted-up', 'voted-down');
+            downBtn.querySelector('span').textContent = downvotes || 0;
         }
-    } else {
-        const message = data.message || 'There was an error creating your post. Please try again.';
-        if (window.DiscussionDenTheme) {
-            window.DiscussionDenTheme.showToast(message, 'danger');
-        } else {
-            alert(message);
+
+        // Apply new vote state with animation
+        if (userVote === 1 && upBtn) {
+            upBtn.classList.add('voted-up');
+            upBtn.style.animation = 'pulse 0.3s ease-out';
+        } else if (userVote === -1 && downBtn) {
+            downBtn.classList.add('voted-down');
+            downBtn.style.animation = 'pulse 0.3s ease-out';
         }
     }
-}
 
-// Create Post Form Functions
-function clearForm() {
-    const form = document.getElementById('quick-post-form');
-    if (form) {
-        form.reset();
-        // Reset community dropdown to default
-        const communitySelect = form.querySelector('select[name="community_id"]');
-        if (communitySelect) {
-            communitySelect.selectedIndex = 0;
+    function updateSaveUI(postId, isSaved) {
+        const saveBtn = document.querySelector(`.save-btn[data-post-id="${postId}"]`);
+        if (!saveBtn) return;
+
+        const icon = saveBtn.querySelector('i');
+        const text = saveBtn.querySelector('span');
+
+        if (isSaved) {
+            saveBtn.classList.add('saved');
+            icon.className = 'fas fa-bookmark';
+            text.textContent = 'Saved';
+        } else {
+            saveBtn.classList.remove('saved');
+            icon.className = 'far fa-bookmark';
+            text.textContent = 'Save';
         }
-        
-        // Add clear animation
-        form.style.animation = 'pulse 0.3s ease-out';
+
+        // Add animation
+        saveBtn.style.animation = 'pulse 0.3s ease-out';
         setTimeout(() => {
-            form.style.animation = '';
+            saveBtn.style.animation = '';
         }, 300);
     }
-}
 
-function toggleCreatePost() {
-    const card = document.getElementById('create-post-card');
-    const cardBody = card.querySelector('form').parentElement;
-    const toggleText = document.getElementById('toggle-text');
-    const toggleIcon = document.querySelector('#toggle-text').previousElementSibling;
-    
-    if (cardBody.style.display === 'none') {
-        cardBody.style.display = 'block';
-        cardBody.style.animation = 'fadeInUp 0.3s ease-out';
-        toggleText.textContent = 'Minimize';
-        toggleIcon.className = 'fas fa-minus me-2';
-    } else {
-        cardBody.style.animation = 'fadeOut 0.3s ease-out';
-        setTimeout(() => {
-            cardBody.style.display = 'none';
-            toggleText.textContent = 'Expand';
-            toggleIcon.className = 'fas fa-plus me-2';
-        }, 300);
-    }
-}
-
-function getCSRFToken() {
-    const metaTag = document.querySelector('meta[name="csrf-token"]');
-    if (metaTag) {
-        return metaTag.getAttribute('content');
-    }
-    
-    const csrfInput = document.querySelector('input[name="csrf_token"]');
-    if (csrfInput) {
-        return csrfInput.value;
-    }
-    
-    return '';
-}
-
-// Enhanced Vote and Save button functions
-function setupVoteButtons() {
-    const voteButtons = document.querySelectorAll('.vote-btn');
-    voteButtons.forEach(btn => {
-        btn.addEventListener('click', handleVote);
-    });
-}
-
-function setupSaveButtons() {
-    const saveButtons = document.querySelectorAll('.save-btn');
-    saveButtons.forEach(btn => {
-        btn.addEventListener('click', handleSave);
-    });
-}
-
-function handleVote(e) {
-    e.preventDefault();
-    const postId = this.getAttribute('data-post-id');
-    const voteValue = parseInt(this.getAttribute('data-vote'));
-    const postVoteBtns = document.querySelectorAll('.vote-btn[data-post-id="' + postId + '"]');
-    postVoteBtns.forEach(function(btn) { btn.disabled = true; });
-    this.style.transform = 'scale(0.95)';
-    this.style.opacity = '0.7';
-
-    fetch(`/api/post/${postId}/vote`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken()
-        },
-        body: JSON.stringify({ vote: voteValue })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            updateVoteUI(postId, data.vote, data.upvotes, data.downvotes);
-            if (window.DiscussionDenTheme) {
-                const voteType = data.vote === 1 ? 'upvoted' : data.vote === -1 ? 'downvoted' : 'removed vote';
-                window.DiscussionDenTheme.showToast(
-                    `Post ${voteType}!`,
-                    'success',
-                    1500
-                );
-            }
-        } else {
-            if (window.DiscussionDenTheme) {
-                window.DiscussionDenTheme.showToast(
-                    'Failed to vote: ' + (data.error || 'Unknown error'),
-                    'danger'
-                );
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error voting:', error);
-        if (window.DiscussionDenTheme) {
-            window.DiscussionDenTheme.showToast('Error voting. Please try again.', 'danger');
-        }
-    })
-    .finally(function() {
-        postVoteBtns.forEach(function(btn) { btn.disabled = false; });
-        this.style.transform = 'scale(1)';
-        this.style.opacity = '1';
-    }.bind(this));
-}
-
-function handleSave(e) {
-    e.preventDefault();
-    const postId = this.getAttribute('data-post-id');
-    const isCurrentlySaved = this.classList.contains('saved');
-    
-    // Add loading animation
-    this.style.transform = 'scale(0.95)';
-    
-    fetch(`/api/post/${postId}/save`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken()
-        },
-        body: JSON.stringify({ save: !isCurrentlySaved })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            updateSaveUI(postId, data.is_saved);
-            
-            // Show success feedback
-            if (window.DiscussionDenTheme) {
-                const action = data.is_saved ? 'saved' : 'unsaved';
-                window.DiscussionDenTheme.showToast(
-                    `Post ${action}!`, 
-                    'success', 
-                    1500
-                );
-            }
-        } else {
-            if (window.DiscussionDenTheme) {
-                window.DiscussionDenTheme.showToast(
-                    'Failed to save: ' + (data.error || 'Unknown error'), 
-                    'danger'
-                );
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error saving:', error);
-        if (window.DiscussionDenTheme) {
-            window.DiscussionDenTheme.showToast('Error saving. Please try again.', 'danger');
-        }
-    })
-    .finally(() => {
-        // Restore button state
-        this.style.transform = 'scale(1)';
-    });
-}
-
-function updateVoteUI(postId, userVote, upvotes, downvotes) {
-    const postCard = document.querySelector(`[data-post-id="${postId}"]`);
-    if (!postCard) return;
-    
-    const upBtn = postCard.querySelector(`.vote-btn[data-vote="1"]`);
-    const downBtn = postCard.querySelector(`.vote-btn[data-vote="-1"]`);
-    
-    // Reset classes
-    if (upBtn) {
-        upBtn.classList.remove('voted-up', 'voted-down');
-        upBtn.querySelector('span').textContent = upvotes || 0;
-    }
-    if (downBtn) {
-        downBtn.classList.remove('voted-up', 'voted-down');
-        downBtn.querySelector('span').textContent = downvotes || 0;
-    }
-    
-    // Apply new vote state with animation
-    if (userVote === 1 && upBtn) {
-        upBtn.classList.add('voted-up');
-        upBtn.style.animation = 'pulse 0.3s ease-out';
-    } else if (userVote === -1 && downBtn) {
-        downBtn.classList.add('voted-down');
-        downBtn.style.animation = 'pulse 0.3s ease-out';
-    }
-}
-
-function updateSaveUI(postId, isSaved) {
-    const saveBtn = document.querySelector(`.save-btn[data-post-id="${postId}"]`);
-    if (!saveBtn) return;
-    
-    const icon = saveBtn.querySelector('i');
-    const text = saveBtn.querySelector('span');
-    
-    if (isSaved) {
-        saveBtn.classList.add('saved');
-        icon.className = 'fas fa-bookmark';
-        text.textContent = 'Saved';
-    } else {
-        saveBtn.classList.remove('saved');
-        icon.className = 'far fa-bookmark';
-        text.textContent = 'Save';
-    }
-    
-    // Add animation
-    saveBtn.style.animation = 'pulse 0.3s ease-out';
-    setTimeout(() => {
-        saveBtn.style.animation = '';
-    }, 300);
-}
-
-// Add fadeOut animation
-const style = document.createElement('style');
-style.textContent = `
+    // Add fadeOut animation
+    const style = document.createElement('style');
+    style.textContent = `
     @keyframes fadeOut {
         from {
             opacity: 1;
@@ -955,6 +716,6 @@ style.textContent = `
         }
     }
 `;
-document.head.appendChild(style);
+    document.head.appendChild(style);
 </script>
 {% endblock %}

@@ -4,124 +4,124 @@
 
 {% block extra_head %}
 <style>
-.post-card-enhanced {
-    background: var(--gradient-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: var(--space-6);
-    margin-bottom: var(--space-6);
-    transition: var(--transition-base);
-    position: relative;
-    overflow: hidden;
-}
+    .post-card-enhanced {
+        background: var(--gradient-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-lg);
+        padding: var(--space-6);
+        margin-bottom: var(--space-6);
+        transition: var(--transition-base);
+        position: relative;
+        overflow: hidden;
+    }
 
-.post-card-enhanced::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--gradient-accent);
-    opacity: 0;
-    transition: var(--transition-base);
-}
+    .post-card-enhanced::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--gradient-accent);
+        opacity: 0;
+        transition: var(--transition-base);
+    }
 
-.post-card-enhanced:hover {
-    transform: var(--hover-lift);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--border-accent);
-}
+    .post-card-enhanced:hover {
+        transform: var(--hover-lift);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--border-accent);
+    }
 
-.post-card-enhanced:hover::before {
-    opacity: 1;
-}
+    .post-card-enhanced:hover::before {
+        opacity: 1;
+    }
 
-.post-header-enhanced {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-4);
-    flex-wrap: wrap;
-}
+    .post-header-enhanced {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin-bottom: var(--space-4);
+        flex-wrap: wrap;
+    }
 
-.post-title-enhanced {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-3);
-    line-height: 1.4;
-}
+    .post-title-enhanced {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
+        color: var(--text-primary);
+        margin-bottom: var(--space-3);
+        line-height: 1.4;
+    }
 
-.post-body-enhanced {
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: var(--space-5);
-}
+    .post-body-enhanced {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: var(--space-5);
+    }
 
-.post-image-enhanced {
-    width: 100%;
-    max-height: 480px;
-    object-fit: cover;
-    border-radius: var(--border-radius);
-    margin-bottom: var(--space-5);
-    box-shadow: var(--shadow-md);
-}
+    .post-image-enhanced {
+        width: 100%;
+        max-height: 480px;
+        object-fit: cover;
+        border-radius: var(--border-radius);
+        margin-bottom: var(--space-5);
+        box-shadow: var(--shadow-md);
+    }
 
-.action-buttons-enhanced {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
+    .action-buttons-enhanced {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
 
-.action-group {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-}
+    .action-group {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
 
-.btn-action-enhanced {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-full);
-    color: var(--text-secondary);
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    text-decoration: none;
-    transition: var(--transition-base);
-    cursor: pointer;
-}
+    .btn-action-enhanced {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-2) var(--space-4);
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-full);
+        color: var(--text-secondary);
+        font-size: var(--text-sm);
+        font-weight: var(--font-medium);
+        text-decoration: none;
+        transition: var(--transition-base);
+        cursor: pointer;
+    }
 
-.btn-action-enhanced:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-    transform: var(--hover-lift);
-    border-color: var(--border-accent);
-}
+    .btn-action-enhanced:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+        transform: var(--hover-lift);
+        border-color: var(--border-accent);
+    }
 
-.btn-action-enhanced.voted-up {
-    background: var(--user-bg);
-    color: var(--user-color);
-    border-color: var(--user-border);
-}
+    .btn-action-enhanced.voted-up {
+        background: var(--user-bg);
+        color: var(--user-color);
+        border-color: var(--user-border);
+    }
 
-.btn-action-enhanced.voted-down {
-    background: var(--persona-bg);
-    color: var(--persona-color);
-    border-color: var(--persona-border);
-}
+    .btn-action-enhanced.voted-down {
+        background: var(--persona-bg);
+        color: var(--persona-color);
+        border-color: var(--persona-border);
+    }
 
-.btn-action-enhanced.saved {
-    background: var(--accent-warning);
-    color: white;
-    border-color: var(--accent-warning);
-}
+    .btn-action-enhanced.saved {
+        background: var(--accent-warning);
+        color: white;
+        border-color: var(--accent-warning);
+    }
 </style>
 {% endblock %}
 
@@ -130,35 +130,37 @@
 <article class="post-card-enhanced hover-lift" data-post-id="{{ post.id }}">
     <header class="post-header-enhanced">
         {% if post.author_persona_id %}
-            <div class="persona-badge-enhanced persona">
-                <i class="fas fa-mask"></i>
-                <span>Persona</span>
-            </div>
-            {% set author_persona = post.author_persona %}
-            <span class="post-author">
-                <a href="{{ url_for('persona.persona_profile', persona_id=post.author_persona_id) }}" style="color: inherit; text-decoration: none;">
-                    {{ author_persona.name if author_persona else 'Unknown' }}
-                </a>
-            </span>
+        <div class="persona-badge-enhanced persona">
+            <i class="fas fa-mask"></i>
+            <span>Persona</span>
+        </div>
+        {% set author_persona = post.author_persona %}
+        <span class="post-author">
+            <a href="{{ url_for('persona.persona_profile', persona_id=post.author_persona_id) }}"
+                style="color: inherit; text-decoration: none;">
+                {{ author_persona.name if author_persona else 'Unknown' }}
+            </a>
+        </span>
         {% else %}
-            <div class="persona-badge-enhanced user">
-                <i class="fas fa-user"></i>
-                <span>User</span>
-            </div>
-            {% set author_user = post.author_user %}
-            <span class="post-author">
-                <a href="{{ url_for('profile.user_profile', username=author_user.username) if author_user else '#' }}" style="color: inherit; text-decoration: none;">
-                    {{ author_user.username if author_user else 'Unknown' }}
-                </a>
-            </span>
+        <div class="persona-badge-enhanced user">
+            <i class="fas fa-user"></i>
+            <span>User</span>
+        </div>
+        {% set author_user = post.author_user %}
+        <span class="post-author">
+            <a href="{{ url_for('profile.user_profile', username=author_user.username) if author_user else '#' }}"
+                style="color: inherit; text-decoration: none;">
+                {{ author_user.username if author_user else 'Unknown' }}
+            </a>
+        </span>
         {% endif %}
         <span class="text-muted-custom">•</span>
         <span class="post-meta">{{ post.created_at|timeago }}</span>
         {% if post.community %}
         <span class="text-muted-custom">•</span>
         <span class="post-meta">
-            <a href="{{ url_for('community.community_page', community_name=post.community.name) }}" 
-               style="color: var(--accent-primary); text-decoration: none;">
+            <a href="{{ url_for('community.community_page', community_name=post.community.name) }}"
+                style="color: var(--accent-primary); text-decoration: none;">
                 r/{{ post.community.name }}
             </a>
         </span>
@@ -175,18 +177,18 @@
 
     <footer class="action-buttons-enhanced">
         <div class="action-group">
-            <button class="btn-action-enhanced vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}" 
-                    data-post-id="{{ post.id }}" data-vote="1">
+            <button class="btn-action-enhanced vote-btn {% if post.user_vote == 1 %}voted-up{% endif %}"
+                data-post-id="{{ post.id }}" data-vote="1">
                 <i class="fas fa-arrow-up"></i>
                 <span>{{ post.upvotes or 0 }}</span>
             </button>
-            <button class="btn-action-enhanced vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}" 
-                    data-post-id="{{ post.id }}" data-vote="-1">
+            <button class="btn-action-enhanced vote-btn {% if post.user_vote == -1 %}voted-down{% endif %}"
+                data-post-id="{{ post.id }}" data-vote="-1">
                 <i class="fas fa-arrow-down"></i>
                 <span>{{ post.downvotes or 0 }}</span>
             </button>
-            <button class="btn-action-enhanced save-btn {% if post.is_saved %}saved{% endif %}" 
-                    data-post-id="{{ post.id }}">
+            <button class="btn-action-enhanced save-btn {% if post.is_saved %}saved{% endif %}"
+                data-post-id="{{ post.id }}">
                 <i class="fas fa-{% if post.is_saved %}bookmark{% else %}bookmark-o{% endif %}"></i>
                 <span>{% if post.is_saved %}Saved{% else %}Save{% endif %}</span>
             </button>
@@ -194,18 +196,18 @@
 
         <!-- Edit/Delete buttons for post owner -->
         {% if current_user.is_authenticated %}
-            {% set current_identity = session.get('active_persona_id') %}
-            {% if (post.author_user_id and post.author_user_id == current_user.id and not current_identity) or 
-                  (post.author_persona_id and post.author_persona_id == current_identity) %}
-                <div class="ms-auto d-flex gap-2">
-                    <a href="{{ url_for('post.edit_post', post_id=post.id) }}" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-edit"></i> Edit
-                    </a>
-                    <button class="btn btn-sm btn-outline-danger" onclick="confirmDeletePost({{ post.id }})">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                </div>
-            {% endif %}
+        {% set current_identity = session.get('active_persona_id') %}
+        {% if (post.author_user_id and post.author_user_id == current_user.id and not current_identity) or
+        (post.author_persona_id and post.author_persona_id == current_identity) %}
+        <div class="ms-auto d-flex gap-2">
+            <a href="{{ url_for('post.edit_post', post_id=post.id) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <button class="btn btn-sm btn-outline-danger" onclick="confirmDeletePost({{ post.id }})">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </div>
+        {% endif %}
         {% endif %}
     </footer>
 </article>
@@ -213,24 +215,21 @@
 <!-- Comment Form (only shown for authenticated users) -->
 {% if current_user.is_authenticated %}
 <div class="card mb-4">
-    <div class="card-header">
-        <h5 class="mb-0">💬 Add a Comment</h5>
-    </div>
-    <div class="card-body p-4">
-        <form id="main-comment-form">
-            {{ comment_form.hidden_tag() }}
-            <input type="hidden" name="post_id" value="{{ post.id }}">
-            <div class="mb-4">
-                {{ comment_form.body.label(class="form-label") }}
-                {{ comment_form.body(class="form-control", rows="4", placeholder="Share your thoughts on this post...") }}
-                {% if comment_form.body.errors %}
-                    <div class="text-danger small mt-2">
-                        {% for error in comment_form.body.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-            <button type="submit" class="btn btn-primary">Post Comment</button>
-        </form>
+    <div class="card-body p-3">
+        <div class="comment-form-container">
+            <form id="main-comment-form" class="inline-comment-form">
+                <div class="d-flex gap-2 align-items-end">
+                    <textarea class="form-control" name="body" rows="1" placeholder="Write a comment..."
+                        style="resize:none; overflow:hidden; min-height: 38px;"
+                        oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
+                        required></textarea>
+                    <button type="submit" class="btn btn-primary"
+                        style="height: 38px; width: 38px; display: flex; align-items: center; justify-content: center; padding: 0;">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endif %}
@@ -240,7 +239,8 @@
     <div class="card-header">
         <h5 class="mb-0">💬 Comments</h5>
     </div>
-    <div class="card-body p-4" id="comments-container" data-is-authenticated="{{ '1' if current_user.is_authenticated else '0' }}">
+    <div class="card-body p-4" id="comments-container"
+        data-is-authenticated="{{ '1' if current_user.is_authenticated else '0' }}">
         <!-- Comments will be loaded here -->
         <div class="loading">Loading comments...</div>
     </div>
@@ -250,53 +250,274 @@
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename='js/post.js') }}"></script>
 <script>
-// Server-side auth flag for comment reply behavior, derived from data attribute
-const IS_AUTHENTICATED = (document.getElementById('comments-container')?.dataset.isAuthenticated === '1');
+    // Server-side auth flag for comment reply behavior
+    const IS_AUTHENTICATED = (document.getElementById('comments-container')?.dataset.isAuthenticated === '1');
 
-function confirmDeletePost(postId) {
-    if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-        // Create a form and submit it
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/post/${postId}/delete`;
-        
-        // Add CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = 'csrf_token';
-        csrfInput.value = csrfToken;
-        form.appendChild(csrfInput);
-        
-        document.body.appendChild(form);
-        form.submit();
+    function confirmDeletePost(postId) {
+        if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/post/${postId}/delete`;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
     }
-}
-</script>
-<script>
-// Load comments on page load
-document.addEventListener('DOMContentLoaded', function() {
-    loadComments();
-    setupMainCommentForm();
-});
 
-function setupMainCommentForm() {
-    const mainForm = document.getElementById('main-comment-form');
-    if (!mainForm) return;
-    
-    mainForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(mainForm);
-        const body = formData.get('body');
-        
-        if (!body || !body.trim()) {
-            alert('Please enter a comment.');
+    console.log('Post detail script loaded');
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('DOM Content Loaded - initializing comments');
+        loadPostComments();
+        setupMainCommentForm();
+    });
+
+    function setupMainCommentForm() {
+        const mainForm = document.getElementById('main-comment-form');
+        if (!mainForm) return;
+
+        const textarea = mainForm.querySelector('textarea');
+        if (textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+            textarea.addEventListener('input', function () {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        }
+
+        mainForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(mainForm);
+            const body = formData.get('body');
+
+            if (!body || !body.trim()) {
+                alert('Please enter a comment.');
+                return;
+            }
+
+            const postId = parseInt('{{ post.id }}', 10);
+
+            fetch(`/api/post/${postId}/comment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({
+                    body: body.trim(),
+                    parent_comment_id: null
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        mainForm.reset();
+                        if (textarea) {
+                            textarea.style.height = 'auto';
+                            textarea.style.height = '38px';
+                        }
+                        loadPostComments();
+                    } else {
+                        alert('Failed to post comment: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error posting comment:', error);
+                    alert('Error posting comment. Please try again.');
+                });
+        });
+    }
+
+    function renderComments(comments) {
+        if (!comments || !Array.isArray(comments)) {
+            console.error('Invalid comments data:', comments);
+            return '<p class="text-danger">Error loading comments.</p>';
+        }
+
+        const commentMap = {};
+        const rootComments = [];
+        comments.forEach(c => commentMap[c.id] = { ...c, replies: [] });
+        comments.forEach(c => {
+            if (c.parent_comment_id && commentMap[c.parent_comment_id]) {
+                commentMap[c.parent_comment_id].replies.push(c.id);
+            } else {
+                rootComments.push(c.id);
+            }
+        });
+
+        function renderNode(id, depth) {
+            if (depth > 20) {
+                console.warn('Max recursion depth reached for comment', id);
+                return '';
+            }
+            const c = commentMap[id];
+            if (!c) return '';
+            const authorName = c.author.name || c.author.username || 'Unknown';
+
+            const nestingStyle = depth > 0
+                ? 'margin-left: 24px; padding-left: 12px; border-left: 2px solid var(--border-color);'
+                : 'border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 12px;';
+
+            const badge = c.author.type === 'persona'
+                ? '<span class="badge bg-purple text-white ms-2" style="font-size: 0.7em;">Persona</span>'
+                : '';
+
+            const replyLimit = 1;
+            const totalReplies = c.replies.length;
+            let visibleReplies = c.replies;
+            let hiddenReplies = [];
+
+            if (totalReplies > replyLimit) {
+                visibleReplies = c.replies.slice(0, replyLimit);
+                hiddenReplies = c.replies.slice(replyLimit);
+            }
+
+            return `
+            <div class="comment-item" style="${nestingStyle}">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <div class="d-flex align-items-center">
+                        <strong class="small text-primary">${escapeHtml(authorName)}</strong>
+                        ${badge}
+                        <span class="text-muted mx-2">•</span>
+                        <small class="text-muted" style="font-size: 0.85em;">${formatTimeAgo(c.created_at)}</small>
+                    </div>
+                </div>
+                
+                <div class="comment-body mb-2 text-wrap text-secondary" style="word-break: break-word; font-size: 0.95rem;">${escapeHtml(c.body)}</div>
+                
+                <div class="comment-actions d-flex gap-3 align-items-center mb-2">
+                    <button class="btn btn-link btn-sm p-0 text-decoration-none text-primary fw-bold d-flex align-items-center" onclick="toggleInlineReplyForm(${c.id})">
+                        <i class="fas fa-reply me-1"></i>Reply
+                    </button>
+                </div>
+
+                <div id="reply-form-${c.id}" class="inline-reply-container mt-2 mb-3 ps-2 border-start border-primary border-2" style="display:none;">
+                    <div class="d-flex gap-2 align-items-end">
+                        <textarea id="reply-input-${c.id}" class="form-control form-control-sm" rows="1" 
+                            placeholder="Reply to ${escapeHtml(authorName)}..." 
+                            style="resize:none; overflow:hidden; min-height: 32px;" 
+                            oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                        <button class="btn btn-sm btn-primary" onclick="submitReply(${c.id})">Reply</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleInlineReplyForm(${c.id})">Cancel</button>
+                    </div>
+                </div>
+
+                <div class="replies-container">
+                    ${visibleReplies.map(rid => renderNode(rid, depth + 1)).join('')}
+                    
+                    ${hiddenReplies.length > 0 ? `
+                        <button class="btn btn-sm btn-light text-primary rounded-pill mt-2 mb-2" 
+                                onclick="this.nextElementSibling.style.display='block'; this.remove()">
+                            <i class="fas fa-plus me-1"></i> View ${hiddenReplies.length} more replies
+                        </button>
+                        <div style="display:none;">
+                            ${hiddenReplies.map(rid => renderNode(rid, depth + 1)).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+            `;
+        }
+
+        // Logic for limiting root comments
+        const rootLimit = 2;
+        let visibleRoot = rootComments;
+        let hiddenRoot = [];
+
+        if (rootComments.length > rootLimit) {
+            visibleRoot = rootComments.slice(0, rootLimit);
+            hiddenRoot = rootComments.slice(rootLimit);
+        }
+
+        let html = visibleRoot.map(id => renderNode(id, 0)).join('');
+
+        if (hiddenRoot.length > 0) {
+            html += `
+                <button class="btn btn-sm btn-light text-primary rounded-pill mt-3 w-100" 
+                        onclick="this.nextElementSibling.style.display='block'; this.remove()">
+                    <i class="fas fa-comments me-1"></i> View ${hiddenRoot.length} more comments
+                </button>
+                <div style="display:none;">
+                    ${hiddenRoot.map(id => renderNode(id, 0)).join('')}
+                </div>
+            `;
+        }
+
+        if (rootComments.length === 0) {
+            return '<p class="text-muted-custom text-center py-4">No comments yet. Be the first to share your thoughts!</p>';
+        }
+
+        return html;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatTimeAgo(dateString) {
+        const date = new Date(dateString.includes('Z') ? dateString : dateString + 'Z');
+        const seconds = Math.floor((new Date() - date) / 1000);
+        if (seconds < 60) return 'just now';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        return `${Math.floor(hours / 24)}d ago`;
+    }
+
+    function toggleInlineReplyForm(commentId) {
+        if (!IS_AUTHENTICATED) {
+            if (typeof showAuthPrompt === 'function') {
+                showAuthPrompt('reply to comments');
+            } else if (typeof bootstrap !== 'undefined') {
+                const authModalEl = document.getElementById('authModal');
+                if (authModalEl) {
+                    const authModal = new bootstrap.Modal(authModalEl);
+                    authModal.show();
+                }
+            }
             return;
         }
-        
-        const postId = {{ post.id }};
-        
+
+        const currentEl = document.getElementById(`reply-form-${commentId}`);
+        if (!currentEl) return;
+
+        const isOpening = currentEl.style.display === 'none';
+
+        if (isOpening) {
+            document.querySelectorAll('.inline-reply-container').forEach(el => {
+                if (el.id !== `reply-form-${commentId}`) {
+                    el.style.display = 'none';
+                }
+            });
+            currentEl.style.display = 'block';
+            const input = document.getElementById(`reply-input-${commentId}`);
+            if (input) input.focus();
+        } else {
+            currentEl.style.display = 'none';
+        }
+    }
+
+    function submitReply(parentCommentId) {
+        const textarea = document.getElementById(`reply-input-${parentCommentId}`);
+        const body = textarea.value.trim();
+
+        if (!body) {
+            alert('Please enter a reply.');
+            return;
+        }
+
+        const postId = parseInt('{{ post.id }}', 10);
+
         fetch(`/api/post/${postId}/comment`, {
             method: 'POST',
             headers: {
@@ -304,265 +525,64 @@ function setupMainCommentForm() {
                 'X-CSRFToken': getCSRFToken()
             },
             body: JSON.stringify({
-                body: body.trim(),
-                parent_comment_id: null
+                body: body,
+                parent_comment_id: parentCommentId
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Clear form and reload comments
-                mainForm.reset();
-                loadComments();
-            } else {
-                alert('Failed to post comment: ' + (data.error || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            console.error('Error posting comment:', error);
-            alert('Error posting comment. Please try again.');
-        });
-    });
-}
-
-function renderComments(comments) {
-    // Build comment tree with proper parent-child relationships
-    const commentMap = {};
-    const rootComments = [];
-    
-    // First pass: create comment objects with empty replies arrays
-    comments.forEach(comment => {
-        commentMap[comment.id] = {...comment, replies: []};
-    });
-    
-    // Second pass: build parent-child relationships
-    comments.forEach(comment => {
-        if (!comment.parent_comment_id) {
-            rootComments.push(comment.id);
-        } else {
-            const parent = commentMap[comment.parent_comment_id];
-            if (parent) {
-                parent.replies.push(comment.id);
-            } else {
-                // Orphaned comment - treat as root comment for safety
-                rootComments.push(comment.id);
-            }
-        }
-    });
-    
-    function renderComment(commentId, depth = 0) {
-        const comment = commentMap[commentId];
-        if (!comment) return '';
-        
-        // Limit nesting depth to prevent excessive indentation
-        const maxDepth = 3;
-        const actualDepth = Math.min(depth, maxDepth);
-        
-        const authorBadge = comment.author.type === 'persona' 
-            ? '<span class="persona-badge">Persona</span>' 
-            : '<span class="user-badge">User</span>';
-        const authorName = comment.author.name || comment.author.username || 'Unknown';
-        const timeAgo = formatTimeAgo(comment.created_at);
-        const nestedClass = actualDepth > 0 ? 'comment-nested' : '';
-        const indentStyle = actualDepth > 0 ? `style="margin-left: ${actualDepth * 1.5}rem; border-left: 2px solid var(--border-color); padding-left: 1rem;"` : '';
-        
-        let html = `
-            <div class="comment ${nestedClass}" id="comment-${comment.id}" ${indentStyle}>
-                <div class="comment-header">
-                    ${authorBadge}
-                    <span class="comment-author">${escapeHtml(authorName)}</span>
-                    <span class="text-muted-custom">•</span>
-                    <span class="post-meta">${timeAgo}</span>
-                    ${actualDepth > 0 ? '<span class="text-muted-custom">• reply</span>' : ''}
-                </div>
-                <div class="comment-body">${escapeHtml(comment.body)}</div>
-                ${actualDepth < maxDepth ? `<div class="comment-actions">
-                    <button class="btn-reply" onclick="showReplyForm(${comment.id})" style="background: none; border: none; color: var(--accent-primary); font-size: 0.85rem; cursor: pointer;">Reply</button>
-                </div>` : ''}
-                <div id="reply-form-${comment.id}" class="reply-form" style="display: none; margin-top: 0.5rem;">
-                    <textarea id="reply-body-${comment.id}" placeholder="Write a reply..." style="width: 100%; min-height: 60px; margin-bottom: 0.5rem; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-secondary); color: var(--text-primary);"></textarea>
-                    <div>
-                        <button onclick="submitReply(${comment.id})" style="background: var(--accent-primary); color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">Post Reply</button>
-                        <button onclick="hideReplyForm(${comment.id})" style="background: none; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 0.25rem 0.75rem; border-radius: 4px; cursor: pointer;">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // Render replies recursively
-        if (comment.replies.length > 0) {
-            comment.replies.forEach(replyId => {
-                html += renderComment(replyId, depth + 1);
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadPostComments();
+                } else {
+                    alert('Failed to post reply: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error posting reply:', error);
+                alert('Error posting reply. Please try again.');
             });
-        }
-        
-        return html;
-    }
-    
-    if (rootComments.length === 0) {
-        return '<p class="text-muted-custom">No comments yet. Be the first to share your thoughts!</p>';
-    }
-    
-    return rootComments.map(id => renderComment(id)).join('');
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function formatTimeAgo(dateString) {
-    // Parse ISO string as UTC (server sends UTC timestamps)
-    const date = new Date(dateString + (dateString.includes('Z') ? '' : 'Z'));
-    const now = new Date();
-    
-    // Calculate difference in milliseconds
-    const diffMs = now.getTime() - date.getTime();
-    
-    // Handle future dates (clock skew protection)
-    if (diffMs < 0) {
-        return 'just now';
-    }
-    
-    const diffSeconds = Math.floor(diffMs / 1000);
-    const diffMins = Math.floor(diffSeconds / 60);
-    const diffHours = Math.floor(diffSeconds / 3600);
-    const diffDays = Math.floor(diffSeconds / 86400);
-    
-    // Match server-side logic exactly
-    if (diffDays > 365) {
-        const years = Math.floor(diffDays / 365);
-        return `${years}y ago`;
-    } else if (diffDays > 30) {
-        const months = Math.floor(diffDays / 30);
-        return `${months}mo ago`;
-    } else if (diffDays > 7) {
-        const weeks = Math.floor(diffDays / 7);
-        return `${weeks}w ago`;
-    } else if (diffDays > 0) {
-        return `${diffDays}d ago`;
-    } else if (diffHours > 0) {
-        return `${diffHours}h ago`;
-    } else if (diffMins > 0) {
-        return `${diffMins}m ago`;
-    }
-    
-    return 'just now';
-}
-
-// Reply form functions
-function showReplyForm(commentId) {
-    // If user is not authenticated, show auth modal instead of inline reply
-    if (!IS_AUTHENTICATED) {
-        if (typeof showAuthPrompt === 'function') {
-            showAuthPrompt('reply to comments');
-        } else if (typeof bootstrap !== 'undefined') {
-            const authModalEl = document.getElementById('authModal');
-            if (authModalEl) {
-                const authModal = new bootstrap.Modal(authModalEl);
-                authModal.show();
-            }
-        }
-        return;
     }
 
-    // Hide all other reply forms first
-    document.querySelectorAll('.reply-form').forEach(form => {
-        form.style.display = 'none';
-    });
-    
-    const replyForm = document.getElementById(`reply-form-${commentId}`);
-    if (replyForm) {
-        replyForm.style.display = 'block';
-        const textarea = document.getElementById(`reply-body-${commentId}`);
-        if (textarea) {
-            textarea.focus();
-        }
+    function getCSRFToken() {
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        if (metaTag) return metaTag.getAttribute('content');
+        const csrfInput = document.querySelector('input[name="csrf_token"]');
+        if (csrfInput) return csrfInput.value;
+        return '';
     }
-}
 
-function hideReplyForm(commentId) {
-    const replyForm = document.getElementById(`reply-form-${commentId}`);
-    if (replyForm) {
-        replyForm.style.display = 'none';
-        const textarea = document.getElementById(`reply-body-${commentId}`);
-        if (textarea) {
-            textarea.value = '';
-        }
-    }
-}
+    function loadPostComments() {
+        const postId = parseInt('{{ post.id }}', 10);
+        const container = document.getElementById('comments-container');
+        console.log('Loading comments for post:', postId);
 
-function submitReply(parentCommentId) {
-    const textarea = document.getElementById(`reply-body-${parentCommentId}`);
-    const body = textarea.value.trim();
-    
-    if (!body) {
-        alert('Please enter a reply.');
-        return;
+        fetch(`/api/post/${postId}/comments`)
+            .then(response => {
+                console.log('Comments fetch response:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Comments data loaded:', data);
+                if (data.success && data.comments) {
+                    try {
+                        const rendered = renderComments(data.comments);
+                        console.log('Rendered HTML length:', rendered.length);
+                        container.innerHTML = rendered;
+                    } catch (e) {
+                        console.error('Error rendering comments:', e);
+                        container.innerHTML = '<p class="text-danger">Error rendering comments.</p>';
+                    }
+                } else {
+                    container.innerHTML = '<p class="text-muted-custom py-3">No comments yet. Be the first to share your thoughts!</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading comments:', error);
+                container.innerHTML = '<p class="text-danger">Error loading comments. Please refresh the page.</p>';
+            });
     }
-    
-    const postId = {{ post.id }};
-    
-    fetch(`/api/post/${postId}/comment`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken()
-        },
-        body: JSON.stringify({
-            body: body,
-            parent_comment_id: parentCommentId
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Reload comments to show the new reply
-            loadComments();
-            hideReplyForm(parentCommentId);
-        } else {
-            alert('Failed to post reply: ' + (data.error || 'Unknown error'));
-        }
-    })
-    .catch(error => {
-        console.error('Error posting reply:', error);
-        alert('Error posting reply. Please try again.');
-    });
-}
-
-function getCSRFToken() {
-    const metaTag = document.querySelector('meta[name="csrf-token"]');
-    if (metaTag) {
-        return metaTag.getAttribute('content');
-    }
-    // Fallback: try to get from form
-    const csrfInput = document.querySelector('input[name="csrf_token"]');
-    if (csrfInput) {
-        return csrfInput.value;
-    }
-    return '';
-}
-
-function loadComments() {
-    const postId = {{ post.id }};
-    const container = document.getElementById('comments-container');
-    
-    container.innerHTML = '<div class="loading">Loading comments...</div>';
-    
-    fetch(`/api/post/${postId}/comments`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.comments) {
-                container.innerHTML = renderComments(data.comments);
-            } else {
-                container.innerHTML = '<p class="text-muted-custom">No comments yet. Be the first to share your thoughts!</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Error loading comments:', error);
-            container.innerHTML = '<p class="text-danger">Error loading comments. Please refresh the page.</p>';
-        });
-}
 </script>
 {% endblock %}

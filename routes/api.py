@@ -245,6 +245,21 @@ def feed_json():
     )
 
 
+@api_bp.get("/post/<int:post_id>")
+def get_post_json(post_id: int):
+    """
+    Get JSON data for a single post.
+    Used for modal/quick view.
+    """
+    post = Post.query.get_or_404(post_id)
+    return jsonify(
+        {
+            "success": True,
+            "post": _post_to_card_json(post)
+        }
+    )
+
+
 @api_bp.post("/post/<int:post_id>/vote")
 @login_required
 @limiter.limit("30 per minute")
@@ -260,59 +275,36 @@ def vote(post_id: int):
     post = Post.query.get_or_404(post_id)
     ident = get_identity()
 
+    # Robust handling: Delete ALL existing votes for this user/post to clean up any duplicates
     if ident.is_persona:
-        existing = Vote.query.filter_by(post_id=post_id, voted_by_persona_id=ident.persona_id).first()
+        db.session.query(Vote).filter_by(
+            post_id=post_id, voted_by_persona_id=ident.persona_id
+        ).delete()
     else:
-        existing = Vote.query.filter_by(post_id=post_id, voted_by_user_id=ident.user_id).first()
-
-    # Remove existing vote impact
-    if existing:
-        if existing.value == 1:
-            post.upvotes = max(post.upvotes - 1, 0)
-        elif existing.value == -1:
-            post.downvotes = max(post.downvotes - 1, 0)
-
-    if value == 0:
-        if existing:
-            db.session.delete(existing)
-        db.session.commit()
-        return jsonify({"success": True, "upvotes": post.upvotes, "downvotes": post.downvotes, "vote": 0})
-
-    if existing:
-        existing.value = value
-    else:
-        # Re-query to handle race: another request may have created a vote already
-        if ident.is_persona:
-            existing = Vote.query.filter_by(post_id=post_id, voted_by_persona_id=ident.persona_id).first()
-        else:
-            existing = Vote.query.filter_by(post_id=post_id, voted_by_user_id=ident.user_id).first()
-        if existing:
-            existing.value = value
-            db.session.commit()
-            post = Post.query.get_or_404(post_id)
-            return jsonify(
-                {
-                    "success": True,
-                    "upvotes": post.upvotes,
-                    "downvotes": post.downvotes,
-                    "vote": value,
-                    "score": post.upvotes - post.downvotes,
-                }
-            )
-        existing = Vote(
+        db.session.query(Vote).filter_by(
+            post_id=post_id, voted_by_user_id=ident.user_id
+        ).delete()
+    
+    # Add new vote if value is not 0 (unvote)
+    if value != 0:
+        new_vote = Vote(
             post_id=post_id,
             voted_by_persona_id=ident.persona_id if ident.is_persona else None,
             voted_by_user_id=ident.user_id if not ident.is_persona else None,
             value=value,
         )
-        db.session.add(existing)
+        db.session.add(new_vote)
 
-    if value == 1:
-        post.upvotes += 1
-    else:
-        post.downvotes += 1
-
+    # Commit the vote change first
     db.session.commit()
+
+    # Recalculate counts strictly from the database to ensure accuracy and self-healing
+    # This fixes any previous drift or double-counting bugs
+    post.upvotes = Vote.query.filter_by(post_id=post_id, value=1).count()
+    post.downvotes = Vote.query.filter_by(post_id=post_id, value=-1).count()
+    
+    db.session.commit()
+
     return jsonify(
         {
             "success": True,
@@ -383,18 +375,7 @@ def add_comment_api(post_id: int):
             if not parent or parent.post_id != post.id:
                 return jsonify({"success": False, "error": "Invalid parent comment."}), 400
             
-            # SAFETY: Check nesting depth to prevent excessive nesting
-            depth = 0
-            current = parent
-            while current and current.parent_comment_id and depth < 10:  # Safety limit
-                current = Comment.query.get(current.parent_comment_id)
-                depth += 1
-            
-            if depth >= 3:  # Max depth of 3 levels
-                return jsonify({
-                    "success": False, 
-                    "error": "Maximum reply depth reached. Please reply to a higher-level comment."
-                }), 400
+
                 
         except (ValueError, TypeError):
             return jsonify({"success": False, "error": "Invalid parent comment ID."}), 400

@@ -54,11 +54,30 @@ def persona_profile(persona_id: int):
         .all()
     )
     is_owner = persona.user_id == current_user.id
+    
+    from flask import request
+    view_mode = request.args.get('view', 'posts')
+    current_view = 'posts'
+
+    if view_mode == 'saved' and is_owner:
+        # Fetch posts saved by the persona
+        from models import SavedPost
+        posts = (
+            db.session.query(Post)
+            .join(SavedPost, Post.id == SavedPost.post_id)
+            .filter(SavedPost.saved_by_persona_id == persona.id)
+            .order_by(SavedPost.saved_at.desc())
+            .limit(50)
+            .all()
+        )
+        current_view = 'saved'
+
     return render_template(
         "persona_profile.html",
         persona=persona,
         posts=posts,
         is_owner=is_owner,
+        current_view=current_view
     )
 
 
