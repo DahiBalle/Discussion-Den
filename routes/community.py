@@ -1,5 +1,16 @@
 from __future__ import annotations
 
+"""
+Community Routes Module.
+
+This module handles community-related operations:
+- Viewing a specific community and its posts
+- Listing all communities
+- Creating new communities
+
+Communities act as categories for posts (similar to Subreddits).
+"""
+
 from flask import Blueprint, render_template, abort, flash, redirect, url_for, request
 from flask_login import login_required, current_user
 from sqlalchemy.exc import IntegrityError

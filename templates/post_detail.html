@@ -211,6 +211,7 @@
         {% endif %}
     </footer>
 </article>
+<!-- End Post Card -->
 
 <!-- Comment Form (only shown for authenticated users) -->
 {% if current_user.is_authenticated %}
@@ -241,7 +242,11 @@
     </div>
     <div class="card-body p-4" id="comments-container"
         data-is-authenticated="{{ '1' if current_user.is_authenticated else '0' }}">
-        <!-- Comments will be loaded here -->
+        <!-- 
+            Comments Loading Area
+            - JavaScript (post.js/inline script) fetches comments asynchronously.
+            - Renders them here after processing the adjacency list.
+        -->
         <div class="loading">Loading comments...</div>
     </div>
 </div>
@@ -340,6 +345,7 @@
             return '<p class="text-danger">Error loading comments.</p>';
         }
 
+        // Logic to build tree from flat list (Adjacency List Pattern)
         const commentMap = {};
         const rootComments = [];
         comments.forEach(c => commentMap[c.id] = { ...c, replies: [] });
@@ -351,6 +357,10 @@
             }
         });
 
+        /**
+         * Recursive function to render comment nodes.
+         * Handles nesting, indentation, and reply limits.
+         */
         function renderNode(id, depth) {
             if (depth > 20) {
                 console.warn('Max recursion depth reached for comment', id);

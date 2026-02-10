@@ -3,6 +3,13 @@
 
 <head>
     <!-- Critical: Apply theme immediately before any rendering to prevent FOUC -->
+    <!-- 
+        Theme Logic:
+        1. Checks localStorage for saved theme.
+        2. Defaults to 'dark' if not found.
+        3. Sets 'data-theme' attribute on <html> and <body> tags.
+        4. Executed synchronously to block rendering until theme is set.
+    -->
     <script>
         (function () {
             const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -287,7 +294,12 @@
 </head>
 
 <body>
-    <!-- Enhanced Navigation -->
+    <!-- 
+        Enhanced Navigation 
+        - Sticky top navbar.
+        - Expands for authenticated users.
+        - Contains Brand, Mobile Toggle, Search, and User Menu.
+    -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top {% if current_user.is_authenticated %}navbar-auth-expanded{% endif %}"
         id="main-navbar">
         <div class="container-fluid px-4">
@@ -496,7 +508,10 @@
         </div>
     </nav>
 
-    <!-- Enhanced Offcanvas Sidebar -->
+    <!-- 
+        Enhanced Offcanvas Sidebar (Mobile)
+        - Displays sidebar content on smaller screens.
+    -->
     <div class="offcanvas offcanvas-start offcanvas-enhanced" tabindex="-1" id="sidebarOffcanvas"
         aria-labelledby="sidebarOffcanvasLabel">
         <div class="offcanvas-header">
@@ -515,7 +530,10 @@
         </div>
     </div>
 
-    <!-- Enhanced Right Offcanvas (User Menu) -->
+    <!-- 
+        Enhanced Right Offcanvas (User Menu - Mobile/Tablet)
+        - Provides access to user profile and settings on smaller screens.
+    -->
     {% if current_user.is_authenticated %}
     <div class="offcanvas offcanvas-end offcanvas-enhanced" tabindex="-1" id="userOffcanvas"
         aria-labelledby="userOffcanvasLabel">
@@ -561,7 +579,11 @@
     {% endif %}
     {% endwith %}
 
-    <!-- Main Layout Enhanced -->
+    <!-- 
+        Main Layout Enhanced 
+        - Uses a 2-column grid: Main Content (8 cols) and Right Sidebar (4 cols).
+        - Sidebar is hidden on smaller screens (d-none d-lg-block).
+    -->
     <main class="main-container">
         <div class="container-fluid">
             <div class="row g-4">

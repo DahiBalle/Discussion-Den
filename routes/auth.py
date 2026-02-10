@@ -1,5 +1,17 @@
 from __future__ import annotations
 
+"""
+Authentication Routes Module.
+
+This module handles all user authentication flows, including:
+- User Registration (with OTP verification)
+- User Login/Logout (Session management)
+- Google OAuth Integration (Social Login)
+- Password management (Hashing/Salting)
+
+It uses Flask-Login for session handling and Flask-Mail for sending OTPs.
+"""
+
 from datetime import datetime
 import secrets
 import string
@@ -69,6 +81,9 @@ def _generate_safe_username(email: str) -> str:
 
 @auth_bp.get("/register")
 def register():
+    """
+    Render the registration page.
+    """
     form = RegisterForm()
     return render_template("auth/register.html", form=form)
 
@@ -243,6 +258,12 @@ def resend_otp():
 
 @auth_bp.get("/login")
 def login():
+    """
+    Render the login page.
+    
+    If the user is already logged in, redirects to the feed.
+    Uses a redirect guard to prevent potential loops.
+    """
     # Unified auth experience: redirect to feed with query param so modal opens
     if hasattr(login, "_redirect_guard"):
         # Basic guard to avoid unlikely redirect loops
@@ -285,6 +306,10 @@ def login_post():
 
 @auth_bp.route("/logout",methods=["GET",'POST'])
 def logout():
+    """
+    Log out the current user and clear session data.
+    Redirects to login page.
+    """
     logout_user()
     session.pop("active_persona_id", None)
     flash("Logged out.", "secondary")

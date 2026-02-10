@@ -3,26 +3,33 @@
  * Handles switching between user identity and personas via AJAX
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const personaSwitchOptions = document.querySelectorAll('.persona-switch-option');
     const activeIdentityDisplay = document.getElementById('active-identity-display');
-    
+
     personaSwitchOptions.forEach(option => {
-        option.addEventListener('click', function(e) {
+        option.addEventListener('click', function (e) {
             e.preventDefault();
             const personaId = this.getAttribute('data-persona-id');
             switchPersona(personaId);
         });
     });
-    
+
     /**
-     * Switch active persona via AJAX POST request
-     * Updates session and reloads feed
+     * Switch active persona via AJAX POST request.
+     * 
+     * Process:
+     * 1. Sends new persona_id to backend.
+     * 2. Backend updates the session.
+     * 3. On success, reloads the page to refresh context (User vs Persona).
+     * 
+     * Note: Reloading is necessary because server-side templates render differently
+     * based on the active identity (e.g., avatar, name, permissions).
      */
     function switchPersona(personaId) {
         const formData = new FormData();
         formData.append('persona_id', personaId === 'null' ? '' : personaId);
-        
+
         fetch('/api/persona/switch', {
             method: 'POST',
             body: formData,
@@ -30,30 +37,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 'X-CSRFToken': getCSRFToken()
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update display
-                if (activeIdentityDisplay) {
-                    if (data.persona_id) {
-                        activeIdentityDisplay.innerHTML = '<span class="persona-badge">Persona</span>';
-                    } else {
-                        activeIdentityDisplay.innerHTML = '<span class="user-badge">User</span>';
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update display
+                    if (activeIdentityDisplay) {
+                        if (data.persona_id) {
+                            activeIdentityDisplay.innerHTML = '<span class="persona-badge">Persona</span>';
+                        } else {
+                            activeIdentityDisplay.innerHTML = '<span class="user-badge">User</span>';
+                        }
                     }
+
+                    // Reload page to reflect new identity context
+                    window.location.reload();
+                } else {
+                    alert('Failed to switch persona: ' + (data.error || 'Unknown error'));
                 }
-                
-                // Reload page to reflect new identity context
-                window.location.reload();
-            } else {
-                alert('Failed to switch persona: ' + (data.error || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            console.error('Error switching persona:', error);
-            alert('Error switching persona. Please try again.');
-        });
+            })
+            .catch(error => {
+                console.error('Error switching persona:', error);
+                alert('Error switching persona. Please try again.');
+            });
     }
-    
+
     /**
      * Get CSRF token from meta tag or cookie
      */

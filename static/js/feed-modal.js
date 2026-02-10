@@ -3,7 +3,7 @@
  * Handles opening posts in a modal and loading comments.
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeFeedModal();
 });
 
@@ -11,21 +11,23 @@ function initializeFeedModal() {
     const feedContainer = document.getElementById('feed-container');
     const modalEl = document.getElementById('postDetailModal');
     if (!modalEl) return;
-    
+
     const modal = new bootstrap.Modal(modalEl);
     let currentPostId = null;
 
     // Delegate click events for "Comment" buttons and post titles/cards
-    feedContainer.addEventListener('click', function(e) {
+    // Event delegation is used because posts are added dynamically via infinite scroll.
+    // Attaching listeners to `feedContainer` ensures they work for new posts too.
+    feedContainer.addEventListener('click', function (e) {
         // Check if clicked element or parent is a comment button or link to post
         const commentBtn = e.target.closest('a[href*="/post/"], button.btn-action-enhanced:has(.fa-comments)');
         const postLink = e.target.closest('.post-title-enhanced a');
-        
+
         // Prevent default navigation if it's a link to a post
         if (commentBtn || postLink) {
             const target = commentBtn || postLink;
             const href = target.getAttribute('href') || target.dataset.href;
-            
+
             // Extract post ID from URL or data attribute
             // URL format: /post/123
             let postId = null;
@@ -49,13 +51,13 @@ function initializeFeedModal() {
     // Handle comment form submission in modal
     const commentForm = document.getElementById('modal-comment-form');
     if (commentForm) {
-        commentForm.addEventListener('submit', function(e) {
+        commentForm.addEventListener('submit', function (e) {
             e.preventDefault();
             if (!currentPostId) return;
-            
+
             const formData = new FormData(commentForm);
             const body = formData.get('body');
-            
+
             submitComment(currentPostId, body, null, () => {
                 commentForm.reset();
                 loadModalComments(currentPostId);
@@ -66,7 +68,7 @@ function initializeFeedModal() {
 
 function openPostModal(modal, postId) {
     modal.show();
-    
+
     // Show loading state
     document.getElementById('modal-post-content').innerHTML = `
         <div class="text-center p-5">
@@ -76,7 +78,7 @@ function openPostModal(modal, postId) {
         </div>
     `;
     document.getElementById('modal-comments-container').innerHTML = '<div class="text-center text-muted">Loading comments...</div>';
-    
+
     // Fetch Post Details
     fetch(`/api/post/${postId}`)
         .then(res => res.json())
@@ -162,11 +164,13 @@ function renderAuthorBadge(post) {
 }
 
 // Reusing logic from post.js but adapted for generic usage
+// Recursively renders nested comments
 function renderComments(comments, inModal = false) {
-    // Build comment tree
+    // Build comment tree (Adjacency List -> Tree)
+    // Map each comment by ID and initialize replies array
     const commentMap = {};
     const rootComments = [];
-    comments.forEach(c => commentMap[c.id] = {...c, replies: []});
+    comments.forEach(c => commentMap[c.id] = { ...c, replies: [] });
     comments.forEach(c => {
         if (c.parent_comment_id && commentMap[c.parent_comment_id]) {
             commentMap[c.parent_comment_id].replies.push(c.id);
@@ -175,14 +179,16 @@ function renderComments(comments, inModal = false) {
         }
     });
 
+    // Recursive render function
     const renderNode = (id, depth) => {
         const c = commentMap[id];
         if (!c) return '';
         const authorName = c.author.name || c.author.username || 'Unknown';
-        const badge = c.author.type === 'persona' 
-            ? '<span class="badge bg-purple text-white me-2">Persona</span>' 
+        const badge = c.author.type === 'persona'
+            ? '<span class="badge bg-purple text-white me-2">Persona</span>'
             : '<span class="badge bg-secondary text-white me-2">User</span>';
-            
+
+        // Indentation for nested replies
         return `
             <div class="comment mb-3" style="margin-left: ${depth * 20}px; border-left: 2px solid var(--border-color); padding-left: 15px;">
                 <div class="d-flex align-items-center mb-1">
@@ -199,7 +205,7 @@ function renderComments(comments, inModal = false) {
                     <button class="btn btn-sm btn-primary" onclick="submitReplyInline(${c.id}, ${c.post_id})">Post Reply</button>
                     <button class="btn btn-sm btn-outline-secondary" onclick="toggleReplyForm(${c.id})">Cancel</button>
                 </div>
-                <!-- Replies -->
+                <!-- Recursively render replies -->
                 ${c.replies.map(rid => renderNode(rid, depth + 1)).join('')}
             </div>
         `;
@@ -232,14 +238,14 @@ function submitComment(postId, body, parentId, callback) {
         },
         body: JSON.stringify({ body, parent_comment_id: parentId })
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            callback();
-        } else {
-            alert(data.error || 'Failed to comment');
-        }
-    });
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                callback();
+            } else {
+                alert(data.error || 'Failed to comment');
+            }
+        });
 }
 
 // Helpers
@@ -271,8 +277,8 @@ function handleVoteInline(e, postId, value) {
     // For now, just simplistic fetch
     fetch(`/api/post/${postId}/vote`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
-        body: JSON.stringify({vote: value})
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify({ vote: value })
     }).then(res => res.json()).then(data => {
         if (data.success) {
             // Update modal UI
@@ -280,7 +286,7 @@ function handleVoteInline(e, postId, value) {
             const downSpan = e.target.closest('.action-group').querySelector('.vote-count-down');
             if (upSpan) upSpan.textContent = data.upvotes;
             if (downSpan) downSpan.textContent = data.downvotes;
-            
+
             // Toggle classes
             const btns = e.target.closest('.action-group').querySelectorAll('.vote-btn');
             btns.forEach(b => b.classList.remove('voted-up', 'voted-down'));
@@ -296,8 +302,8 @@ function handleSaveInline(e, postId) {
     const isSaved = btn.classList.contains('saved');
     fetch(`/api/post/${postId}/save`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
-        body: JSON.stringify({save: !isSaved})
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify({ save: !isSaved })
     }).then(res => res.json()).then(data => {
         if (data.success) {
             if (data.is_saved) {

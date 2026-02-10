@@ -8,7 +8,12 @@
 {% endblock %}
 
 {% block content %}
-<!-- Trending Carousel -->
+<!-- 
+    Trending Carousel 
+    - Displays a carousel of trending posts.
+    - Conditionally rendered if `trending_posts` data is available.
+    - Uses Bootstrap 5 Carousel component.
+-->
 {% if trending_posts %}
 <div id="trendingCarousel" class="carousel slide trending-carousel mb-4" data-bs-ride="carousel">
     <div class="carousel-indicators">
@@ -168,6 +173,13 @@
 <!-- Feed Container -->
 <div id="feed-container">
     {% if posts and posts|length > 0 %}
+    <!-- 
+            Post Card Loop 
+            - Iterates through `posts` to render each post.
+            - Includes Author/Persona badge logic.
+            - Renders Action Buttons (Vote, Save, Comment, Share).
+            - Includes hidden Inline Comment Section for quick interactions.
+        -->
     {% for post in posts %}
     <article class="post-card-enhanced hover-lift" data-post-id="{{ post.id }}">
         <header class="post-header-enhanced">

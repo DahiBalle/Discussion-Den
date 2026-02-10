@@ -107,7 +107,10 @@ function reloadComments(postId) {
 }
 
 function renderComments(comments) {
-    // Build Map
+    // Build Map (Adjacency List -> Tree structure)
+    // 1. Initialize map with all comments
+    // 2. Identify root comments (no parent_id)
+    // 3. Populate replies arrays for each comment
     const commentMap = {};
     const rootComments = [];
     comments.forEach(c => commentMap[c.id] = { ...c, replies: [] });
@@ -133,7 +136,8 @@ function renderComments(comments) {
             ? '<span class="badge bg-purple text-white ms-2" style="font-size: 0.7em;">Persona</span>'
             : '';
 
-        // Logic for limiting replies (nested)
+        // Limit visible replies to keep UI clean
+        // Shows only 1 reply by default, hides the rest behind a "View more" button
         const replyLimit = 1;
         const totalReplies = c.replies.length;
         let visibleReplies = c.replies;

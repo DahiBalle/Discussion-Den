@@ -11,27 +11,36 @@ from extensions import csrf, db, login_manager, oauth, limiter, mail
 
 def create_app() -> Flask:
     """
-    Application factory.
+    Application factory for the Flask app.
+    
+    Initializes the Flask application, loads configuration,
+    initializes extensions (DB, Auth, etc.), and registers blueprints.
 
-    Why: keeps initialization clean, testable, and avoids circular imports between
-    models, forms, and blueprints.
+    Returns:
+        Flask: The initialized Flask application instance.
     """
+    # Load environment variables from .env file
     load_dotenv()
 
     app = Flask(__name__)
+    
+    # SECRET_KEY is used for signing cookies and CSRF tokens.
+    # Default to a dev key if not provided (should be overridden in production).
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-not-for-production")
 
+    # Database Configuration (PostgreSQL)
     database_url = os.environ.get("DATABASE_URL")
     if not database_url:
         raise RuntimeError(
             "DATABASE_URL is required (PostgreSQL). Set it in your environment or .env."
         )
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # Disable unnecessary event tracking
 
-    db.init_app(app)
-    csrf.init_app(app)
-    limiter.init_app(app)
+    # Initialize Extensions with the app
+    db.init_app(app)       # Database
+    csrf.init_app(app)     # CSRF Protection
+    limiter.init_app(app)  # Rate Limiter
     
     # Mail Configuration
     app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER')
@@ -49,6 +58,8 @@ def create_app() -> Flask:
     login_manager.login_message_category = "warning"
 
     # Initialize Google OAuth (OPTIONAL - graceful if not configured)
+    # Tries to register the Google provider. If credentials are missing,
+    # it logs a warning but allows the app to start (fallback to local auth).
     oauth.init_app(app)
     try:
         google_client_id = os.environ.get("GOOGLE_CLIENT_ID")
@@ -116,6 +127,10 @@ def create_app() -> Flask:
 
     @app.route("/")
     def index():
+        """
+        Root route.
+        Redirects users to the main feed, which differs based on login status.
+        """
         return redirect(url_for("feed.feed"))
 
     # CLI helpers for grading/demo
@@ -295,6 +310,13 @@ def create_app() -> Flask:
 
 
 def register_cli(app: Flask) -> None:
+    """
+    Registers custom Flask CLI commands.
+    
+    Commands:
+    - flask init-db: Creates database tables.
+    - flask seed: Populates the database with demo data.
+    """
     @app.cli.command("init-db")
     def init_db():
         """Create all tables."""

@@ -1,5 +1,15 @@
 from __future__ import annotations
 
+"""
+Forms Module.
+
+This module defines the WTForms used for data validation and rendering.
+It includes forms for:
+- Authentication (Login, Register)
+- Content Creation (Posts, Comments, Communities)
+- Profile Editing (User, Persona)
+"""
+
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, EmailField, PasswordField, StringField, TextAreaField
 from wtforms.validators import Email, EqualTo, InputRequired, Length, Optional, URL

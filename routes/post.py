@@ -1,5 +1,18 @@
 from __future__ import annotations
 
+"""
+Post Routes Module.
+
+This module handles all post-related operations:
+- Viewing post details
+- Creating new posts
+- Editing and deleting posts
+- Adding, editing, and deleting comments
+
+It enforces permissions (users can only edit/delete their own content)
+and handles identity switching (posting as User vs Persona).
+"""
+
 from flask import Blueprint, abort, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
@@ -14,6 +27,11 @@ post_bp = Blueprint("post", __name__)
 
 @post_bp.get("/post/<int:post_id>")
 def post_detail(post_id: int):
+    """
+    Display a single post and its comments.
+    
+    Loads authentication-specific data (votes/saves) if the user is logged in.
+    """
     post = Post.query.get_or_404(post_id)
     # Only resolve identity and personalized data for authenticated users
     post.user_vote = 0
@@ -152,6 +170,10 @@ def create_post_post():
 @login_required
 @limiter.limit("10 per minute")
 def add_comment(post_id: int):
+    """
+    Add a new comment to a post.
+    Supports threaded comments (replies) via parent_comment_id.
+    """
     post = Post.query.get_or_404(post_id)
     form = CommentForm()
     if not form.validate_on_submit():

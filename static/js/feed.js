@@ -24,24 +24,35 @@ document.addEventListener('DOMContentLoaded', function() {
 /**
  * Setup infinite scroll for feed
  */
+/**
+ * Setup infinite scroll for feed.
+ * 
+ * Logic:
+ * 1. Checks if server-side rendered posts exist (Page 1).
+ * 2. If so, initializes `currentPage` to 2.
+ * 3. Uses a scroll event listener to detect when user is near bottom.
+ * 4. Threshold is set to 1000px to pre-load content before user hits bottom.
+ */
 function setupInfiniteScroll() {
     const feedContainer = document.getElementById('feed-container');
     if (!feedContainer) return;
     
     // Check if there are already posts rendered server-side
+    // This allows us to combine SEO-friendly SSR with dynamic infinite scroll
     const existingPosts = feedContainer.querySelectorAll('.post-card');
     if (existingPosts.length === 0) {
-        // Load first page if no posts exist
+        // Load first page if no posts exist (e.g., if template rendered empty container)
         loadMorePosts();
     } else {
-        // Start from page 2 if posts already exist
+        // Start from page 2 if posts already exist to avoid duplicating Page 1
         currentPage = 2;
     }
     
     window.addEventListener('scroll', function() {
         if (isLoading || !hasMore) return;
         
-        // Check if user is near bottom of page
+        // Check if user is near bottom of page (within 1000px)
+        // Large threshold ensures seamless experience on fast connections
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
             loadMorePosts();
         }
@@ -50,6 +61,16 @@ function setupInfiniteScroll() {
 
 /**
  * Load more posts via AJAX
+ */
+/**
+ * Load more posts via AJAX.
+ * 
+ * Interaction Flow:
+ * 1. Sets loading state to prevent duplicate requests.
+ * 2. Fetches next page of posts from `/api/feed`.
+ * 3. Appends new posts to the container.
+ * 4. Updates `currentPage` and `hasMore` flags.
+ * 5. Handles empty states and errors with user-friendly UI.
  */
 function loadMorePosts() {
     if (isLoading || !hasMore) return;
