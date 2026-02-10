@@ -2532,3 +2532,89 @@ button:focus,
     letter-spacing: 5px;
     font-size: 24px;
 }
+
+/* =========================================
+   Profile Page Styles (Persona & User)
+   ========================================= */
+
+.profile-header {
+    position: relative;
+    margin-bottom: var(--space-8);
+}
+
+.profile-banner {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: var(--border-radius-lg);
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+}
+
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 4px solid var(--bg-primary);
+    /* Create cutout effect */
+    margin-top: -75px;
+    /* Overlap banner */
+    margin-left: var(--space-6);
+    object-fit: cover;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    z-index: 2;
+    background-color: var(--bg-tertiary);
+}
+
+.profile-name {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+}
+
+.profile-bio {
+    color: var(--text-secondary);
+    font-size: var(--text-base);
+    margin-top: var(--space-2);
+    max-width: 600px;
+}
+
+/* Adjust the content container to align with avatar */
+.profile-header .d-flex.justify-content-between {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+    margin-top: var(--space-2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        margin-top: -60px;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+
+    .profile-header .d-flex.justify-content-between {
+        flex-direction: column;
+        align-items: center !important;
+        text-align: center;
+        padding-left: var(--space-4);
+        padding-right: var(--space-4);
+    }
+
+    .profile-header .d-flex.justify-content-between>div {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-bio {
+        margin-left: auto;
+        margin-right: auto;
+    }
+}

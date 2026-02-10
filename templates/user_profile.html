@@ -8,6 +8,10 @@
         <div class="col-lg-8 mx-auto">
             <!-- Profile Header -->
             <div class="profile-header">
+                <!-- Default User Banner (Gradient) since User model has no banner field -->
+                <div class="profile-banner"
+                    style="background: linear-gradient(135deg, var(--accent-primary), var(--bg-tertiary));"></div>
+
                 {% if user.avatar %}
                 <img src="{{ user.avatar }}" alt="{{ user.username }}" class="profile-avatar">
                 {% else %}
@@ -17,17 +21,18 @@
                 </div>
                 {% endif %}
 
-                <div
-                    class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start">
-                    <div class="text-center text-md-start">
-                        <h1 class="profile-name">{{ user.username }}</h1>
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <h1 class="profile-name mb-0">{{ user.username }}</h1>
+                        </div>
                         {% if user.bio %}
                         <p class="profile-bio">{{ user.bio }}</p>
                         {% endif %}
 
                         <!-- Public Personas -->
                         {% if public_personas %}
-                        <div class="persona-list mt-3 justify-content-center justify-content-md-start">
+                        <div class="persona-list mt-3">
                             <span class="text-muted-custom me-2">Public Personas:</span>
                             {% for persona in public_personas %}
                             <a href="{{ url_for('persona.persona_profile', persona_id=persona.id) }}"
@@ -41,8 +46,9 @@
                     </div>
 
                     {% if is_owner %}
-                    <div class="d-flex flex-column w-100 w-md-auto mt-3 mt-md-0" style="gap: 10px;">
-                        <a href="{{ url_for('profile.edit_profile') }}" class="btn btn-secondary w-100">Edit Profile</a>
+                    <div class="d-flex flex-column" style="gap: 10px;">
+                        <a href="{{ url_for('profile.edit_profile') }}"
+                            class="btn btn-outline-secondary rounded-pill px-4">Edit Profile</a>
                     </div>
                     {% endif %}
                 </div>
