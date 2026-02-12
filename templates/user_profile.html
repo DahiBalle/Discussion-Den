@@ -161,7 +161,7 @@
                                     <i class="fas fa-comments"></i>
                                     <span>{{ post.comment_count or 0 }} Comments</span>
                                 </a>
-                                <button class="btn-action-enhanced share-btn" onclick="sharePost({{ post.id }})">
+                                <button class="btn-action-enhanced share-btn" onclick="sharePost('{{ post.id }}')">
                                     <i class="fas fa-share"></i>
                                     <span>Share</span>
                                 </button>
