@@ -31,6 +31,20 @@
       {
         "select-name": "off"
       }
-    ]
-  }
+    ],
+    "css-prefix-order": "off"
+  },
+  "browserslist": [
+    "defaults",
+    "not ie 11",
+    "not and_chr <= 144",
+    "not and_ff <= 147",
+    "not chrome <= 144",
+    "not edge <= 144",
+    "not firefox <= 147",
+    "not ios_saf <= 26.2",
+    "not opera <= 125",
+    "not safari <= 26.2",
+    "not samsung <= 29"
+  ]
 }
