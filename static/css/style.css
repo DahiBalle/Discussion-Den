@@ -308,7 +308,7 @@ a:hover {
 
 /* Nuclear fix - force ALL elements inside navbar to be transparent 
    EXCEPT for search elements and dropdown menus */
-#main-navbar *:not(.btn):not(button):not(input):not(.search-btn):not(.search-container):not(.dropdown-menu):not(.dropdown-item):not(.dropdown-divider):not(.dropdown-header) {
+#main-navbar *:not(.btn):not(button):not(input):not(.search-btn):not(.search-container):not(.dropdown-menu):not(.dropdown-item):not(.dropdown-divider):not(.dropdown-header):not(.search-suggestions-dropdown):not(.search-suggest-section):not(.search-suggest-item):not(.search-suggest-notfound) {
     background-color: transparent !important;
 }
 
@@ -318,7 +318,7 @@ a:hover {
 }
 
 /* Target any divs inside navbar */
-#main-navbar div:not(.search-container):not(.brand-icon):not(.dropdown-menu-enhanced):not(.dropdown-item) {
+#main-navbar div:not(.search-container):not(.brand-icon):not(.dropdown-menu-enhanced):not(.dropdown-item):not(.search-suggestions-dropdown):not(.search-suggest-section):not(.search-suggest-notfound) {
     background-color: transparent !important;
 }
 
@@ -633,6 +633,19 @@ a:hover {
 .search-suggest-notfound:hover {
     background: var(--bg-card);
     color: var(--text-muted);
+}
+
+/* Specific overrides to ensure search suggestions are NOT transparent */
+#main-navbar .search-suggestions-dropdown {
+    background-color: var(--bg-card) !important;
+}
+
+#main-navbar .search-suggest-section {
+    background-color: var(--bg-tertiary) !important;
+}
+
+#main-navbar .search-suggest-item:hover {
+    background-color: var(--bg-hover) !important;
 }
 
 /* Enhanced Persona Switcher */

@@ -156,6 +156,10 @@ class Post(db.Model):
         back_populates="post", cascade="all, delete-orphan"
     )
 
+    # Cascading deletes for Votes and Saves
+    votes: Mapped[list["Vote"]] = relationship("Vote", cascade="all, delete-orphan")
+    saved_posts: Mapped[list["SavedPost"]] = relationship("SavedPost", cascade="all, delete-orphan")
+
     __table_args__ = (
         # Constraint: Ensure a post has exactly one author source (User OR Persona)
         CheckConstraint(

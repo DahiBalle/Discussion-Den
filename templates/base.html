@@ -392,10 +392,10 @@
                         <a class="nav-link dropdown-toggle persona-switcher" href="#" id="personaDropdown" role="button"
                             data-bs-toggle="dropdown">
                             <div class="persona-display" id="active-identity-display">
-                                {% if session.get('active_persona_id') %}
+                                {% if active_persona %}
                                 <div class="persona-badge-enhanced persona">
                                     <i class="fas fa-mask"></i>
-                                    <span>Persona</span>
+                                    <span>{{ active_persona.name }}</span>
                                 </div>
                                 {% else %}
                                 <div class="persona-badge-enhanced user">

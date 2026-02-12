@@ -172,7 +172,21 @@
     <div class="post-body-enhanced">{{ post.body }}</div>
     {% endif %}
     {% if post.image_url %}
+    {% set yt_id = post.image_url|youtube_id %}
+    {% if yt_id %}
+    <div class="ratio ratio-16x9 mb-3 rounded overflow-hidden shadow-md">
+        <iframe src="https://www.youtube.com/embed/{{ yt_id }}" title="YouTube video player" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe>
+    </div>
+    {% elif post.image_url.lower().endswith(('.mp4', '.webm', '.ogg')) %}
+    <video controls class="post-image-enhanced" style="width: 100%; max-height: 480px;">
+        <source src="{{ post.image_url }}">
+        Your browser does not support the video tag.
+    </video>
+    {% else %}
     <img src="{{ post.image_url }}" alt="Post image" class="post-image-enhanced">
+    {% endif %}
     {% endif %}
 
     <footer class="action-buttons-enhanced">
@@ -203,7 +217,7 @@
             <a href="{{ url_for('post.edit_post', post_id=post.id) }}" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-edit"></i> Edit
             </a>
-            <button class="btn btn-sm btn-outline-danger" onclick="confirmDeletePost({{ post.id }})">
+            <button class="btn btn-sm btn-outline-danger" onclick="confirmDeletePost('{{ post.id }}')">
                 <i class="fas fa-trash"></i> Delete
             </button>
         </div>

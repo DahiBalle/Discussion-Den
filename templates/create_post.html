@@ -6,11 +6,11 @@
 <div class="mb-4">
     <h1 class="h2 mb-2">Create a New Post</h1>
     <p class="text-muted-custom">
-        Posting as: 
+        Posting as:
         {% if active_identity.is_persona %}
-            <span class="persona-badge">Persona</span> <strong>{{ active_identity.label }}</strong>
+        <span class="persona-badge">Persona</span> <strong>{{ active_identity.label }}</strong>
         {% else %}
-            <span class="user-badge">User</span> <strong>{{ active_identity.label }}</strong>
+        <span class="user-badge">User</span> <strong>{{ active_identity.label }}</strong>
         {% endif %}
     </p>
 </div>
@@ -19,49 +19,51 @@
     <div class="card-body p-4">
         <form method="POST" action="{{ url_for('post.create_post_post') }}">
             {{ form.hidden_tag() }}
-            
+
             <div class="mb-4">
                 <label class="form-label">Community</label>
                 <select name="community_id" class="form-select form-select-lg" required>
                     {% for community in communities %}
-                    <option value="{{ community.id }}" {% if community.id == 1 %}selected{% endif %}>
+                    <option value="{{ community.id }}" {% if community.id==1 %}selected{% endif %}>
                         r/{{ community.name }}
                     </option>
                     {% endfor %}
                 </select>
             </div>
-            
+
             <div class="mb-4">
                 {{ form.title.label(class="form-label") }}
                 {{ form.title(class="form-control form-control-lg", placeholder="What's on your mind?") }}
                 {% if form.title.errors %}
-                    <div class="text-danger small mt-2">
-                        {% for error in form.title.errors %}{{ error }}{% endfor %}
-                    </div>
+                <div class="text-danger small mt-2">
+                    {% for error in form.title.errors %}{{ error }}{% endfor %}
+                </div>
                 {% endif %}
             </div>
-            
+
             <div class="mb-4">
                 {{ form.body.label(class="form-label") }}
-                {{ form.body(class="form-control", rows="10", placeholder="Share your thoughts, ask a question, or start a discussion...") }}
+                {{ form.body(class="form-control", rows="10", placeholder="Share your thoughts, ask a question, or start
+                a discussion...") }}
                 {% if form.body.errors %}
-                    <div class="text-danger small mt-2">
-                        {% for error in form.body.errors %}{{ error }}{% endfor %}
-                    </div>
+                <div class="text-danger small mt-2">
+                    {% for error in form.body.errors %}{{ error }}{% endfor %}
+                </div>
                 {% endif %}
             </div>
-            
+
             <div class="mb-4">
-                {{ form.image_url.label(class="form-label") }}
-                {{ form.image_url(class="form-control", placeholder="https://example.com/image.jpg (optional)") }}
+                <label class="form-label" for="image_url">Media URL (Image, Video, or YouTube)</label>
+                {{ form.image_url(class="form-control", placeholder="https://.../image.jpg, .mp4, or YouTube URL") }}
                 {% if form.image_url.errors %}
-                    <div class="text-danger small mt-2">
-                        {% for error in form.image_url.errors %}{{ error }}{% endfor %}
-                    </div>
+                <div class="text-danger small mt-2">
+                    {% for error in form.image_url.errors %}{{ error }}{% endfor %}
+                </div>
                 {% endif %}
-                <div class="form-text text-muted-custom">Add an image to make your post more engaging (optional)</div>
+                <div class="form-text text-muted-custom">Paste a URL to an image, MP4 video, or YouTube video to embed
+                    it.</div>
             </div>
-            
+
             <div class="d-flex gap-3">
                 <button type="submit" class="btn btn-primary btn-lg">Publish Post</button>
                 <a href="{{ url_for('feed.feed') }}" class="btn btn-secondary btn-lg">Cancel</a>

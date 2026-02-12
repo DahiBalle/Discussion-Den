@@ -68,8 +68,7 @@
                 <div class="card-body">
                     {% if user_posts %}
                     {% for post in user_posts %}
-                    {% if current_view == 'saved' %}
-                    <!-- Feed-style Post Card for Saved Posts -->
+                    <!-- Feed-style Post Card for All Posts -->
                     <article class="post-card-enhanced hover-lift mb-4" data-post-id="{{ post.id }}">
                         <header class="post-header-enhanced">
                             {% if post.author_persona_id %}
@@ -83,7 +82,19 @@
                                 <span>User</span>
                             </div>
                             {% endif %}
-                            <span class="post-author">{{ post.author_name }}</span>
+                            <span class="post-author">
+                                {% if post.author_persona_id %}
+                                <a href="{{ url_for('persona.persona_profile', persona_id=post.author_persona_id) }}"
+                                    style="color: inherit; text-decoration: none;">
+                                    {{ post.author_name }}
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for('profile.user_profile', username=post.author_name) }}"
+                                    style="color: inherit; text-decoration: none;">
+                                    {{ post.author_name }}
+                                </a>
+                                {% endif %}
+                            </span>
                             <span class="text-muted">•</span>
                             <time class="post-meta">{{ post.created_at|timeago }}</time>
                             {% if post.community %}
@@ -106,7 +117,22 @@
                         {% endif %}
 
                         {% if post.image_url %}
+                        {% set yt_id = post.image_url|youtube_id %}
+                        {% if yt_id %}
+                        <div class="ratio ratio-16x9 mb-3 rounded overflow-hidden shadow-md">
+                            <iframe src="https://www.youtube.com/embed/{{ yt_id }}" title="YouTube video player"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
+                        </div>
+                        {% elif post.image_url.lower().endswith(('.mp4', '.webm', '.ogg')) %}
+                        <video controls class="post-image-enhanced" style="width: 100%; max-height: 480px;">
+                            <source src="{{ post.image_url }}">
+                            Your browser does not support the video tag.
+                        </video>
+                        {% else %}
                         <img src="{{ post.image_url }}" alt="Post image" class="post-image-enhanced">
+                        {% endif %}
                         {% endif %}
 
                         <footer class="action-buttons-enhanced">
@@ -142,37 +168,6 @@
                             </div>
                         </footer>
                     </article>
-                    {% else %}
-                    <!-- Standard Profile Post Card -->
-                    <div class="post-card mb-3" style="padding: var(--spacing-md);">
-                        <div class="post-header">
-                            <span class="user-badge">User</span>
-                            <span class="post-author">{{ user.username }}</span>
-                            <span class="text-muted-custom">•</span>
-                            <span class="post-meta">{{ post.created_at|timeago }}</span>
-                            {% if post.community %}
-                            <span class="text-muted-custom">•</span>
-                            <span class="post-meta">r/{{ post.community.name }}</span>
-                            {% endif %}
-                        </div>
-                        <h4 class="post-title">
-                            <a href="{{ url_for('post.post_detail', post_id=post.id) }}"
-                                style="color: inherit; text-decoration: none;">
-                                {{ post.title }}
-                            </a>
-                        </h4>
-                        {% if post.body %}
-                        <div class="post-body">{{ post.body[:200] }}{% if post.body|length > 200 %}...{% endif %}</div>
-                        {% endif %}
-                        <div class="action-buttons mt-2">
-                            <span class="text-muted-custom">▲ {{ post.upvotes or 0 }}</span>
-                            <span class="text-muted-custom">▼ {{ post.downvotes or 0 }}</span>
-                            <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn-action">
-                                💬 {{ post.comments|length }} Comments
-                            </a>
-                        </div>
-                    </div>
-                    {% endif %}
                     {% endfor %}
                     {% else %}
                     <p class="text-muted-custom text-center py-4">No posts yet.</p>
@@ -182,4 +177,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/feed.js') }}"></script>
 {% endblock %}

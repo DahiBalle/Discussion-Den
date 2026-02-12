@@ -207,8 +207,17 @@ def create_app() -> Flask:
         return {
             "google_oauth_configured": (
                 hasattr(oauth, "_registry") and "google" in oauth._registry
-        )
-    }
+            )
+        }
+
+    @app.context_processor
+    def inject_active_persona():
+        """
+        Inject the active persona object into templates.
+        This allows access to the persona's name and other details globally.
+        """
+        from routes.utils import get_active_persona
+        return {'active_persona': get_active_persona()}
 
     
     @app.template_filter('timeago')
@@ -305,6 +314,24 @@ def create_app() -> Flask:
             # Log the error for debugging but return a safe fallback value
             print(f"WARNING: timeago filter error: {e}, dt={dt}")
             return 'recently'  # Safe fallback that's always user-friendly
+
+    @app.template_filter('youtube_id')
+    def youtube_id_filter(url):
+        """
+        Extract YouTube ID from URL. 
+        Supports:
+        - youtube.com/watch?v=ID
+        - youtu.be/ID
+        - youtube.com/embed/ID
+        """
+        if not url:
+            return None
+        
+        import re
+        # Regex to capture the ID from various YouTube URL formats
+        regex = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
+        match = re.search(regex, url)
+        return match.group(1) if match else None
 
     return app
 

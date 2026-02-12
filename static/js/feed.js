@@ -7,16 +7,13 @@ let currentPage = 1;
 let isLoading = false;
 let hasMore = true;
 
-document.addEventListener('DOMContentLoaded', function() {
-    const feedContainer = document.getElementById('feed-container');
-    if (!feedContainer) return;
-    
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize infinite scroll
     setupInfiniteScroll();
-    
+
     // Setup vote buttons
     setupVoteButtons();
-    
+
     // Setup save buttons
     setupSaveButtons();
 });
@@ -36,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupInfiniteScroll() {
     const feedContainer = document.getElementById('feed-container');
     if (!feedContainer) return;
-    
+
     // Check if there are already posts rendered server-side
     // This allows us to combine SEO-friendly SSR with dynamic infinite scroll
     const existingPosts = feedContainer.querySelectorAll('.post-card');
@@ -47,10 +44,10 @@ function setupInfiniteScroll() {
         // Start from page 2 if posts already exist to avoid duplicating Page 1
         currentPage = 2;
     }
-    
-    window.addEventListener('scroll', function() {
+
+    window.addEventListener('scroll', function () {
         if (isLoading || !hasMore) return;
-        
+
         // Check if user is near bottom of page (within 1000px)
         // Large threshold ensures seamless experience on fast connections
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
@@ -74,15 +71,15 @@ function setupInfiniteScroll() {
  */
 function loadMorePosts() {
     if (isLoading || !hasMore) return;
-    
+
     isLoading = true;
     const loadingIndicator = document.getElementById('loading-indicator');
     if (loadingIndicator) {
         loadingIndicator.style.display = 'block';
     }
-    
+
     console.log(`Loading posts page ${currentPage}...`); // Debug log
-    
+
     fetch(`/api/feed?page=${currentPage}`)
         .then(response => {
             console.log('Feed API response status:', response.status); // Debug log
@@ -90,12 +87,12 @@ function loadMorePosts() {
         })
         .then(data => {
             console.log('Feed API data:', data); // Debug log
-            
+
             if (data.success && data.posts) {
                 const feedContainer = document.getElementById('feed-container');
                 if (feedContainer && data.posts.length > 0) {
                     console.log(`Adding ${data.posts.length} posts to feed`); // Debug log
-                    
+
                     data.posts.forEach((post, index) => {
                         try {
                             const postElement = createPostElement(post);
@@ -104,10 +101,10 @@ function loadMorePosts() {
                             console.error(`Error creating post element ${index}:`, error, post);
                         }
                     });
-                    
+
                     currentPage++;
                     hasMore = data.has_more || false;
-                    
+
                     console.log(`Page ${currentPage - 1} loaded. Has more: ${hasMore}`); // Debug log
                 } else {
                     console.log('No posts in response or no feed container'); // Debug log
@@ -116,7 +113,7 @@ function loadMorePosts() {
             } else {
                 console.log('API response not successful or no posts:', data); // Debug log
                 hasMore = false;
-                
+
                 // Show error message if this is the first page and no posts loaded
                 if (currentPage === 1) {
                     const feedContainer = document.getElementById('feed-container');
@@ -140,7 +137,7 @@ function loadMorePosts() {
         .catch(error => {
             console.error('Error loading posts:', error);
             hasMore = false;
-            
+
             // Show error message if this is the first page
             if (currentPage === 1) {
                 const feedContainer = document.getElementById('feed-container');
@@ -193,7 +190,10 @@ function createPostElement(post) {
         div.innerHTML = `
             <div class="post-header">
                 ${authorBadge}
-                <span class="post-author">${escapeHtml(post.author_name || 'Unknown')}</span>
+                ${post.author_persona_id
+                ? `<span class="post-author"><a href="/persona/${post.author_persona_id}" style="color: inherit; text-decoration: none;">${escapeHtml(post.author_name || 'Unknown')}</a></span>`
+                : `<span class="post-author"><a href="/u/${escapeHtml(post.author_name)}" style="color: inherit; text-decoration: none;">${escapeHtml(post.author_name || 'Unknown')}</a></span>`
+            }
                 <span class="text-muted-custom">•</span>
                 <span class="post-meta">${timeAgo}</span>
                 ${post.community_name ? `<span class="text-muted-custom">•</span><span class="post-meta"><a href="/community/${escapeHtml(post.community_name)}" style="color: var(--accent-primary); text-decoration: none;">r/${escapeHtml(post.community_name)}</a></span>` : ''}
@@ -271,7 +271,9 @@ function handleVote(e) {
     const postId = this.getAttribute('data-post-id');
     const voteValue = parseInt(this.getAttribute('data-vote'));
     const postVoteBtns = document.querySelectorAll('.vote-btn[data-post-id="' + postId + '"]');
-    postVoteBtns.forEach(function(btn) { btn.disabled = true; });
+    postVoteBtns.forEach(function (btn) { btn.disabled = true; });
+    this.style.transform = 'scale(0.95)';
+    this.style.opacity = '0.7';
 
     fetch(`/api/post/${postId}/vote`, {
         method: 'POST',
@@ -281,21 +283,42 @@ function handleVote(e) {
         },
         body: JSON.stringify({ vote: voteValue })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            updateVoteUI(postId, data.vote, data.upvotes, data.downvotes);
-        } else {
-            alert('Failed to vote: ' + (data.error || 'Unknown error'));
-        }
-    })
-    .catch(error => {
-        console.error('Error voting:', error);
-        alert('Error voting. Please try again.');
-    })
-    .finally(function() {
-        postVoteBtns.forEach(function(btn) { btn.disabled = false; });
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateVoteUI(postId, data.vote, data.upvotes, data.downvotes);
+                if (window.DiscussionDenTheme) {
+                    const voteType = data.vote === 1 ? 'upvoted' : data.vote === -1 ? 'downvoted' : 'removed vote';
+                    window.DiscussionDenTheme.showToast(
+                        `Post ${voteType}!`,
+                        'success',
+                        1500
+                    );
+                }
+            } else {
+                if (window.DiscussionDenTheme) {
+                    window.DiscussionDenTheme.showToast(
+                        'Failed to vote: ' + (data.error || 'Unknown error'),
+                        'danger'
+                    );
+                } else {
+                    alert('Failed to vote: ' + (data.error || 'Unknown error'));
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error voting:', error);
+            if (window.DiscussionDenTheme) {
+                window.DiscussionDenTheme.showToast('Error voting. Please try again.', 'danger');
+            } else {
+                alert('Error voting. Please try again.');
+            }
+        })
+        .finally(function () {
+            postVoteBtns.forEach(function (btn) { btn.disabled = false; });
+            this.style.transform = 'scale(1)';
+            this.style.opacity = '1';
+        }.bind(this));
 }
 
 /**
@@ -304,25 +327,31 @@ function handleVote(e) {
 function updateVoteUI(postId, userVote, upvotes, downvotes) {
     const postCard = document.querySelector(`[data-post-id="${postId}"]`);
     if (!postCard) return;
-    
+
     const upBtn = postCard.querySelector(`.vote-btn[data-vote="1"]`);
     const downBtn = postCard.querySelector(`.vote-btn[data-vote="-1"]`);
-    
+
     // Reset classes
     if (upBtn) {
         upBtn.classList.remove('voted-up', 'voted-down');
-        upBtn.innerHTML = `▲ ${upvotes || 0}`;
+        const countSpan = upBtn.querySelector('span');
+        if (countSpan) countSpan.textContent = upvotes || 0;
+        else upBtn.innerHTML = `▲ ${upvotes || 0}`; // Fallback for legacy
     }
     if (downBtn) {
         downBtn.classList.remove('voted-up', 'voted-down');
-        downBtn.innerHTML = `▼ ${downvotes || 0}`;
+        const countSpan = downBtn.querySelector('span');
+        if (countSpan) countSpan.textContent = downvotes || 0;
+        else downBtn.innerHTML = `▼ ${downvotes || 0}`; // Fallback for legacy
     }
-    
-    // Apply new vote state
+
+    // Apply new vote state with animation
     if (userVote === 1 && upBtn) {
         upBtn.classList.add('voted-up');
+        upBtn.style.animation = 'pulse 0.3s ease-out';
     } else if (userVote === -1 && downBtn) {
         downBtn.classList.add('voted-down');
+        downBtn.style.animation = 'pulse 0.3s ease-out';
     }
 }
 
@@ -343,7 +372,10 @@ function handleSave(e) {
     e.preventDefault();
     const postId = this.getAttribute('data-post-id');
     const isCurrentlySaved = this.classList.contains('saved');
-    
+
+    // Add loading animation
+    this.style.transform = 'scale(0.95)';
+
     fetch(`/api/post/${postId}/save`, {
         method: 'POST',
         headers: {
@@ -352,18 +384,43 @@ function handleSave(e) {
         },
         body: JSON.stringify({ save: !isCurrentlySaved })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            updateSaveUI(postId, data.is_saved);
-        } else {
-            alert('Failed to save: ' + (data.error || 'Unknown error'));
-        }
-    })
-    .catch(error => {
-        console.error('Error saving:', error);
-        alert('Error saving. Please try again.');
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateSaveUI(postId, data.is_saved);
+
+                // Show success feedback
+                if (window.DiscussionDenTheme) {
+                    const action = data.is_saved ? 'saved' : 'unsaved';
+                    window.DiscussionDenTheme.showToast(
+                        `Post ${action}!`,
+                        'success',
+                        1500
+                    );
+                }
+            } else {
+                if (window.DiscussionDenTheme) {
+                    window.DiscussionDenTheme.showToast(
+                        'Failed to save: ' + (data.error || 'Unknown error'),
+                        'danger'
+                    );
+                } else {
+                    alert('Failed to save: ' + (data.error || 'Unknown error'));
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error saving:', error);
+            if (window.DiscussionDenTheme) {
+                window.DiscussionDenTheme.showToast('Error saving. Please try again.', 'danger');
+            } else {
+                alert('Error saving. Please try again.');
+            }
+        })
+        .finally(() => {
+            // Restore button state
+            this.style.transform = 'scale(1)';
+        });
 }
 
 /**
@@ -372,17 +429,30 @@ function handleSave(e) {
 function updateSaveUI(postId, isSaved) {
     const postCard = document.querySelector(`[data-post-id="${postId}"]`);
     if (!postCard) return;
-    
+
     const saveBtn = postCard.querySelector('.save-btn');
     if (!saveBtn) return;
-    
+
+    const icon = saveBtn.querySelector('i');
+    const text = saveBtn.querySelector('span');
+
     if (isSaved) {
         saveBtn.classList.add('saved');
-        saveBtn.innerHTML = '★ Saved';
+        if (icon) icon.className = 'fas fa-bookmark';
+        if (text) text.textContent = 'Saved';
+        if (!icon && !text) saveBtn.innerHTML = '★ Saved'; // Fallback
     } else {
         saveBtn.classList.remove('saved');
-        saveBtn.innerHTML = '☆ Save';
+        if (icon) icon.className = 'far fa-bookmark';
+        if (text) text.textContent = 'Save';
+        if (!icon && !text) saveBtn.innerHTML = '☆ Save'; // Fallback
     }
+
+    // Add animation
+    saveBtn.style.animation = 'pulse 0.3s ease-out';
+    setTimeout(() => {
+        saveBtn.style.animation = '';
+    }, 300);
 }
 
 /**
@@ -413,26 +483,26 @@ function formatTimeAgo(dateString) {
     if (!dateString) {
         return 'unknown';
     }
-    
+
     try {
         const date = new Date(dateString + (dateString.includes('Z') ? '' : 'Z'));
         const now = new Date();
-        
+
         if (isNaN(date.getTime())) {
             return 'unknown';
         }
-        
+
         const diffMs = now.getTime() - date.getTime();
-        
+
         if (diffMs < 0) {
             return 'just now';
         }
-        
+
         const diffSeconds = Math.floor(diffMs / 1000);
         const diffMins = Math.floor(diffSeconds / 60);
         const diffHours = Math.floor(diffSeconds / 3600);
         const diffDays = Math.floor(diffSeconds / 86400);
-        
+
         if (diffDays > 365) {
             const years = Math.floor(diffDays / 365);
             return `${years}y ago`;
@@ -449,9 +519,9 @@ function formatTimeAgo(dateString) {
         } else if (diffMins > 0) {
             return `${diffMins}m ago`;
         }
-        
+
         return 'just now';
-        
+
     } catch (error) {
         console.warn('Error formatting time ago:', error);
         return 'unknown';

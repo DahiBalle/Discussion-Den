@@ -71,6 +71,7 @@ def feed():
     # But actually I should remove the line entirely. 
     # Let me just replace the block.
     from models import Post, Vote, SavedPost, Comment
+    from sqlalchemy import or_
     from sqlalchemy.orm import joinedload
     
     # Get all communities for the dropdown with error handling
@@ -133,10 +134,22 @@ def feed():
             joinedload(Post.author_persona)
         )
 
+        is_filtered_feed = False
         if sort_by == 'trending':
             # Simple trending: sort by upvotes (descending)
             # Note: In a real app this would be more complex (recency + engagement)
             query = query.order_by(Post.upvotes.desc())
+        elif sort_by == 'identity' and ident and ident.is_persona:
+            # FILTER: If user selected 'Identity' filter, search for posts about this persona
+            # Using content search (title or body) for the persona's name
+            keyword = ident.active_persona.name
+            search_filter = or_(
+                Post.title.ilike(f"%{keyword}%"),
+                Post.body.ilike(f"%{keyword}%")
+            )
+            query = query.filter(search_filter).order_by(Post.created_at.desc())
+            is_filtered_feed = True
+            print(f"INFO: Filtering feed for keyword '{keyword}'")
         else: # Default to 'new'
             query = query.order_by(Post.created_at.desc())
 
@@ -249,6 +262,7 @@ def feed():
         post_form=form, 
         posts=enhanced_posts,  # SAFETY: Always a list, even if empty
         active_identity=ident,
-        trending_posts=trending_posts
+        trending_posts=trending_posts,
+        is_filtered_feed=is_filtered_feed
     )
 
