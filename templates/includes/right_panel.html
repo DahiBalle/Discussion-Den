@@ -1,4 +1,18 @@
 <!-- Enhanced Right Panel Component -->
+<script>
+    (function () {
+        try {
+            if (localStorage.getItem('dismissed_welcome_card') === 'true') {
+                document.write('<style>.welcome-card { display: none !important; }</style>');
+            }
+            if (localStorage.getItem('dismissed_guidelines_card') === 'true') {
+                document.write('<style>.guidelines-card { display: none !important; }</style>');
+            }
+        } catch (e) {
+            console.error('Error in sidebar script:', e);
+        }
+    })();
+</script>
 <div class="sidebar-right-enhanced">
     <!-- Welcome Card (only when user has not created any post yet) -->
     {% if show_welcome_card %}
@@ -8,6 +22,10 @@
                 <i class="fas fa-comments"></i>
             </div>
             <h6 class="card-title-enhanced">Welcome to Discussion Den</h6>
+            <button type="button" class="btn-close-sidebar ms-auto" onclick="dismissCard(this, 'welcome_card')"
+                aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         <div class="card-body-enhanced">
             <p class="card-description">
@@ -37,6 +55,10 @@
                 <i class="fas fa-shield-alt"></i>
             </div>
             <h6 class="card-title-enhanced">Community Guidelines</h6>
+            <button type="button" class="btn-close-sidebar ms-auto" onclick="dismissCard(this, 'guidelines_card')"
+                aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         <div class="card-body-enhanced">
             <div class="guidelines-list">
@@ -436,4 +458,58 @@
             display: none;
         }
     }
+
+    .btn-close-sidebar {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition-base);
+        padding: 0;
+    }
+
+    .btn-close-sidebar:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        transform: scale(1.1);
+    }
 </style>
+
+<script>
+    function dismissCard(btn, cardId) {
+        const card = btn.closest('.sidebar-card');
+        if (card) {
+            // Animate removal
+            card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95)';
+
+            setTimeout(() => {
+                card.remove();
+            }, 300);
+
+            // Save to local storage
+            localStorage.setItem('dismissed_' + cardId, 'true');
+        }
+    }
+
+    // Check for dismissed cards on load
+    document.addEventListener('DOMContentLoaded', function () {
+        const cards = {
+            'welcome_card': document.querySelector('.welcome-card'),
+            'guidelines_card': document.querySelector('.guidelines-card')
+        };
+
+        for (const [id, el] of Object.entries(cards)) {
+            if (el && localStorage.getItem('dismissed_' + id) === 'true') {
+                el.remove();
+            }
+        }
+    });
+</script>
