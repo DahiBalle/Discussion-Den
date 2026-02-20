@@ -11,8 +11,12 @@ It includes forms for:
 """
 
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import BooleanField, EmailField, PasswordField, StringField, TextAreaField
 from wtforms.validators import Email, EqualTo, InputRequired, Length, Optional, URL
+
+IMAGE_ALLOWED = ['png', 'jpg', 'jpeg', 'gif', 'webp']
+MEDIA_ALLOWED = IMAGE_ALLOWED + ['mp4', 'webm', 'ogg']
 
 
 class RegisterForm(FlaskForm):
@@ -35,6 +39,9 @@ class PostForm(FlaskForm):
     title = StringField("Title", validators=[InputRequired(), Length(min=3, max=200)])
     body = TextAreaField("Body", validators=[InputRequired(), Length(min=1, max=10000)])
     image_url = StringField("Image URL (optional)", validators=[Optional(), URL(), Length(max=500)])
+    media_file = FileField("Upload Image/Video", validators=[
+        FileAllowed(MEDIA_ALLOWED, 'Only images (png, jpg, gif, webp) and videos (mp4, webm, ogg) are allowed.')
+    ])
 
 
 class CommentForm(FlaskForm):
@@ -43,13 +50,22 @@ class CommentForm(FlaskForm):
 
 class EditProfileForm(FlaskForm):
     avatar = StringField("Avatar URL", validators=[Optional(), URL(), Length(max=500)])
+    avatar_file = FileField("Upload Avatar", validators=[
+        FileAllowed(IMAGE_ALLOWED, 'Only images (png, jpg, gif, webp) are allowed.')
+    ])
     bio = TextAreaField("Bio", validators=[Optional(), Length(max=2000)])
 
 
 class EditPersonaForm(FlaskForm):
     name = StringField("Persona name", validators=[InputRequired(), Length(min=2, max=48)])
     avatar = StringField("Avatar URL", validators=[Optional(), URL(), Length(max=500)])
+    avatar_file = FileField("Upload Avatar", validators=[
+        FileAllowed(IMAGE_ALLOWED, 'Only images (png, jpg, gif, webp) are allowed.')
+    ])
     banner = StringField("Banner URL", validators=[Optional(), URL(), Length(max=500)])
+    banner_file = FileField("Upload Banner", validators=[
+        FileAllowed(IMAGE_ALLOWED, 'Only images (png, jpg, gif, webp) are allowed.')
+    ])
     bio = TextAreaField("Bio", validators=[Optional(), Length(max=2000)])
     is_public = BooleanField("Public persona")
 
@@ -71,6 +87,13 @@ class CommunityForm(FlaskForm):
         "Description", 
         validators=[Optional(), Length(max=500, message="Description too long")]
     )
+    banner_url = StringField(
+        "Banner URL",
+        validators=[Optional(), URL(), Length(max=500)]
+    )
+    banner_file = FileField("Upload Banner", validators=[
+        FileAllowed(IMAGE_ALLOWED, 'Only images (png, jpg, gif, webp) are allowed.')
+    ])
     rules = TextAreaField(
         "Community Rules", 
         validators=[Optional(), Length(max=1000, message="Rules too long")]

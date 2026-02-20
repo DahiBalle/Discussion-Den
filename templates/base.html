@@ -588,14 +588,14 @@
         <div class="container-fluid">
             <div class="row g-4">
                 <!-- Main Content Area -->
-                <div class="col-lg-8">
+                <div class="col-lg-8" id="main-content-col">
                     <div class="main-content">
                         {% block content %}{% endblock %}
                     </div>
                 </div>
 
                 <!-- Right Sidebar -->
-                <div class="col-lg-4 d-none d-lg-block">
+                <div class="col-lg-4 d-none d-lg-block" id="sidebar-col">
                     <div class="sidebar-right">
                         {% include 'includes/right_panel.html' %}
                     </div>

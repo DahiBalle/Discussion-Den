@@ -37,6 +37,12 @@ def create_app() -> Flask:
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # Disable unnecessary event tracking
 
+    # File Upload Configuration
+    upload_folder = os.path.join(app.static_folder, "uploads")
+    app.config["UPLOAD_FOLDER"] = upload_folder
+    app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB max upload size
+    os.makedirs(upload_folder, exist_ok=True)
+
     # Initialize Extensions with the app
     db.init_app(app)       # Database
     csrf.init_app(app)     # CSRF Protection
@@ -323,13 +329,19 @@ def create_app() -> Flask:
         - youtube.com/watch?v=ID
         - youtu.be/ID
         - youtube.com/embed/ID
+        Only matches actual YouTube domains to avoid false positives
+        on local file paths like /static/uploads/posts/abc123.jpg.
         """
         if not url:
             return None
         
         import re
+        # Only match actual YouTube domains
+        if 'youtube.com' not in url and 'youtu.be' not in url:
+            return None
+        
         # Regex to capture the ID from various YouTube URL formats
-        regex = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
+        regex = r'(?:v=|\/embed\/|youtu\.be\/)([0-9A-Za-z_-]{11})'
         match = re.search(regex, url)
         return match.group(1) if match else None
 

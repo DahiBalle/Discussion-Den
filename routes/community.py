@@ -217,11 +217,22 @@ def create_community_post():
         rules = None
 
     try:
+        from flask import current_app
+        from upload_utils import save_upload
+
+        # File upload takes priority over URL for banner
+        banner_url = None
+        if form.banner_file.data and form.banner_file.data.filename:
+            banner_url = save_upload(form.banner_file.data, 'banners', current_app.config['UPLOAD_FOLDER'])
+        if not banner_url:
+            banner_url = form.banner_url.data.strip() if form.banner_url.data else None
+
         # Create community with validated data
         community = Community(
             name=community_name,
             description=description,
             rules=rules,
+            banner_url=banner_url,
         )
         db.session.add(community)
         db.session.commit()

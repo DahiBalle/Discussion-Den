@@ -137,11 +137,25 @@ def feed():
         is_filtered_feed = False
         if sort_by == 'trending':
             # Simple trending: sort by upvotes (descending)
-            # Note: In a real app this would be more complex (recency + engagement)
             query = query.order_by(Post.upvotes.desc())
+        elif sort_by == 'top_comments':
+            # Sort by comment count (most discussed first)
+            from sqlalchemy import func
+            comment_count_sub = (
+                db.session.query(
+                    Comment.post_id,
+                    func.count(Comment.id).label('cnt')
+                )
+                .group_by(Comment.post_id)
+                .subquery()
+            )
+            query = (
+                query
+                .outerjoin(comment_count_sub, Post.id == comment_count_sub.c.post_id)
+                .order_by(func.coalesce(comment_count_sub.c.cnt, 0).desc())
+            )
         elif sort_by == 'identity' and ident and ident.is_persona:
-            # FILTER: If user selected 'Identity' filter, search for posts about this persona
-            # Using content search (title or body) for the persona's name
+            # FILTER: search for posts mentioning this persona
             keyword = ident.active_persona.name
             search_filter = or_(
                 Post.title.ilike(f"%{keyword}%"),

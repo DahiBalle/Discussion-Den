@@ -527,6 +527,7 @@ def comments(post_id: int):
                 "type": "user",
                 "id": c.author_user_id,
                 "username": user.username if user else "Unknown",
+                "avatar": user.avatar if user else None,
             }
         return {
             "id": c.id,

@@ -60,6 +60,9 @@
     <button class="filter-btn" data-filter="trending">
         <i class="fas fa-trending-up me-2"></i>Trending
     </button>
+    <button class="filter-btn" data-filter="top_comments">
+        <i class="fas fa-comments me-2"></i>Top Comments
+    </button>
     {% if active_identity and active_identity.is_persona %}
     <button class="filter-btn" data-filter="identity">
         <i class="fas fa-mask me-2"></i>{{ active_identity.label }}

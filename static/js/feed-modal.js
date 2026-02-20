@@ -188,15 +188,27 @@ function renderComments(comments, inModal = false) {
             ? '<span class="badge bg-purple text-white me-2">Persona</span>'
             : '<span class="badge bg-secondary text-white me-2">User</span>';
 
+        const avatarUrl = c.author.avatar || '';
+        const avatarHtml = avatarUrl
+            ? `<img src="${avatarUrl}" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover; border: 1px solid var(--border-color);">`
+            : `<div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px; border: 1px solid var(--border-color);">
+                 <i class="fas fa-user text-muted" style="font-size: 11px;"></i>
+               </div>`;
+
         // Indentation for nested replies
         return `
             <div class="comment mb-3" style="margin-left: ${depth * 20}px; border-left: 2px solid var(--border-color); padding-left: 15px;">
                 <div class="d-flex align-items-center mb-1">
-                    ${badge}
-                    <strong class="me-2">${escapeHtml(authorName)}</strong>
-                    <small class="text-muted">${formatTimeAgo(c.created_at)}</small>
+                    ${avatarHtml}
+                    <div class="d-flex flex-column">
+                        <div class="d-flex align-items-center">
+                            <strong class="me-2" style="font-size: 0.9rem;">${escapeHtml(authorName)}</strong>
+                            ${badge}
+                        </div>
+                        <small class="text-muted" style="font-size: 0.75rem;">${formatTimeAgo(c.created_at)}</small>
+                    </div>
                 </div>
-                <div class="mb-2">${escapeHtml(c.body)}</div>
+                <div class="mb-2 ms-1" style="font-size: 0.95rem;">${escapeHtml(c.body)}</div>
                 <div class="comment-actions">
                     <button class="btn btn-sm btn-link text-decoration-none p-0" onclick="toggleReplyForm(${c.id})">Reply</button>
                 </div>

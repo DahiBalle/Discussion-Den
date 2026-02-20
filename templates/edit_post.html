@@ -9,14 +9,16 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Edit Post</h4>
-                    <a href="{{ url_for('post.post_detail', post_id=post.id) }}" class="btn btn-outline-secondary btn-sm">
+                    <a href="{{ url_for('post.post_detail', post_id=post.id) }}"
+                        class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-arrow-left"></i> Back to Post
                     </a>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('post.edit_post_post', post_id=post.id) }}">
+                    <form method="POST" action="{{ url_for('post.edit_post_post', post_id=post.id) }}"
+                        enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
-                        
+
                         <!-- Community (read-only) -->
                         <div class="mb-3">
                             <label class="form-label">Community</label>
@@ -25,62 +27,81 @@
                                 <small class="text-muted d-block">Community cannot be changed after posting</small>
                             </div>
                         </div>
-                        
+
                         <!-- Title -->
                         <div class="mb-3">
                             {{ form.title.label(class="form-label") }}
                             {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
                             {% if form.title.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.title.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
                             {% endif %}
                         </div>
-                        
+
                         <!-- Body -->
                         <div class="mb-3">
                             {{ form.body.label(class="form-label") }}
-                            {{ form.body(class="form-control" + (" is-invalid" if form.body.errors else ""), rows="8") }}
+                            {{ form.body(class="form-control" + (" is-invalid" if form.body.errors else ""), rows="8")
+                            }}
                             {% if form.body.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.body.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
+                            <div class="invalid-feedback">
+                                {% for error in form.body.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
                             {% endif %}
                         </div>
-                        
-                        <!-- Image URL -->
+
+                        <!-- Media: Upload / URL toggle -->
                         <div class="mb-3">
-                            {{ form.image_url.label(class="form-label") }}
-                            {{ form.image_url(class="form-control" + (" is-invalid" if form.image_url.errors else "")) }}
-                            {% if form.image_url.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.image_url.errors %}
-                                        {{ error }}
-                                    {% endfor %}
+                            <label class="form-label">Media (Image, Video, or YouTube)</label>
+                            <ul class="nav nav-tabs nav-tabs-sm mb-2" role="tablist">
+                                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab"
+                                        href="#media-upload">Upload File</a></li>
+                                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#media-url">Paste
+                                        URL</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="media-upload">
+                                    {{ form.media_file(class="form-control") }}
+                                    {% if form.media_file.errors %}
+                                    <div class="text-danger small mt-1">{% for e in form.media_file.errors %}{{ e }}{%
+                                        endfor %}</div>
+                                    {% endif %}
+                                    <div class="form-text text-muted-custom">Images or Videos — max 16 MB</div>
                                 </div>
-                            {% endif %}
-                            <div class="form-text">Optional: Add an image URL to your post</div>
+                                <div class="tab-pane fade" id="media-url">
+                                    {{ form.image_url(class="form-control", placeholder="https://.../image.jpg, .mp4, or
+                                    YouTube URL") }}
+                                    {% if form.image_url.errors %}
+                                    <div class="text-danger small mt-1">{% for e in form.image_url.errors %}{{ e }}{%
+                                        endfor %}</div>
+                                    {% endif %}
+                                    <div class="form-text text-muted-custom">Paste a URL to an image, MP4 video, or
+                                        YouTube video.</div>
+                                </div>
+                            </div>
                         </div>
-                        
+
                         <!-- Current Identity -->
                         <div class="mb-3">
                             <label class="form-label">Posting as</label>
                             <div class="form-control-plaintext">
                                 {% if active_identity.is_persona %}
-                                    <span class="badge bg-persona me-2">Persona</span>
-                                    <strong>{{ active_identity.persona.name }}</strong>
+                                <span class="badge bg-persona me-2">Persona</span>
+                                <strong>{{ active_identity.persona.name }}</strong>
                                 {% else %}
-                                    <span class="badge bg-user me-2">User</span>
-                                    <strong>{{ active_identity.user.username }}</strong>
+                                <span class="badge bg-user me-2">User</span>
+                                <strong>{{ active_identity.user.username }}</strong>
                                 {% endif %}
-                                <small class="text-muted d-block">Author identity cannot be changed after posting</small>
+                                <small class="text-muted d-block">Author identity cannot be changed after
+                                    posting</small>
                             </div>
                         </div>
-                        
+
                         <!-- Action Buttons -->
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">

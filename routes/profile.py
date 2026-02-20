@@ -98,7 +98,17 @@ def edit_profile_post():
     if not form.validate_on_submit():
         return render_template("edit_profile.html", form=form), 400
 
-    current_user.avatar = form.avatar.data.strip() if form.avatar.data else None
+    from flask import current_app
+    from upload_utils import save_upload
+
+    # File upload takes priority over URL
+    avatar_url = None
+    if form.avatar_file.data and form.avatar_file.data.filename:
+        avatar_url = save_upload(form.avatar_file.data, 'avatars', current_app.config['UPLOAD_FOLDER'])
+    if not avatar_url:
+        avatar_url = form.avatar.data.strip() if form.avatar.data else None
+
+    current_user.avatar = avatar_url
     current_user.bio = form.bio.data.strip() if form.bio.data else None
     db.session.commit()
 

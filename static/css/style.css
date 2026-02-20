@@ -408,6 +408,10 @@ a:hover {
     color: var(--text-primary);
 }
 
+[data-theme="light"] .dropdown-toggle::after {
+    color: var(--text-primary);
+}
+
 /* Light Theme Buttons in Navbar */
 [data-theme="light"] .btn-outline-primary {
     border-color: var(--accent-primary);
@@ -1817,11 +1821,12 @@ button:focus,
 /* Post Image */
 .post-image-enhanced {
     width: 100%;
-    max-height: 400px;
-    object-fit: cover;
+    max-height: 500px;
+    object-fit: contain;
     border-radius: var(--border-radius);
     margin-bottom: var(--space-5);
     box-shadow: var(--shadow-md);
+    background: rgba(0, 0, 0, 0.15);
 }
 
 /* Action Buttons */

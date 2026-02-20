@@ -1,17 +1,45 @@
 <!-- Enhanced Right Panel Component -->
+<!-- Inline CSS: Prevents flash of dismissed cards before JS can remove them -->
+<style>
+    .hide-welcome-card .welcome-card,
+    .hide-guidelines-card .guidelines-card,
+    .hide-tips-card .tips-card,
+    .hide-featured-card .featured-card {
+        display: none !important;
+    }
+</style>
 <script>
+    // Phase 1: Immediately hide dismissed cards via CSS (prevents flash)
     (function () {
         try {
-            if (localStorage.getItem('dismissed_welcome_card') === 'true') {
-                document.write('<style>.welcome-card { display: none !important; }</style>');
-            }
-            if (localStorage.getItem('dismissed_guidelines_card') === 'true') {
-                document.write('<style>.guidelines-card { display: none !important; }</style>');
+            var cardIds = ['welcome_card', 'guidelines_card', 'tips_card', 'featured_card'];
+            for (var i = 0; i < cardIds.length; i++) {
+                if (sessionStorage.getItem('dismissed_' + cardIds[i]) === 'true') {
+                    document.documentElement.classList.add('hide-' + cardIds[i]);
+                }
             }
         } catch (e) {
-            console.error('Error in sidebar script:', e);
+            console.error('Sidebar dismissal script error:', e);
         }
     })();
+
+    // Phase 2: After DOM is ready, actually remove dismissed cards and fix layout
+    document.addEventListener('DOMContentLoaded', function () {
+        var cardIds = ['welcome_card', 'guidelines_card', 'tips_card', 'featured_card'];
+        cardIds.forEach(function (id) {
+            if (sessionStorage.getItem('dismissed_' + id) === 'true') {
+                var className = id.replace('_card', '-card');
+                var el = document.querySelector('.' + className);
+                if (el) el.remove();
+            }
+        });
+        // Clean up the hide classes from <html> since elements are now truly gone
+        cardIds.forEach(function (id) {
+            document.documentElement.classList.remove('hide-' + id);
+        });
+        // Check if sidebar is now empty
+        checkSidebarEmpty();
+    });
 </script>
 <div class="sidebar-right-enhanced">
     <!-- Welcome Card (only when user has not created any post yet) -->
@@ -104,6 +132,10 @@
                 <i class="fas fa-lightbulb"></i>
             </div>
             <h6 class="card-title-enhanced">Pro Tips</h6>
+            <button type="button" class="btn-close-sidebar ms-auto" onclick="dismissCard(this, 'tips_card')"
+                aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         <div class="card-body-enhanced">
             <div class="tips-list">
@@ -135,6 +167,10 @@
                 <i class="fas fa-star"></i>
             </div>
             <h6 class="card-title-enhanced">Featured Community</h6>
+            <button type="button" class="btn-close-sidebar ms-auto" onclick="dismissCard(this, 'featured_card')"
+                aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         <div class="card-body-enhanced">
             {% if community is defined %}
@@ -485,31 +521,33 @@
     function dismissCard(btn, cardId) {
         const card = btn.closest('.sidebar-card');
         if (card) {
-            // Animate removal
+            // Animate out
             card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
             card.style.opacity = '0';
             card.style.transform = 'scale(0.95)';
 
             setTimeout(() => {
-                card.remove();
+                card.remove(); // Actually remove from DOM
+                checkSidebarEmpty();
             }, 300);
 
-            // Save to local storage
-            localStorage.setItem('dismissed_' + cardId, 'true');
+            // Persist dismissal in sessionStorage
+            sessionStorage.setItem('dismissed_' + cardId, 'true');
         }
     }
 
-    // Check for dismissed cards on load
-    document.addEventListener('DOMContentLoaded', function () {
-        const cards = {
-            'welcome_card': document.querySelector('.welcome-card'),
-            'guidelines_card': document.querySelector('.guidelines-card')
-        };
+    function checkSidebarEmpty() {
+        const remaining = document.querySelectorAll('.sidebar-right-enhanced .sidebar-card');
+        const sidebarCol = document.getElementById('sidebar-col');
+        const mainCol = document.getElementById('main-content-col');
 
-        for (const [id, el] of Object.entries(cards)) {
-            if (el && localStorage.getItem('dismissed_' + id) === 'true') {
-                el.remove();
+        if (remaining.length === 0) {
+            // All cards gone — hide sidebar column entirely and expand main to full width
+            if (sidebarCol) sidebarCol.remove();
+            if (mainCol) {
+                mainCol.classList.remove('col-lg-8');
+                mainCol.classList.add('col-lg-12');
             }
         }
-    });
+    }
 </script>

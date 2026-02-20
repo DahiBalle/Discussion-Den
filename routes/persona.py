@@ -27,11 +27,28 @@ def create_persona_post():
     if not form.validate_on_submit():
         return render_template("edit_persona.html", form=form, persona=None), 400
 
+    from flask import current_app
+    from upload_utils import save_upload
+
+    # File upload takes priority over URL for avatar
+    avatar_url = None
+    if form.avatar_file.data and form.avatar_file.data.filename:
+        avatar_url = save_upload(form.avatar_file.data, 'avatars', current_app.config['UPLOAD_FOLDER'])
+    if not avatar_url:
+        avatar_url = form.avatar.data.strip() if form.avatar.data else None
+
+    # File upload takes priority over URL for banner
+    banner_url = None
+    if form.banner_file.data and form.banner_file.data.filename:
+        banner_url = save_upload(form.banner_file.data, 'banners', current_app.config['UPLOAD_FOLDER'])
+    if not banner_url:
+        banner_url = form.banner.data.strip() if form.banner.data else None
+
     persona = Persona(
         user_id=current_user.id,
         name=form.name.data.strip(),
-        avatar=form.avatar.data.strip() if form.avatar.data else None,
-        banner=form.banner.data.strip() if form.banner.data else None,
+        avatar=avatar_url,
+        banner=banner_url,
         bio=form.bio.data.strip() if form.bio.data else None,
         is_public=bool(form.is_public.data),
     )
@@ -102,9 +119,26 @@ def edit_persona_post(persona_id: int):
     if not form.validate_on_submit():
         return render_template("edit_persona.html", form=form, persona=persona), 400
 
+    from flask import current_app
+    from upload_utils import save_upload
+
+    # File upload takes priority over URL for avatar
+    avatar_url = None
+    if form.avatar_file.data and form.avatar_file.data.filename:
+        avatar_url = save_upload(form.avatar_file.data, 'avatars', current_app.config['UPLOAD_FOLDER'])
+    if not avatar_url:
+        avatar_url = form.avatar.data.strip() if form.avatar.data else None
+
+    # File upload takes priority over URL for banner
+    banner_url = None
+    if form.banner_file.data and form.banner_file.data.filename:
+        banner_url = save_upload(form.banner_file.data, 'banners', current_app.config['UPLOAD_FOLDER'])
+    if not banner_url:
+        banner_url = form.banner.data.strip() if form.banner.data else None
+
     persona.name = form.name.data.strip()
-    persona.avatar = form.avatar.data.strip() if form.avatar.data else None
-    persona.banner = form.banner.data.strip() if form.banner.data else None
+    persona.avatar = avatar_url
+    persona.banner = banner_url
     persona.bio = form.bio.data.strip() if form.bio.data else None
     persona.is_public = bool(form.is_public.data)
     db.session.commit()

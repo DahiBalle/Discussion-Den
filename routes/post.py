@@ -129,11 +129,21 @@ def create_post_post():
         return redirect(url_for("post.create_post"))
     
     try:
+        from flask import current_app
+        from upload_utils import save_upload
+
+        # File upload takes priority over URL for media
+        media_url = None
+        if form.media_file.data and form.media_file.data.filename:
+            media_url = save_upload(form.media_file.data, 'posts', current_app.config['UPLOAD_FOLDER'], allow_video=True)
+        if not media_url:
+            media_url = form.image_url.data.strip() if form.image_url.data else None
+
         post = Post(
             community_id=community_id,
             title=form.title.data.strip(),
             body=form.body.data.strip(),
-            image_url=form.image_url.data.strip() if form.image_url.data else None,
+            image_url=media_url,
             author_user_id=ident.user_id if not ident.is_persona else None,
             author_persona_id=ident.persona_id if ident.is_persona else None,
         )
@@ -262,10 +272,20 @@ def edit_post_post(post_id: int):
         ), 400
     
     try:
+        from flask import current_app
+        from upload_utils import save_upload
+
+        # File upload takes priority over URL for media
+        media_url = None
+        if form.media_file.data and form.media_file.data.filename:
+            media_url = save_upload(form.media_file.data, 'posts', current_app.config['UPLOAD_FOLDER'], allow_video=True)
+        if not media_url:
+            media_url = form.image_url.data.strip() if form.image_url.data else None
+
         # Update post fields
         post.title = form.title.data.strip()
         post.body = form.body.data.strip()
-        post.image_url = form.image_url.data.strip() if form.image_url.data else None
+        post.image_url = media_url
         
         db.session.commit()
         flash("Post updated successfully.", "success")
